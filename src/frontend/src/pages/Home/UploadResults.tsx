@@ -111,8 +111,7 @@ const UploadResults: React.FC = () => {
 
           <UploadBox
             onFileListChange={handleResultsFileUpload}
-            mode="results"
-          />
+            mode="results" clearFiles={undefined} setClearFiles={undefined}          />
 
           <Form layout="vertical" className="upload-results-form">
             <Button
