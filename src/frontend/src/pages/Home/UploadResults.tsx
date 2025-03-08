@@ -81,13 +81,11 @@ const UploadResults: React.FC = () => {
   };
 
   const handleResultsClick = () => {
-    console.log(jsonData, resultsFile);
     if (!jsonData) {
       message.warning("Please upload a valid results ZIP file first.");
       return;
     }
 
-    console.log("Viewing results...");
     navigate("/results", { state: { jsonData } });
   };
 
