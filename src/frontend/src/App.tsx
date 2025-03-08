@@ -8,7 +8,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import Index from "./pages/GetStarted/Index";
 import Home from "./pages/Home/Home";
 import Results from "./pages/Results";
-import Settings from "./pages/Settings";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth0();
@@ -42,14 +41,6 @@ const App = () => {
             element={
               <PrivateRoute>
                 <Results />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute>
-                <Settings />
               </PrivateRoute>
             }
           />
