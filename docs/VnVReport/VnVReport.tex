@@ -79,6 +79,130 @@ This document ...
 This section will not be appropriate for every project.
 
 \section{Unit Testing}
+\subsection{AnalyzeFiles Component}
+
+\subsubsection{Test name: Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{AnalyzeFiles} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Analyze a Dataset" and "Upload a dataset to analyze for potential code plagiarism. Use a ZIP file containing your project files."
+\end{itemize}
+
+\subsubsection{Test name: Displays an alert when no file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an alert is displayed when no file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: An alert with the message "Please upload a dataset file first." is displayed.
+\end{itemize}
+
+\subsubsection{Test name: Calls uploadFiles and displays success message when form is submitted}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{uploadFiles} function is called and a success message is displayed when the form is submitted.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Upload a valid ZIP file.
+        \item Enter an analysis name.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully. You'll receive an email with the results once it's done!" is displayed.
+\end{itemize}
+
+\subsection{UploadResults Component}
+
+\subsubsection{Test name: Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{UploadResults} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "View Results" and "Upload your results ZIP file to view the analysis."
+\end{itemize}
+
+\subsubsection{Test name: Displays an error message when a non-ZIP file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an error message is displayed when a non-ZIP file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a non-ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Only ZIP files are allowed." is displayed.
+\end{itemize}
+
+\subsubsection{Test name: Displays a success message when a valid ZIP file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a success message is displayed when a valid ZIP file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: A success message "Results file uploaded successfully." is displayed.
+\end{itemize}
+
+\subsection{Index (Home Page) Component}
+
+\subsubsection{Test name: Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{Index} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Verify Academic and Contest Submissions" and "Empower educators and contest administrators with advanced AI-powered plagiarism detection. Ensure the integrity of student work and competition submissions."
+\end{itemize}
+
+\subsubsection{Test name: Displays loading spinner when loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is displayed when the component is in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is true
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isLoading} as true.
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The text "Preparing your experience..." is displayed.
+\end{itemize}
+
+\subsubsection{Test name: Calls loginWithRedirect when Get Started button is clicked}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{loginWithRedirect} function is called when the "Get Started" button is clicked.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+        \item Click the "Get Started" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
+\end{itemize}
 
 \section{Changes Due to Testing}
 
@@ -88,6 +212,55 @@ the feedback from the Rev 0 demo to the supervisor (or to potential users)
 should be highlighted.}
 
 \section{Automated Testing}
+The tests mentioned in the \texttt{Unit Testing} section are automated using the Jest testing framework. The tests are run using the command \texttt{npm test}.
+
+To ensure continuous integration and automated testing, we have set up a GitHub Actions workflow. The workflow is triggered on every push and pull request to the repository. It runs the tests on an Ubuntu environment with Node.js version 18.x.
+
+\subsection{GitHub Actions Workflow}
+
+The following is the configuration of the GitHub Actions workflow used for automated testing:
+
+\begin{verbatim}
+name: Run Frontend Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./src/frontend
+
+    - name: Run tests
+      run: npm test
+      working-directory: ./src/frontend
+\end{verbatim}
+
+\subsection{Workflow Steps}
+
+\begin{itemize}
+    \item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v4} action to check out the repository code.
+    \item \textbf{Set up Node.js}: This step uses the \texttt{actions/setup-node@v4} action to set up Node.js with the specified version (18.x).
+    \item \textbf{Install dependencies}: This step runs \texttt{npm install} to install the necessary dependencies for the frontend.
+    \item \textbf{Run tests}: This step runs \texttt{npm test} to execute the Jest tests for the frontend.
+\end{itemize}
+
+By using this automated testing workflow, we ensure that our code is continuously tested and validated, providing immediate feedback on any issues that may arise from changes in the codebase.
 		
 \section{Trace to Requirements}
 		
