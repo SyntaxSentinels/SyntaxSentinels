@@ -137,6 +137,19 @@ This section will not be appropriate for every project.
     \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully. You'll receive an email with the results once it's done!" is displayed.
 \end{itemize}
 
+\subsubsection{Handles file drop event}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Simulate a file drop event with a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
 \subsection{UploadResults Component}
 
 \subsubsection{Renders the component}
@@ -202,6 +215,32 @@ This section will not be appropriate for every project.
         \item Click the "View Results" button.
     \end{enumerate}
     \item \textbf{Expected result}: A warning message "Please upload a results file first." is displayed.
+\end{itemize}
+
+\subsubsection{handles errors during ZIP file processing}
+\begin{itemize}
+    \item \textbf{Description}: Ensures errors during ZIP file processing are handled correctly and an error message is displayed to the user.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a ZIP file that cannot be processed.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Invalid ZIP file or corrupt JSON." is logged into the console.
+\end{itemize}
+
+\subsubsection{handles file drop event}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Simulate a file drop event with a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
 \end{itemize}
 
 \subsection{Index (Landing Page) Component}
@@ -412,7 +451,7 @@ The tests mentioned in the \texttt{Unit Testing} section are automated using the
 
 To ensure continuous integration and automated testing, we have set up a GitHub Actions workflow. The workflow is triggered on every push and pull request to the repository. It runs the tests on an Ubuntu environment with Node.js version 18.x.
 
-\subsection{GitHub Actions Workflow}
+\subsection{Testing Workflow Configuration}
 
 The following is the configuration of the GitHub Actions workflow used for automated testing:
 
@@ -447,7 +486,7 @@ jobs:
       working-directory: ./src/frontend
 \end{verbatim}
 
-\subsection{Workflow Steps}
+\subsection{Testing Workflow Steps}
 
 \begin{itemize}
     \item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v4} action to check out the repository code.
@@ -457,12 +496,91 @@ jobs:
 \end{itemize}
 
 By using this automated testing workflow, we ensure that our code is continuously tested and validated, providing immediate feedback on any issues that may arise from changes in the codebase.
+
+\subsection{Test Coverage Workflow Configuration}
+
+In addition to running unit tests, we have configured a separate GitHub Actions workflow to generate a test coverage report using Jest. This helps us monitor the extent to which our code is covered by automated tests.
+
+The following is the configuration for the test coverage workflow:
+
+\begin{verbatim}
+name: Run Frontend Unit Tests
+
+on: [push, pull_request]
+
+jobs:
+coverage:
+runs-on: ubuntu-20.04
+
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v3
+
+  - name: Run Jest Coverage Report
+    uses: ArtiomTr/jest-coverage-report-action@v2
+    with:
+      working-directory: ./src/frontend
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+
+\end{verbatim}
+
+\subsection{Test Coverage Workflow Steps}
+
+\begin{itemize}
+\item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v3} action to check out the repository code.
+\item \textbf{Run Jest Coverage Report}: This step uses the \\ \texttt{ArtiomTr/jest-coverage-report-action@v2} action to generate a coverage report for the Jest tests in the frontend directory.
+\end{itemize}
+
+By incorporating test coverage reporting into our workflow, we can ensure that our automated tests provide sufficient coverage of the codebase, identifying untested areas and improving software reliability.
 		
 \section{Trace to Requirements}
 		
 \section{Trace to Modules}		
 
 \section{Code Coverage Metrics}
+
+The test coverage report provides the following key metrics:
+
+\begin{itemize}
+\item \textbf{Statements}: 94.35\% (234/248)
+\item \textbf{Branches}: 81.03\% (47/58)
+\item \textbf{Functions}: 86.79\% (46/53)
+\item \textbf{Lines}: 96.18\% (227/236)
+\end{itemize}
+
+Below is a breakdown of coverage by individual files:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Directory} & \textbf{Statements} & \textbf{Branches} & \textbf{Functions} & \textbf{Lines} \\
+    \hline
+    Features.tsx & 100\% & 100\% & 100\% & 100\% \\
+    Navbar.tsx & 100\% & 100\% & 100\% & 100\% \\
+    UploadBox.tsx & 96.42\% & 84.21\% & 93.33\% & 98.14\% \\
+    GetStarted.tsx & 100\% & 100\% & 100\% & 100\% \\
+    Home.tsx & 90.32\% & 69.56\% & 73.91\% & 93.16\% \\
+    Button.tsx & 100\% & 66.66\% & 100\% & 100\% \\
+    utils.ts & 100\% & 100\% & 100\% & 100\% \\
+    AnalyzeFiles.tsx & 91.52\% & 75\% & 75\% & 94.54\% \\
+    UploadResults.tsx & 89.23\% & 63.63\% & 72.72\% & 91.93\% \\
+    \hline
+    \end{tabular}
+    \caption{Test Coverage Breakdown by Directory}
+    \label{tab:coverage}
+\end{table}
+
+Some uncovered lines include:
+
+\begin{itemize}
+\item \textbf{UploadBox.tsx}: Line 26.
+\item \textbf{button.tsx}: Line 44.
+\item \textbf{AnalyzeFiles.tsx}: Lines 22, 25, 76.
+\item \textbf{UploadResults.tsx}: Lines 20, 23, 50-51, 89.
+\end{itemize}
+
+These uncovered areas indicate potential gaps in test cases that should be addressed to achieve full coverage.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs/References}
