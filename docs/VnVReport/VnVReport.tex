@@ -76,7 +76,100 @@ This document ...
 	
 \section{Comparison to Existing Implementation}	
 
-This section will not be appropriate for every project.
+\subsection{Overview of Existing Solutions}
+
+\subsubsection{MOSS (Measure of Software Similarity)}
+MOSS is currently the standard tool for detecting code plagiarism in academic settings. Developed at Stanford University, it works by:
+\begin{itemize}
+    \item Tokenizing code into a sequence of symbols
+    \item Using document fingerprinting to detect similar code segments
+    \item Generating a similarity score based on matching sequences
+    \item Providing a web interface to view overlapping code segments
+\end{itemize}
+
+\subsubsection{Other Notable Solutions}
+\begin{itemize}
+    \item \textbf{JPlag}: Uses a token-based approach similar to MOSS, but with different tokenization strategies
+    \item \textbf{PLAGGIE}: Java-specific plagiarism detection tool used in academic environments
+    \item \textbf{CodeMatch}: Commercial solution that uses both tokenization and metric-based methods
+\end{itemize}
+
+\subsection{Our Implementation vs. Existing Solutions}
+
+\subsubsection{Current Approach}
+Our implementation leverages CodeBERT, a pre-trained model for programming language understanding, to perform code pair comparison. Key aspects include:
+\begin{itemize}
+    \item Utilization of transformer-based neural networks to understand code semantics
+    \item Direct comparison of code pairs to determine similarity
+    \item A modern, user-friendly interface for result visualization and analysis
+\end{itemize}
+
+\subsubsection{Functional Comparison}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Feature} & \textbf{MOSS} & \textbf{Our CodeBERT Implementation} \\
+\hline
+Detection Method & Token-based fingerprinting & Neural representation and semantic understanding \\
+\hline
+Language Support & Multiple languages & Multiple languages (supported by CodeBERT) \\
+\hline
+Semantic Understanding & Limited (syntax-focused) & Enhanced (captures semantic meaning) \\
+\hline
+Resistance to Obfuscation & Low-moderate & Potentially higher \\
+\hline
+Speed & Fast for large submissions & Currently slower for large-scale comparisons \\
+\hline
+Visualization & Basic web interface & Modern, interactive UI \\
+\hline
+\end{tabular}
+\caption{Comparison between MOSS and our CodeBERT implementation}
+\label{tab:comparison}
+\end{table}
+
+\subsection{Advantages of Our Approach}
+
+\begin{enumerate}
+    \item \textbf{Semantic Understanding}: Unlike MOSS's purely syntactic approach, CodeBERT can potentially understand the meaning behind code, making it more difficult to fool with non-functional additions.
+
+    \item \textbf{Context Awareness}: Our implementation considers the context in which code appears, potentially reducing false positives from common solutions to standard problems.
+
+    \item \textbf{Modern Interface}: Our user interface provides a more intuitive experience for instructors reviewing potential plagiarism cases.
+\end{enumerate}
+
+\subsection{Current Limitations and Trade-offs}
+
+\begin{enumerate}
+    \item \textbf{Computational Requirements}: Neural models like CodeBERT require more computational resources than traditional approaches like MOSS.
+
+    \item \textbf{Development Maturity}: MOSS has been refined over decades, while our solution is still in the early stages of development.
+
+    \item \textbf{Validation}: Our approach needs more extensive testing across different programming languages and assignments to prove its effectiveness.
+
+    \item \textbf{Explainability}: Neural network decisions can be less transparent than token-matching approaches, making it potentially harder to explain why certain code pairs were flagged.
+\end{enumerate}
+
+\subsection{Design Decision Justification}
+
+\begin{enumerate}
+    \item \textbf{Choice of CodeBERT}: We selected CodeBERT over other models because it was specifically pre-trained on code from multiple programming languages, making it well-suited for understanding code semantics across different languages used in academic settings.
+
+    \item \textbf{Focus on Pair Comparison}: While MOSS compares each submission against all others, our current approach focuses on direct pair comparison, allowing for more detailed analysis of potentially plagiarized code.
+
+    \item \textbf{UI Priority}: We invested in a high-quality UI early in development to facilitate easier testing and validation of our detection results.
+\end{enumerate}
+
+\subsection{Future Improvements}
+
+\begin{enumerate}
+    \item \textbf{Hybrid Approach}: Combining neural understanding with traditional token-based methods to leverage strengths of both approaches.
+
+    \item \textbf{Performance Optimization}: Improving the computational efficiency to handle large class submissions more effectively.
+
+    \item \textbf{Tunable Sensitivity}: Implementing adjustable thresholds for different assignment types and programming languages.
+\end{enumerate}
 
 \section{Unit Testing}
 \subsection{AnalyzeFiles Component}
