@@ -28,7 +28,7 @@ jobs:
       working-directory: ./src/frontend
 
     - name: Publish coverage report
-      uses: irongut/jest-coverage-report-action@v2.0.0
+      uses: ArtiomTr/jest-coverage-report-action@v2.0.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./src/frontend
