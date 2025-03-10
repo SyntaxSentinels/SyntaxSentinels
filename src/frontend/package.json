@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",

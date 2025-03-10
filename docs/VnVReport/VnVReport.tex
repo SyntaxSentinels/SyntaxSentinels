@@ -172,6 +172,365 @@ Visualization & Basic web interface & Modern, interactive UI \\
 \end{enumerate}
 
 \section{Unit Testing}
+\subsection{AnalyzeFiles Component}
+
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{AnalyzeFiles} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Analyze a Dataset" and "Upload a dataset to analyze for potential code plagiarism. Use a ZIP file containing your project files."
+\end{itemize}
+
+\subsubsection{Displays an alert when no file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an alert is displayed when no file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: An alert with the message "Please upload a dataset file first." is displayed.
+\end{itemize}
+
+\subsubsection{Displays an alert when no analysis name is entered}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an alert is displayed when no analysis name is entered.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Upload a valid ZIP file.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: An alert with the message "Please enter an analysis name." is displayed.
+    
+\end{itemize}
+
+\subsubsection{Calls uploadFiles and displays success message when form is submitted}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{uploadFiles} function is called and a success message is displayed when the form is submitted.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Upload a valid ZIP file.
+        \item Enter an analysis name.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully. You'll receive an email with the results once it's done!" is displayed.
+\end{itemize}
+
+\subsubsection{Handles file drop event}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Simulate a file drop event with a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
+\subsection{UploadResults Component}
+
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{UploadResults} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "View Results" and "Upload your results ZIP file to view the analysis."
+\end{itemize}
+
+\subsubsection{Displays an error message when a non-ZIP file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an error message is displayed when a non-ZIP file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a non-ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Only ZIP files are allowed." is displayed.
+\end{itemize}
+
+\subsubsection{Displays an error message when no JSON file is found in the ZIP}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an error message is displayed when no JSON file is found in the ZIP file.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a ZIP file without a JSON file.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "No JSON file found in the ZIP." is displayed.
+\end{itemize}
+
+\subsubsection{Displays a success message when a valid ZIP file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a success message is displayed when a valid ZIP file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: A success message "Results file uploaded successfully." is displayed.
+\end{itemize}
+
+\subsubsection{Displays a warning message when trying to view results without uploading a file}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a warning message is displayed when trying to view results without uploading a file.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Click the "View Results" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: A warning message "Please upload a results file first." is displayed.
+\end{itemize}
+
+\subsubsection{Handles errors during ZIP file processing}
+\begin{itemize}
+    \item \textbf{Description}: Ensures errors during ZIP file processing are handled correctly and an error message is displayed to the user.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a ZIP file that cannot be processed.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Invalid ZIP file or corrupt JSON." is logged into the console.
+\end{itemize}
+
+\subsubsection{Handles file drop event}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Simulate a file drop event with a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
+\subsection{Index (Landing Page) Component}
+
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{Index} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Verify Academic and Contest Submissions" and "Empower educators and contest administrators with advanced AI-powered plagiarism detection. Ensure the integrity of student work and competition submissions."
+\end{itemize}
+
+\subsubsection{Displays loading spinner when loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is displayed when the component is in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is true
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isLoading} as true.
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The text "Preparing your experience..." is displayed.
+\end{itemize}
+
+\subsubsection{Calls loginWithRedirect when Get Started button is clicked}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{loginWithRedirect} function is called when the "Get Started" button is clicked.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+        \item Click the "Get Started" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
+\end{itemize}
+
+\subsubsection{Navigates to /home when authenticated}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the user is redirected to the \texttt{Home} page when authenticated.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as true.
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The user is redirected to the \texttt{Home} page.
+\end{itemize}
+
+\subsubsection{Displays features section}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the features section is displayed on the \texttt{Index} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The features section is displayed with the text "Why Choose SyntaxSentinals?" along with the features.
+\end{itemize}
+
+\subsubsection{Displays how it works section}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the "How It Works" section is displayed on the \texttt{Index} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The "How It Works" section is displayed along with the steps.
+\end{itemize}
+
+\subsubsection{Displays footer}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the footer is displayed on the \texttt{Index} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The footer is displayed with the text "SyntaxSentinals" and the links.
+
+\end{itemize}
+
+\subsection{Upload File Box Component}
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{UploadFileBox} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Upload a ZIP file" and the file input.
+\end{itemize}
+
+\subsubsection{Uploads a valid file}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a valid file is uploaded using the \texttt{UploadFileBox} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component.
+        \item Upload a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
+\subsubsection{Removes a file}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a file is removed using the \texttt{UploadFileBox} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: A file is uploaded
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component.
+        \item Click the "Remove" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is removed.
+\end{itemize}
+
+\subsubsection{Clears the file list when clearFiles is true}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file list is cleared when the \texttt{clearFiles} prop is true.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: A file is uploaded
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component with the \texttt{clearFiles} prop set to true.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file list is cleared.
+\end{itemize}
+
+\subsection{NavBar Component}
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{NavBar} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{NavBar} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the logo and navigation links.
+    
+\end{itemize}
+
+\subsubsection{Displays the login button when not authenticated}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the login button is displayed when the user is not authenticated.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as false.
+        \item Render the \texttt{NavBar} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The login button is displayed.
+\end{itemize}
+
+\subsubsection{Displays the logout button when authenticated}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the logout button is displayed when the user is authenticated.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as true.
+        \item Render the \texttt{NavBar} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The logout button is displayed.
+\end{itemize}
+
+\subsubsection{Calls loginWithRedirect when Log In button is clicked}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{loginWithRedirect} function is called when the "Log In" button is clicked.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \item \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as false.
+        \item Render the \texttt{NavBar} component.
+        \item Click the "Log In" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
+\end{itemize}
 
 \section{Changes Due to Testing}
 
@@ -181,12 +540,146 @@ the feedback from the Rev 0 demo to the supervisor (or to potential users)
 should be highlighted.}
 
 \section{Automated Testing}
+The tests mentioned in the \texttt{Unit Testing} section are automated using the Jest testing framework. The tests are run using the command \texttt{npm test}.
+
+To ensure continuous integration and automated testing, we have set up a GitHub Actions workflow. The workflow is triggered on every push and pull request to the repository. It runs the tests on an Ubuntu environment with Node.js version 18.x.
+
+\subsection{Testing Workflow Configuration}
+
+The following is the configuration of the GitHub Actions workflow used for automated testing:
+
+\begin{verbatim}
+name: Run Frontend Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./src/frontend
+
+    - name: Run tests
+      run: npm test
+      working-directory: ./src/frontend
+\end{verbatim}
+
+\subsection{Testing Workflow Steps}
+
+\begin{itemize}
+    \item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v4} action to check out the repository code.
+    \item \textbf{Set up Node.js}: This step uses the \texttt{actions/setup-node@v4} action to set up Node.js with the specified version (18.x).
+    \item \textbf{Install dependencies}: This step runs \texttt{npm install} to install the necessary dependencies for the frontend.
+    \item \textbf{Run tests}: This step runs \texttt{npm test} to execute the Jest tests for the frontend.
+\end{itemize}
+
+By using this automated testing workflow, we ensure that our code is continuously tested and validated, providing immediate feedback on any issues that may arise from changes in the codebase.
+
+\subsection{Test Coverage Workflow Configuration}
+
+In addition to running unit tests, we have configured a separate GitHub Actions workflow to generate a test coverage report using Jest. This helps us monitor the extent to which our code is covered by automated tests.
+
+The following is the configuration for the test coverage workflow:
+
+\begin{verbatim}
+name: Run Frontend Unit Tests
+
+on: [push, pull_request]
+
+jobs:
+coverage:
+runs-on: ubuntu-20.04
+
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v3
+
+  - name: Run Jest Coverage Report
+    uses: ArtiomTr/jest-coverage-report-action@v2
+    with:
+      working-directory: ./src/frontend
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+
+\end{verbatim}
+
+\subsection{Test Coverage Workflow Steps}
+
+\begin{itemize}
+\item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v3} action to check out the repository code.
+\item \textbf{Run Jest Coverage Report}: This step uses the \\ \texttt{ArtiomTr/jest-coverage-report-action@v2} action to generate a coverage report for the Jest tests in the frontend directory.
+\end{itemize}
+
+By incorporating test coverage reporting into our workflow, we can ensure that our automated tests provide sufficient coverage of the codebase, identifying untested areas and improving software reliability.
 		
 \section{Trace to Requirements}
 		
 \section{Trace to Modules}		
 
 \section{Code Coverage Metrics}
+
+The below report is for the frontend codebase of SyntaxSentinals. The backend has not been tested with a testing framework yet.
+Instead we ensure the backend is working as expected by manually testing the API endpoints using Postman and ensuring the server is sent the 
+expected request via the frontend testing suite. \\
+
+The test coverage report provides the following key metrics:
+
+\begin{itemize}
+\item \textbf{Statements}: 94.35\% (234/248)
+\item \textbf{Branches}: 81.03\% (47/58)
+\item \textbf{Functions}: 86.79\% (46/53)
+\item \textbf{Lines}: 96.18\% (227/236)
+\end{itemize}
+
+\newpage
+
+Below is a breakdown of coverage by individual files:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Directory} & \textbf{Statements} & \textbf{Branches} & \textbf{Functions} & \textbf{Lines} \\
+    \hline
+    Features.tsx & 100\% & 100\% & 100\% & 100\% \\
+    Navbar.tsx & 100\% & 100\% & 100\% & 100\% \\
+    UploadBox.tsx & 96.42\% & 84.21\% & 93.33\% & 98.14\% \\
+    GetStarted.tsx & 100\% & 100\% & 100\% & 100\% \\
+    Home.tsx & 90.32\% & 69.56\% & 73.91\% & 93.16\% \\
+    Button.tsx & 100\% & 66.66\% & 100\% & 100\% \\
+    utils.ts & 100\% & 100\% & 100\% & 100\% \\
+    AnalyzeFiles.tsx & 91.52\% & 75\% & 75\% & 94.54\% \\
+    UploadResults.tsx & 89.23\% & 63.63\% & 72.72\% & 91.93\% \\
+    \hline
+    \end{tabular}
+    \caption{Test Coverage Breakdown by Directory}
+    \label{tab:coverage}
+\end{table}
+
+Some uncovered lines include:
+
+\begin{itemize}
+\item \textbf{UploadBox.tsx}: Line 26.
+\item \textbf{button.tsx}: Line 44.
+\item \textbf{AnalyzeFiles.tsx}: Lines 22, 25, 76.
+\item \textbf{UploadResults.tsx}: Lines 20, 23, 50-51, 89.
+\end{itemize}
+
+These uncovered areas indicate potential gaps in test cases that should be addressed to achieve full coverage.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs/References}

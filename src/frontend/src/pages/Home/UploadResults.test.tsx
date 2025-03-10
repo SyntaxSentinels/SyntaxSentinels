@@ -109,4 +109,65 @@ describe("UploadResults", () => {
     fireEvent.click(screen.getByRole('button', { name: /View Results/i }));
     expect(message.warning).toHaveBeenCalledWith("Please upload a valid results ZIP file first.");
   });
+
+  it("handles errors during ZIP file processing", async () => {
+    const mockLoadAsync = jest.fn().mockRejectedValue(new Error("Invalid ZIP file"));
+    (JSZip as unknown as jest.Mock).mockImplementation(() => ({
+      loadAsync: mockLoadAsync,
+    }));
+
+    // Mock console.error
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    renderWithRouter(<UploadResults />);
+    const file = new File(["dummy content"], "example.zip", { type: "application/zip" });
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText("Browse Files"), { target: { files: [file] } });
+      await mockLoadAsync().catch(() => {}); // Catch the error to prevent unhandled promise rejection
+    });
+
+    expect(console.error).toHaveBeenCalledWith("Error reading ZIP file:", expect.any(Error));
+    expect(message.error).toHaveBeenCalledWith("Invalid ZIP file or corrupt JSON.");
+    expect(screen.queryByLabelText("Browse Files")).toHaveValue("");
+
+    // Restore console.error
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("handles file drop event", async () => {
+    const mockLoadAsync = jest.fn().mockResolvedValue({
+      files: {
+        "example.json": { async: jest.fn().mockResolvedValue(JSON.stringify({ key: "value" })) },
+      },
+    });
+    (JSZip as unknown as jest.Mock).mockImplementation(() => ({
+      loadAsync: mockLoadAsync,
+    }));
+
+    renderWithRouter(<UploadResults />);
+
+    const file = new File(["dummy content"], "example.zip", { type: "application/zip" });
+
+    // Create a mock DataTransfer object
+    const dataTransfer = {
+      files: [file],
+      items: [{
+        kind: 'file',
+        type: file.type,
+        getAsFile: () => file,
+      }],
+      types: ['Files'],
+    };
+
+    const dropEvent = {
+      preventDefault: jest.fn(),
+      dataTransfer: dataTransfer,
+    };
+
+    await act(async () => {
+      fireEvent.drop(document, dropEvent);
+    });
+
+    expect(message.success).toHaveBeenCalledWith("Results file uploaded successfully.");
+  });
 });
