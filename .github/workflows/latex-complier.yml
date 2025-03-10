@@ -58,7 +58,7 @@ jobs:
             pdflatex -interaction=nonstopmode $file
             # Second pass for Table of Contents, cross-references, etc.
             file_without_ext=${file%.*}
-            bibtex $file_without_ext
+            bibtex $file_without_ext || true
             pdflatex -interaction=nonstopmode $file
             # Optional: Third pass if necessary
             pdflatex -interaction=nonstopmode $file
