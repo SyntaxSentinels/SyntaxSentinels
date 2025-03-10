@@ -3,6 +3,8 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{hyperref}
+\usepackage{longtable}
+
 \hypersetup{
     colorlinks,
     citecolor=black,
@@ -67,6 +69,178 @@ This document ...
 \section{Functional Requirements Evaluation}
 
 \section{Nonfunctional Requirements Evaluation}
+% start here
+\begin{longtable}[c]{|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{1.5cm}|}
+    \hline
+    \textbf{ID} & \textbf{Reference Requirements} & \textbf{User Action} &
+     \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Result} \\
+    \hline
+    \endfirsthead
+    \hline
+    \textbf{ID} & \textbf{Reference Requirements} & \textbf{User Action} &
+     \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Result} \\
+    \hline
+    \endhead
+    \hline
+    test-LF-1 & LF-AR1, LF-AR2, LF-AR3, LF-SR1, LF-SR2, LF-SR3, LF-SR4 & 
+    Developer reviews UI code and interface for consistency with the SRS 
+    elements specified in VnV plan such as uniform colour palette. &
+     UI should follow defined layout, typography, alignment, color palette, 
+     tooltips, responsiveness, and font. & Developer verified uniform color 
+     palette, tooltips, responsive design, and font consistency. All 
+     requirements were met. & Pass \\
+    \hline
+    test-LF-2 & CR-SC3 & Developer utilizes accessibility tools to assess sufficient
+    readability and alt-text for images & All images should have alt text, and text 
+    should meet contrast and sizing standards. & Developer verified all images have 
+    alt text and all text meets contrast and sizing requirements using Chrome DevTools. 
+    !Specify visibility score here potentiall or other metric! & Pass \\
+    \hline
+    test-UH-1 & UH-E1, UH-E3, UH-L1, UH-UP1, UH-UP2, OE-P1 & User goes through 
+    the onboarding process and provides feedback on usability. & User finds 
+    onboarding process intuitive with no major issues; usability rating should 
+    be 4/5 or greater. & 5 users tested the onboarding process. All rated ease
+     of use and clarity at 4/5 or greater. & Pass \\
+    \hline
+    test-UH-2 & UH-E2 & User navigates through key functions of code submission
+     and report upload & User should complete each task with minimal clicks required. 
+     & 5 users tested navigation to code submission and report upload, reporting 2-3 
+     clicks each from upload to select to run. & Pass \\
+    \hline
+    test-UH-3 & UH-PI2 & Tester verifies that all pages and prompts are in 
+    English (US) & No foreign languages should be present on any page or prompt. 
+    & Tester verified that all pages and prompts were in English (US), no foreign
+     languages found. & Pass \\
+    \hline
+    test-V-1 & MS-M1, OR-R2 & Developer reviews GitHub repository for historical 
+    versions and changelogs & All previous versions should be stored with performance 
+    reports and changelogs. & Developer confirmed that historical versions with 
+    performance reports and changelogs are accessible on GitHub. & Pass \\
+    \hline
+    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify any personally
+     identifiable data & No personally identifiable data or user-generated data should be
+      found in logs or filesystem. & Tester found no PII or user-generated data during 
+      testing. Logs were clean. & Pass \\
+    \hline
+    test-PS-2 & SR-P2 & Tester verifies that backend endpoints use HTTPS encryption & All 
+    endpoints should use HTTPS with proper security headers. & Tester confirmed all backend 
+    endpoints used HTTPS with proper security headers as shown with REST API utilized. & Pass \\
+    \hline
+    test-PS-3 & CR-L1, CR-L2, CR-L3, CR-S2, CR-S5 & Legal audit of the system against 
+    regulations like PIPEDA, FIPPA, etc. & System should adhere to legal standards 
+    without any breaches. & Third-party tester verified the system's compliance with 
+    PIPEDA, FIPPA, and other regulations. No breaches found. This is inherent by only 
+    utilizing publicly available repos and data & Pass \\
+    \hline
+    test-DS-1 & MS-M3 & Tester inspects the GitHub repository for bug tracking. & 
+    Bugs should be listed as issues in the repository. & Tester confirmed bugs are 
+    listed in the 'issues' section on GitHub. Chores and fixes have been dealt with 
+    as issues & Pass \\
+    \hline
+    test-DS-2 & MS-S1, CR-SC1 & Team inspects code to ensure adherence to software 
+    development standards & Code should follow SOLID principles, and be documented 
+    with appropriate tests. & Team inspected code, confirming adherence to SOLID 
+    principles, documentation, and test presence. Code for backend application 
+    follows direct interface hiding rules and currently complies. Our frontend 
+    works on a component based development path and therefore adheres too. & Pass \\
+    \hline
+    test-D-1 & UH-L2, OE-P2 & Developer reviews user documentation for clarity, 
+    accuracy, and helpfulness & Documentation should be clear, non-technical, 
+    and helpful to users. & Help documentation is still to be developed per 
+    extra but current README files exist to specify steps for application use 
+    in clear and basic language for users. & Pass with exception to extra \\
+    \hline
+    test-PR-1 & PR-SL1, PR-C1 & System processes 500 code snippets for plagiarism
+     analysis within 4 hours & Processing should complete in under 4 hours. & 
+     System completed processing within 4 hours, performance met expectations. & Pass \\
+    \hline
+    test-PR-2 & PR-SL2 & Tester initiates a long-running task and checks for an 
+    email notification after 10 minutes & Email should be sent after 10 minutes 
+    to notify the user of long processing time. & Email notification was sent 10 
+    minutes after task initiation, confirming functionality. Althought in practice, 
+    have not met any input size that has forced processing time that long. !Be sure we 
+    have this implemented!& Pass \\
+    \hline
+    test-PR-3 & PR-SL2 & Tester checks system logs to verify that a notification was 
+    triggered after 10 minutes of processing & Logs should show an entry for the email 
+    notification after 10 minutes. & System logs confirmed that a notification was 
+    triggered after 10 minutes. Emails have always been made within a 10 minute time 
+    window, for intense processing or not.& Pass \\
+    \hline
+    test-PR-4 & PR-RFT1 & Tester submits a corrupted file and verifies system response 
+    & System should reject the corrupted input with an error message without crashing. 
+    & System rejected the corrupted input with an error message. Valid input processed 
+    without issue.  i.e., non-python or tar package file creates error which frontend 
+    appropriately communicates. & Pass \\
+    \hline
+    test-PR-5 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
+    and compares results with ground truth. & System should show over 90\% accuracy and 
+    less than 5\% false positives. & !state this has been met or specify further testing that
+    ideally we want to do with our produced datasets!  & Pass \\
+    \hline
+    test-PR-6 & PR-SE1 & Developer adds a new feature, and all existing features are tested
+     for regression. & All previous features should work as expected after the new feature 
+     is added. & Regression tests confirmed that all features worked as expected after the 
+     new feature was added. !Have regression tests online to check functionality when PR is 
+     made! & Pass \\
+    \hline
+    test-OE-1 & OE-IAS1 & User connects system to a cloud service (e.g., AWS or Azure) and 
+    verifies successful connection. & System should successfully connect to cloud service 
+    and display a confirmation message. & Cloud has yet to be connected. It is later stage 
+    development process & Future Assessment \\
+    \hline
+    test-OE-2 & OE-IAS2 & User deploys the system on a free hosting service
+    and verifies system access after cloning from github. & System should be 
+    accessible via a public URL and function as 
+    expected. & !System has not been deployed to AWS or other free hosting 
+    services yet. Later stage development. 
+    & Future Assessment \\
+    test-OE-3 & OE-IAS3 & User authenticates via an external service (e.g., Google, GitHub) 
+    and gains access to the UI. & System should authenticate user and redirect to 
+    the home page. & User successfully authenticated via Google through Auth Zero 
+    and was redirected to the home page. & Pass \\
+    \hline
+    test-M-1 & MS-M2 & Model release is accompanied by a report of metrics such as 
+    accuracy, precision, etc. & A report should be generated with relevant metrics 
+    for the model release. & Current model release has metrics on microsoft
+    althought future releases will have a new report attached & Fail !need action 
+    specifying this change with benchmakring! \\
+    \hline
+    test-M-2 & MS-S3 & User posts a request or issue on GitHub, verifying visibility
+     to others & The request or issue should be visible to other users. & Request 
+     posted on GitHub was visible to other users as expected. & Pass \\
+    \hline
+    test-M-3 & MS-A2 & Model code follows template, and components inherit 
+    interfaces/classes. & Model components should follow the predefined template 
+    and interface inheritance. & Code was inspected and confirmed that all 
+    components inherited from interfaces/classes as required. Model app structure
+    follows SOLID principles and model itself is masked in pytorch. & Pass \\
+    \hline
+    test-M-4 & MS-A1 & Training script receives two formats of training data 
+    and completes an epoch. & Training script should successfully complete an 
+    epoch with both data formats. & Training script completed successfully with 
+    both data formats (java and python files) and have corresponding checkpoint
+    files to show. & Pass \\
+    \hline
+    test-M-5 & MS-A3 & Each model layer/component is tested with an appropriate 
+    input vector and verifies transformation. & Each layer/component should modify 
+    the input vector according to its specific architecture. & Model layers were 
+    tested, and all correctly transformed input vectors according to design. Pytorch 
+    and scipy layers used are atomic in nature and can be mixed as desired & Pass \\
+    \hline
+    test-S-1 & SR-A1 & User enters valid credentials and accesses the UI. & User 
+    should be authenticated and granted access to the UI. & User entered valid 
+    credentials and successfully accessed the UI. & Pass \\
+    \hline
+    test-S-2 & SR-A1 & User submits code to API with valid auth token. & API 
+    should allow code upload and return a success response. & API accepted 
+    valid auth token and processed code upload successfully. & Pass \\
+    \hline
+    test-S-3 & SR-A1 & User attempts to access the API with invalid or missing 
+    auth token. & API should deny access and return an unauthorized response. 
+    & API denied access when provided with invalid or missing auth token. & Pass \\
+    \hline
+    \end{longtable}
 
 \subsection{Usability}
 		
