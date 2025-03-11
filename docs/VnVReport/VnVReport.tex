@@ -693,11 +693,57 @@ graduate attribute of Reflection.
 \input{../Reflection.tex}
 
 \begin{enumerate}
-  \item What went well while writing this deliverable? 
+  \item What went well while writing this deliverable?
+  
+  It was relatively straightforward to map out the tests we needed to focus on 
+  based on the Verification and Validation (VnV) plan document. The VnV plan 
+  provided clear expectations for the necessary tests, making it easier to 
+  structure the deliverable around those objectives. We didn't need to perform 
+  as much high-level reassessment of the overall design as we initially thought 
+  we might and had to for previous deliverables. This made the process feel 
+  more smooth, as we could concentrate on detailing how the tests would be 
+  executed and aligning them with the deliverables outlined earlier in the 
+  project. The clear documentation we had so far played a significant role in 
+  creating a sense of continuity, which made writing this deliverable easier.
+
   \item What pain points did you experience during this deliverable, and how
     did you resolve them?
+
+    One significant challenge we encountered was the difficulty of defining 
+    appropriate unit tests for certain modules, especially the more complex 
+    ones such as the Natural Language Processing (NLP) model. Initially, we 
+    had a hard time determining how to break down the unit tests for the NLP 
+    model because of its abstract nature and reliance on machine learning 
+    techniques. This made it unclear how we should assess its individual 
+    components, especially since the model's behavior depends on training 
+    data and external factors that are hard to isolate in small-scale unit tests. 
+    We resolved this by having group discussions to break down the 
+    functionality of the NLP model and decide on test cases that could provide 
+    meaningful feedback. We agreed at the bare minimum we could have sanity checks, 
+    such as testing how a code snippet compares against itself or nothing else at all. 
+    We also discussed which results would be deemed "acceptable" based on  
+    threshold ranges rather than rigid pass/fail criteria because even a code snippet 
+    compared with itself may not get 100\% accuracy for similarity. In the end, 
+    we were able to come to a consensus on how to write effective and meaningful tests 
+    for this module.
+
   \item Which parts of this document stemmed from speaking to your client(s) or
   a proxy (e.g. your peers)? Which ones were not, and why?
+
+  The majority of this document stemmed directly from team discussions. 
+  Since we were working closely together and had a good grasp of the 
+  technical specifications, most of the deliverable's content was informed 
+  by our team's perspectives and experience. The only sections which required 
+  client/peer assessment was anything related to the usability tests. As developers, 
+  it was difficult for us to maintain impartiality about the UI's intuitiveness and 
+  ease of use. We needed unbiased feedback to assess how intuitive and usable our 
+  interface truly was, so we conducted usability tests with external users 
+  (mainly classmates) to gather their insights. Their feedback on how easily they 
+  could interact with the interface was necessary to assign a pass or fail for some tests. 
+  Thus, while most of the document was internally driven, the usability testing portion 
+  was based on direct feedback from external stakeholders to ensure that our assumptions 
+  about the UI held up in real-world use.
+
   \item In what ways was the Verification and Validation (VnV) Plan different
   from the activities that were actually conducted for VnV?  If there were
   differences, what changes required the modification in the plan?  Why did
@@ -706,6 +752,32 @@ graduate attribute of Reflection.
   predict a feasible amount of effort and the right tasks needed to build the
   evidence that demonstrates the required quality?  (It is expected that most
   teams will have had to deviate from their original VnV Plan.)
+
+While the VnV plan provided a great starting point, we did encounter some 
+deviations from the original plan as the project evolved. Aspects such as cloud 
+deployment and metrics for the NLP model ended up being much more complex and 
+time-consuming than we originally anticipated. We had not factored in the 
+amount of work required for cloud integration and the creation of monitoring 
+tools for the NLP model's performance, nor how much work it would be to get 
+the project to a stage where it was ready for either of those components. These changes 
+meant that certain tests had to be postponed to a later phase of the project, and we had to 
+adjust the scope of the tests that could be conducted in the current phase.
+
+Another area of change was related to user notification systems. Initially, the VnV 
+plan assumed that notifications about long processing times (e.g., 10 minutes or more) 
+would be shown directly in the UI. However, after some reflection and considering user 
+behavior, we realized that it was unlikely that users would remain engaged with the UI 
+during long processing times. Therefore, we decided to send these notifications via 
+email only instead, which led to a change in the VnV testing scope. These modifications were 
+a result of our growing understanding of user expectations. We found that such changes 
+can be anticipated to some extent in future projects if we invest more time in the 
+early stages to gather feedback, conduct prototyping, and set clear technical expectations.
+
+While it was difficult to predict all of these changes upfront, the team was able to adjust 
+quickly thanks to open communication and ascertaining of direction. If we had spent more 
+time in earlier phases fully scoping out all potential technical complexities and user 
+scenarios, we might have been able to avoid some of these surprises. That is a goal for 
+future projects we participate in.
 \end{enumerate}
 
 \end{document}
