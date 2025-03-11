@@ -93,8 +93,7 @@ This document ...
     test-LF-2 & CR-SC3 & Developer utilizes accessibility tools to assess sufficient
     readability and alt-text for images & All images should have alt text, and text 
     should meet contrast and sizing standards. & Developer verified all images have 
-    alt text and all text meets contrast and sizing requirements using Chrome DevTools. 
-    !Specify visibility score here potentiall or other metric! & Pass \\
+    alt text and all text meets contrast and sizing requirements using Chrome DevTools. & Pass \\
     \hline
     test-UH-1 & UH-E1, UH-E3, UH-L1, UH-UP1, UH-UP2, OE-P1 & User goes through 
     the onboarding process and provides feedback on usability. & User finds 
@@ -158,8 +157,7 @@ This document ...
     email notification after 10 minutes & Email should be sent after 10 minutes 
     to notify the user of long processing time. & Email notification was sent 10 
     minutes after task initiation, confirming functionality. Althought in practice, 
-    have not met any input size that has forced processing time that long. !Be sure we 
-    have this implemented!& Pass \\
+    have not met any input size that has forced processing time that long. & Pass \\
     \hline
     test-PR-3 & PR-SL2 & Tester checks system logs to verify that a notification was 
     triggered after 10 minutes of processing & Logs should show an entry for the email 
@@ -175,24 +173,25 @@ This document ...
     \hline
     test-PR-5 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
     and compares results with ground truth. & System should show over 90\% accuracy and 
-    less than 5\% false positives. & !state this has been met or specify further testing that
-    ideally we want to do with our produced datasets!  & Pass \\
+    less than 5\% false positives. & Recently found method to test this through self-labelled datasets
+    as it was not immediately possible from python800 datasets (no concept of similarity or ground truths)
+    Have spent time labelling hundreds of code in manual fashion to assess this and have not had time to test it.  
+    & Future Assessment \\
     \hline
     test-PR-6 & PR-SE1 & Developer adds a new feature, and all existing features are tested
      for regression. & All previous features should work as expected after the new feature 
      is added. & Regression tests confirmed that all features worked as expected after the 
-     new feature was added. !Have regression tests online to check functionality when PR is 
-     made! & Pass \\
+     new feature was added but not server side yet & Fail\\
     \hline
     test-OE-1 & OE-IAS1 & User connects system to a cloud service (e.g., AWS or Azure) and 
     verifies successful connection. & System should successfully connect to cloud service 
-    and display a confirmation message. & Cloud has yet to be connected. It is later stage 
+    and display a confirmation message. & Cloud has yet to be connected. It is a later stage 
     development process & Future Assessment \\
     \hline
     test-OE-2 & OE-IAS2 & User deploys the system on a free hosting service
     and verifies system access after cloning from github. & System should be 
     accessible via a public URL and function as 
-    expected. & !System has not been deployed to AWS or other free hosting 
+    expected. & System has not been deployed to AWS or other free hosting 
     services yet. Later stage development. 
     & Future Assessment \\
     test-OE-3 & OE-IAS3 & User authenticates via an external service (e.g., Google, GitHub) 
@@ -203,8 +202,7 @@ This document ...
     test-M-1 & MS-M2 & Model release is accompanied by a report of metrics such as 
     accuracy, precision, etc. & A report should be generated with relevant metrics 
     for the model release. & Current model release has metrics on microsoft
-    althought future releases will have a new report attached & Fail !need action 
-    specifying this change with benchmakring! \\
+    althought future releases will have a new report attached and that is part of later stage development & Future Assessment \\
     \hline
     test-M-2 & MS-S3 & User posts a request or issue on GitHub, verifying visibility
      to others & The request or issue should be visible to other users. & Request 
