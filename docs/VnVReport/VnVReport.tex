@@ -532,7 +532,37 @@ Visualization & Basic web interface & Modern, interactive UI \\
 
 \section{Changes Due to Testing}
 
-No changes were needed from user feedback. The initial implementation met all user requirements and expectations. The automated tests and manual reviews confirmed that the system functions as intended without requiring any modifications based on user feedback.
+During the testing process, several issues were identified and addressed, leading to improvements in both functionality and reliability:
+
+\begin{itemize}
+\item \textbf{Upload File Handling}
+\begin{itemize}
+\item An issue was detected in \texttt{UploadBox.tsx}, where files were not properly validated before being uploaded. Additional validation logic was added to prevent incorrect file types from being processed.
+\item A missing error message for unsupported file types was implemented to improve user feedback.
+\end{itemize}
+\item \textbf{Error Handling in File Processing}
+\begin{itemize}
+\item In \texttt{UploadResults.tsx}, tests revealed that errors during ZIP file processing were not handled gracefully. Additional error handling was introduced to catch and display meaningful error messages when invalid or corrupted ZIP files were uploaded.
+\end{itemize}
+\item \textbf{Form Validation Enhancements}
+\begin{itemize}
+\item The \texttt{AnalyzeFiles.tsx} component initially allowed form submission without an analysis name, causing backend errors. A required field check was added to prevent submissions without a name.
+\end{itemize}
+\item \textbf{Test Coverage Improvements}
+\begin{itemize}
+\item Some uncovered lines in \texttt{button.tsx} and \texttt{UploadBox.tsx} were identified through test coverage reports. Additional unit tests were written to cover these missing scenarios, increasing overall test coverage.
+\item Server side code was not tested with a testing framework. This will be implemented in the future.
+\end{itemize}
+\item \textbf{Emailing Results}
+\begin{itemize}
+\item We noticed we had not yet implemented the feature where users are emailed after 10 minutes that their request is still processing. Thhis feature will be implemented and tested in the future.
+\end{itemize}
+\item \textbf{Cloud}
+\begin{itemize}
+\item Cloud deployment is a future feature that will be implemented once the model is certified per priorities
+\end{itemize}
+\end{itemize}
+
 
 \section{Automated Testing}
 The tests mentioned in the \texttt{Unit Testing} section are automated using the Jest testing framework. The tests are run using the command \texttt{npm test}.
