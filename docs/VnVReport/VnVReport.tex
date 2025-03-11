@@ -709,23 +709,25 @@ graduate attribute of Reflection.
   \item What pain points did you experience during this deliverable, and how
     did you resolve them?
 
-    One significant challenge we encountered was the difficulty of defining 
-    appropriate unit tests for certain modules, especially the more complex 
-    ones such as the Natural Language Processing (NLP) model. Initially, we 
-    had a hard time determining how to break down the unit tests for the NLP 
-    model because of its abstract nature and reliance on machine learning 
-    techniques. This made it unclear how we should assess its individual 
-    components, especially since the model's behavior depends on training 
-    data and external factors that are hard to isolate in small-scale unit tests. 
-    We resolved this by having group discussions to break down the 
-    functionality of the NLP model and decide on test cases that could provide 
-    meaningful feedback. We agreed at the bare minimum we could have sanity checks, 
-    such as testing how a code snippet compares against itself or nothing else at all. 
-    We also discussed which results would be deemed "acceptable" based on  
-    threshold ranges rather than rigid pass/fail criteria because even a code snippet 
-    compared with itself may not get 100\% accuracy for similarity. In the end, 
-    we were able to come to a consensus on how to write effective and meaningful tests 
-    for this module.
+    One of the main challenges we encountered was coming up with compelling 
+    data to verify the non-functional requirements for the project. While we 
+    were able to conduct usability tests with peers who rated our UI on a scale 
+    from 1 to 5, we felt unsure about whether this feedback would provide 
+    enough substance to support the NFRs. We sought advice from our TA, who reassured 
+    us that such usability tests, particularly when supplemented by qualitative 
+    feedback and user comments, could be deemed a reasonable and valid dataset 
+    for justifying the passing of NFR tests. This gave us the confidence to proceed 
+    with the existing data and treat it as adequate for demonstrating that the UI 
+    was user-friendly and met our usability NFRs.
+
+    Another pain point revolved around selecting the right framework for frontend 
+    testing. There was some ambiguity about which testing framework 
+    would best suit the needs of our application, especially given the variety 
+    of tools and options available for testing JavaScript-based web applications. 
+    We resolved this by conducting thorough research into various options. This let 
+    us determine that Jest would be the most appropriate choice for our project. 
+    Jest's'ease of use, and the fact that it was already well integrated with React 
+    (the framework we were using for the frontend) made it a great fit.
 
   \item Which parts of this document stemmed from speaking to your client(s) or
   a proxy (e.g. your peers)? Which ones were not, and why?
