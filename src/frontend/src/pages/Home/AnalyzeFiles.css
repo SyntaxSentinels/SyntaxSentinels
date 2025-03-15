@@ -71,3 +71,59 @@
 .analyze-button:hover {
   background-color: #40a9ff; /* Lighter blue on hover */
 }
+
+/* Jobs Table Styles */
+.jobs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.jobs-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.refresh-button {
+  margin-left: 1rem;
+}
+
+.jobs-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 16px;
+}
+
+.jobs-table {
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.jobs-table .ant-table-thead > tr > th {
+  background-color: #f0f5ff;
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.jobs-table .ant-table-tbody > tr:hover > td {
+  background-color: #f0f7ff;
+}
+
+.jobs-table .ant-pagination {
+  margin: 16px 0;
+}
+
+@media (max-width: 992px) {
+  .analyze-container {
+    padding: 1.5rem;
+  }
+  
+  .analyze-card {
+    padding: 1.5rem;
+  }
+}

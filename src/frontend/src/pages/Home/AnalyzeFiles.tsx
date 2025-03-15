@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Input, Typography, Form, Row, Col, message } from "antd";
+import {
+  Button,
+  Input,
+  Typography,
+  Form,
+  Row,
+  Col,
+  message,
+  Tooltip,
+} from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
 import "./AnalyzeFiles.css";
 import UploadBox from "@/components/UploadBox";
-import { uploadFiles } from "@/services/ssApi";
+import JobsTable from "@/components/JobsTable";
+import { uploadFiles, getUserJobs, JobInfo } from "@/services/ssApi";
+import { Spin } from "antd";
 
 const { Title, Paragraph } = Typography;
 
@@ -14,6 +26,27 @@ const AnalyzeFiles: React.FC = () => {
   const [analysisName, setAnalysisName] = useState("");
   const [formKey, setFormKey] = useState(0); // Add a key to force re-render
   const [clearFiles, setClearFiles] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [jobs, setJobs] = useState<JobInfo[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  // Fetch jobs on component mount
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  // Function to fetch jobs
+  const fetchJobs = async () => {
+    try {
+      setJobsLoading(true);
+      const jobsData = await getUserJobs();
+      setJobs(jobsData);
+      setJobsLoading(false);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+      message.error("Failed to load job history");
+      setJobsLoading(false);
+    }
+  };
 
   // Drag Event Handlers
   useEffect(() => {
@@ -53,27 +86,44 @@ const AnalyzeFiles: React.FC = () => {
 
   const handleAnalyzeClick = async () => {
     if (!analysisFile || analysisFile.length === 0) {
-      window.alert("Please upload a dataset file first.");
+      message.error("Please upload a dataset file first.");
       return;
     }
 
     if (!analysisName) {
-      window.alert("Please enter a name for this analysis.");
+      message.error("Please enter a name for this analysis.");
       return;
     }
 
     try {
-      const response = uploadFiles(analysisFile, analysisName);
+      setIsLoading(true);
+      const response = await uploadFiles(analysisFile, analysisName);
 
-      setAnalysisFile(null);
-      setAnalysisName("");
-      setFormKey((prevKey) => prevKey + 1);
-      setClearFiles(true);
-      
-      message.success("Analysis started successfully. You'll receive an email with the results once it's done!");
+      if (response && response.jobId) {
+        // Store the job ID in localStorage
+        localStorage.setItem("jobId", response.jobId);
 
+        // Reset form
+        setAnalysisFile(null);
+        setAnalysisName("");
+        setFormKey((prevKey) => prevKey + 1);
+        setClearFiles(true);
+
+        message.success("Analysis started successfully!");
+
+        // Refresh jobs list
+        const jobsData = await getUserJobs();
+        setJobs(jobsData);
+      } else {
+        message.error("Failed to start analysis. Please try again.");
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error uploading files:", error);
+      message.error(
+        "An error occurred while uploading files. Please try again."
+      );
+      setIsLoading(false);
     }
   };
 
@@ -85,8 +135,8 @@ const AnalyzeFiles: React.FC = () => {
         </div>
       )}
       <div className="analyze-container">
-        <Row justify="center" align="middle" className="analyze-row">
-          <Col xs={24} sm={20} md={16} lg={12} xl={10} className="analyze-card">
+        <Row gutter={[24, 24]} className="analyze-row">
+          <Col xs={24} lg={12} className="analyze-card">
             <Title level={2} className="analyze-title">
               Analyze a Dataset
             </Title>
@@ -95,7 +145,12 @@ const AnalyzeFiles: React.FC = () => {
               ZIP file containing your project files.
             </Paragraph>
 
-            <UploadBox onFileListChange={handleFileUpload} mode="analyze" clearFiles={clearFiles} setClearFiles={setClearFiles} />
+            <UploadBox
+              onFileListChange={handleFileUpload}
+              mode="analyze"
+              clearFiles={clearFiles}
+              setClearFiles={setClearFiles}
+            />
 
             <Form key={formKey} layout="vertical" className="analyze-form">
               <Form.Item label="Analysis Name" name="analysisName" required>
@@ -113,10 +168,36 @@ const AnalyzeFiles: React.FC = () => {
                 size="large"
                 onClick={handleAnalyzeClick}
                 className="analyze-button"
+                loading={isLoading}
+                disabled={isLoading}
               >
-                Analyze Dataset
+                {isLoading ? "Processing..." : "Analyze Dataset"}
               </Button>
             </Form>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <div className="jobs-header">
+              <Title level={2} className="jobs-title">
+                Analysis Jobs
+              </Title>
+              <Tooltip title="Refresh job list">
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={fetchJobs}
+                  loading={jobsLoading}
+                  className="refresh-button"
+                >
+                  Refresh
+                </Button>
+              </Tooltip>
+            </div>
+            <Paragraph className="jobs-description">
+              View your recent analysis jobs and their status. Click on a
+              completed job to view results.
+            </Paragraph>
+
+            <JobsTable jobs={jobs} loading={jobsLoading} />
           </Col>
         </Row>
       </div>
