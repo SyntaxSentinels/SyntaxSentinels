@@ -1,10 +1,11 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import '@testing-library/jest-dom';
 import { BrowserRouter as Router } from "react-router-dom";
 import AnalyzeFiles from "./AnalyzeFiles";
 import { uploadFiles } from "@/services/ssApi";
 import { message } from "antd";
+import JSZip from "jszip";
 
 beforeAll(() => {
     Object.defineProperty(window, 'matchMedia', {
@@ -36,6 +37,13 @@ jest.mock("antd", () => {
       success: jest.fn(),
     },
   };
+});
+
+// Mock JSZip
+jest.mock("jszip", () => {
+  return jest.fn().mockImplementation(() => ({
+    loadAsync: jest.fn(),
+  }));
 });
 
 describe("AnalyzeFiles", () => {
@@ -77,5 +85,42 @@ describe("AnalyzeFiles", () => {
     fireEvent.click(screen.getByText("Analyze Dataset"));
     expect(uploadFiles).toHaveBeenCalledWith([file], "Test Analysis");
     expect(message.success).toHaveBeenCalledWith("Analysis started successfully. You'll receive an email with the results once it's done!");
+  });
+
+  it("handles file drop event", async () => {
+    const mockLoadAsync = jest.fn().mockResolvedValue({
+      files: {
+        "example.json": { async: jest.fn().mockResolvedValue(JSON.stringify({ key: "value" })) },
+      },
+    });
+    (JSZip as unknown as jest.Mock).mockImplementation(() => ({
+      loadAsync: mockLoadAsync,
+    }));
+
+    renderWithRouter(<AnalyzeFiles />);
+
+    const file = new File(["dummy content"], "example.zip", { type: "application/zip" });
+
+    // Create a mock DataTransfer object
+    const dataTransfer = {
+      files: [file],
+      items: [{
+        kind: 'file',
+        type: file.type,
+        getAsFile: () => file,
+      }],
+      types: ['Files'],
+    };
+
+    const dropEvent = {
+      preventDefault: jest.fn(),
+      dataTransfer: dataTransfer,
+    };
+
+    await act(async () => {
+      fireEvent.drop(document, dropEvent);
+    });
+
+    expect(screen.getByText("example.zip")).toBeInTheDocument
   });
 });

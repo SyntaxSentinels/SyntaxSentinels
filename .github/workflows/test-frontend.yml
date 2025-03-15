@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Frontend Unit Tests
 
 on: [push, pull_request]
 
