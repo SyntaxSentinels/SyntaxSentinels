@@ -3,6 +3,8 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{hyperref}
+\usepackage{longtable}
+
 \hypersetup{
     colorlinks,
     citecolor=black,
@@ -30,8 +32,7 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Date 1 & 1.0 & Notes\\
-Date 2 & 1.1 & Notes\\
+March 10th, 2025 & 0.0 & First iteration of rough draft complete\\
 \bottomrule
 \end{tabularx}
 
@@ -45,10 +46,16 @@ Date 2 & 1.1 & Notes\\
   \textbf{symbol} & \textbf{description}\\
   \midrule 
   T & Test\\
+  SRS & Software Requirements Specification \\
+  MOSS & Measure of Software Similarity \\
+  UI & User Interface \\
+  JSON & JavaScript Object Notation \\
+  NPM & Node Package Manager \\
+  VnV & Verification and Validation \\
+  API & Application Programming Interface \\
+  CI/CD & Continuous Integration/Continuous Deployment\\
   \bottomrule
 \end{tabular}\\
-
-\wss{symbols, abbreviations or acronyms -- you can reference the SRS tables if needed}
 
 \newpage
 
@@ -62,17 +69,341 @@ Date 2 & 1.1 & Notes\\
 
 \pagenumbering{arabic}
 
-This document ...
-
 \section{Functional Requirements Evaluation}
+\subsubsection{Plagiarism Analysis Input Upload Tests}
+
+Applies to all FRs involving uploading code snippets to the system. This refers
+to test-FR-1 from the VnV Plan.
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-1}}
+
+Expected result: The script should run and successfully upload the files, without 
+encountering any errors due to the upload functionality
+
+Actual Result: No errors from uplading
+
+Evaluation: Pass
+					
+
+\end{enumerate}
+
+\subsubsection{Plagiarism Analysis Result Tests}
+
+Applies to all FRs involving immediate output of plagiarism analysis. This
+refer to test-FR-2 from the VnV Plan.
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-2}}
+
+Expected result: The analysis should not throw any errors while the script runs,
+up until the analysis provides a response
+
+Actual result: No errors were observed during script execution
+
+Evaluation: Pass
+
+					
+
+\end{enumerate}
+
+\subsubsection{Guide Documentation Generation Tests}
+
+Applies to all FRs involving guide documentation generation for user. This
+refers to test-FR-3 from the VnV plan.
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-3}}
+
+Expected result: Generation of documentation successful
+
+Actual result: TBD when feature is implemented
+
+Evaluation: TBD
+
+\end{enumerate}
+
+\subsubsection{Report Documentation Generation Tests}
+
+Applies to all FRs involving analysis report documentation generation for 
+user. This refers to test-FR-4 from the VnV plan.
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-4}}	
+
+Expected result: Generation of report is successful, with no errors encountered
+
+Actual result: Report was successfully generated, no errors were found
+
+Evaluation: Pass
+
+\end{enumerate}
+
+\subsubsection{Account Creation Tests}
+
+Applies to all FRs involving creating an account within the system. This refers
+to test-FR-5 and test-FR-6 from the VnV plan
+\begin{enumerate}
+
+\item{\textbf{test-FR-5}}
+
+Expected result: An account should be successfully created, while the system avids any failure modes.
+
+Actual result: Account successfully created, and no failure modes were exhibited
+
+Evaluation: Pass
+
+\item{\textbf{test-FR-6}}
+		
+Expected result: Account creation should fail and the system will await further input from the user
+
+Actual result: Account creation fails, and the system does not proceed
+
+Evaluation: Pass 
+
+\end{enumerate}
+
+\subsubsection{Account Login Tests}
+
+Applies to all FRs involving logging into account within the system. This refers
+to test-FR-7 and test-FR-8 in the VnV plan
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-7}}
+
+Expected result: Logging into system with correct existing credentials should
+succeed, and no errors should arise from logging in
+
+Actual result: Logging in with existing credentials succeeds with no errors
+
+Evaluation: Pass
+
+\item{\textbf{test-FR-8}}
+
+Expected result: Logging in with invalid credentials should fail
+
+Actual result: Logging in with invalid credentials fails
+
+Evaluation: Pass
+					
+\end{enumerate}
+
+\subsubsection{Result Email Tests}
+
+Applies to all FRs involving emailing results of plagiarism analysis to users.
+This refers to test-FR-9 from the VnV plan.
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-9}}
+
+Expected result: The system will send an e-mail to address associated with the
+logged in account, containing a .zip file with plagiarism results
+corresponding to the files uploaded
+
+Actual result: Correct and corresponding .zip file was sent to the expected e-mail
+
+Evaluation: Pass
+
+\end{enumerate}
+
+\subsubsection{Result Visualization Tests}
+
+Applies to all FRs involving visualizing plagiarism analysis results provided 
+by user in a .zip file. This refers to test-FR-10 from the VnV plan.
+
+
+\begin{enumerate}
+
+\item{\textbf{test-FR-10}}
+			
+Expected result: A visualization is successfully created after uplading a .zip
+file, with no errors observed during the process.
+
+Actual result: A visualization was successfully created with no errors
+
+Evaluation: Pass
+
+\end{enumerate}
+
+
 
 \section{Nonfunctional Requirements Evaluation}
-
-\subsection{Usability}
-		
-\subsection{Performance}
-
-\subsection{etc.}
+% start here
+\begin{longtable}[c]{|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{1.5cm}|}
+    \hline
+    \textbf{ID} & \textbf{Reference Requirements} & \textbf{User Action} &
+     \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Result} \\
+    \hline
+    \endfirsthead
+    \hline
+    \textbf{ID} & \textbf{Reference Requirements} & \textbf{User Action} &
+     \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Result} \\
+    \hline
+    \endhead
+    \hline
+    test-LF-1 & LF-AR1, LF-AR2, LF-AR3, LF-SR1, LF-SR2, LF-SR3, LF-SR4 & 
+    Developer reviews UI code and interface for consistency with the SRS 
+    elements specified in VnV plan such as uniform colour palette. &
+     UI should follow defined layout, typography, alignment, color palette, 
+     tooltips, responsiveness, and font. & Developer verified uniform color 
+     palette, tooltips, responsive design, and font consistency. All 
+     requirements were met. & Pass \\
+    \hline
+    test-LF-2 & CR-SC3 & Developer utilizes accessibility tools to assess sufficient
+    readability and alt-text for images & All images should have alt text, and text 
+    should meet contrast and sizing standards. & Developer verified all images have 
+    alt text and all text meets contrast and sizing requirements using Chrome DevTools. & Pass \\
+    \hline
+    test-UH-1 & UH-E1, UH-E3, UH-L1, UH-UP1, UH-UP2, OE-P1 & User goes through 
+    the onboarding process and provides feedback on usability. & User finds 
+    onboarding process intuitive with no major issues; usability rating should 
+    be 4/5 or greater. & 5 users tested the onboarding process. All rated ease
+     of use and clarity at 4/5 or greater. & Pass \\
+    \hline
+    test-UH-2 & UH-E2 & User navigates through key functions of code submission
+     and report upload & User should complete each task with minimal clicks required. 
+     & 5 users tested navigation to code submission and report upload, reporting 2-3 
+     clicks each from upload to select to run. & Pass \\
+    \hline
+    test-UH-3 & UH-PI2 & Tester verifies that all pages and prompts are in 
+    English (US) & No foreign languages should be present on any page or prompt. 
+    & Tester verified that all pages and prompts were in English (US), no foreign
+     languages found. & Pass \\
+    \hline
+    test-V-1 & MS-M1, OR-R2 & Developer reviews GitHub repository for historical 
+    versions and changelogs & All previous versions should be stored with performance 
+    reports and changelogs. & Developer confirmed that historical versions with 
+    performance reports and changelogs are accessible on GitHub. & Pass \\
+    \hline
+    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify any personally
+     identifiable data & No personally identifiable data or user-generated data should be
+      found in logs or filesystem. & Tester found no PII or user-generated data during 
+      testing. Logs were clean. & Pass \\
+    \hline
+    test-PS-2 & SR-P2 & Tester verifies that backend endpoints use HTTPS encryption & All 
+    endpoints should use HTTPS with proper security headers. & Tester confirmed all backend 
+    endpoints used HTTPS with proper security headers as shown with REST API utilized. & Pass \\
+    \hline
+    test-PS-3 & CR-L1, CR-L2, CR-L3, CR-S2, CR-S5 & Legal audit of the system against 
+    regulations like PIPEDA, FIPPA, etc. & System should adhere to legal standards 
+    without any breaches. & Third-party tester verified the system's compliance with 
+    PIPEDA, FIPPA, and other regulations. No breaches found. This is inherent by only 
+    utilizing publicly available repos and data & Pass \\
+    \hline
+    test-DS-1 & MS-M3 & Tester inspects the GitHub repository for bug tracking. & 
+    Bugs should be listed as issues in the repository. & Tester confirmed bugs are 
+    listed in the 'issues' section on GitHub. Chores and fixes have been dealt with 
+    as issues & Pass \\
+    \hline
+    test-DS-2 & MS-S1, CR-SC1 & Team inspects code to ensure adherence to software 
+    development standards & Code should follow SOLID principles, and be documented 
+    with appropriate tests. & Team inspected code, confirming adherence to SOLID 
+    principles, documentation, and test presence. Code for backend application 
+    follows direct interface hiding rules and currently complies. Our frontend 
+    works on a component based development path and therefore adheres too. & Pass \\
+    \hline
+    test-D-1 & UH-L2, OE-P2 & Developer reviews user documentation for clarity, 
+    accuracy, and helpfulness & Documentation should be clear, non-technical, 
+    and helpful to users. & Help documentation is still to be developed per 
+    extra but current README files exist to specify steps for application use 
+    in clear and basic language for users. & Pass with exception to extra \\
+    \hline
+    test-PR-1 & PR-SL1, PR-C1 & System processes 500 code snippets for plagiarism
+     analysis within 4 hours & Processing should complete in under 4 hours. & 
+     System completed processing within 4 hours, performance met expectations. & Pass \\
+    \hline
+    test-PR-2 & PR-SL2 & Tester initiates a long-running task and checks for an 
+    email notification after 10 minutes & Email should be sent after 10 minutes 
+    to notify the user of long processing time. & Email notification was sent 10 
+    minutes after task initiation, confirming functionality. Althought in practice, 
+    have not met any input size that has forced processing time that long. & Pass \\
+    \hline
+    test-PR-3 & PR-SL2 & Tester checks system logs to verify that a notification was 
+    triggered after 10 minutes of processing & Logs should show an entry for the email 
+    notification after 10 minutes. & System logs confirmed that a notification was 
+    triggered after 10 minutes. Emails have always been made within a 10 minute time 
+    window, for intense processing or not.& Pass \\
+    \hline
+    test-PR-4 & PR-RFT1 & Tester submits a corrupted file and verifies system response 
+    & System should reject the corrupted input with an error message without crashing. 
+    & System rejected the corrupted input with an error message. Valid input processed 
+    without issue.  i.e., non-python or tar package file creates error which frontend 
+    appropriately communicates. & Pass \\
+    \hline
+    test-PR-5 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
+    and compares results with ground truth. & System should show over 90\% accuracy and 
+    less than 5\% false positives. & Recently found method to test this through self-labelled datasets
+    as it was not immediately possible from python800 datasets (no concept of similarity or ground truths)
+    Have spent time labelling hundreds of code in manual fashion to assess this and have not had time to test it.  
+    & Future Assessment \\
+    \hline
+    test-PR-6 & PR-SE1 & Developer adds a new feature, and all existing features are tested
+     for regression. & All previous features should work as expected after the new feature 
+     is added. & Regression tests confirmed that all features worked as expected after the 
+     new feature was added but not server side yet & Fail\\
+    \hline
+    test-OE-1 & OE-IAS1 & User connects system to a cloud service (e.g., AWS or Azure) and 
+    verifies successful connection. & System should successfully connect to cloud service 
+    and display a confirmation message. & Cloud has yet to be connected. It is a later stage 
+    development process & Future Assessment \\
+    \hline
+    test-OE-2 & OE-IAS2 & User deploys the system on a free hosting service
+    and verifies system access after cloning from github. & System should be 
+    accessible via a public URL and function as 
+    expected. & System has not been deployed to AWS or other free hosting 
+    services yet. Later stage development. 
+    & Future Assessment \\
+    test-OE-3 & OE-IAS3 & User authenticates via an external service (e.g., Google, GitHub) 
+    and gains access to the UI. & System should authenticate user and redirect to 
+    the home page. & User successfully authenticated via Google through Auth Zero 
+    and was redirected to the home page. & Pass \\
+    \hline
+    test-M-1 & MS-M2 & Model release is accompanied by a report of metrics such as 
+    accuracy, precision, etc. & A report should be generated with relevant metrics 
+    for the model release. & Current model release has metrics on microsoft
+    althought future releases will have a new report attached and that is part of later stage development & Future Assessment \\
+    \hline
+    test-M-2 & MS-S3 & User posts a request or issue on GitHub, verifying visibility
+     to others & The request or issue should be visible to other users. & Request 
+     posted on GitHub was visible to other users as expected. & Pass \\
+    \hline
+    test-M-3 & MS-A2 & Model code follows template, and components inherit 
+    interfaces/classes. & Model components should follow the predefined template 
+    and interface inheritance. & Code was inspected and confirmed that all 
+    components inherited from interfaces/classes as required. Model app structure
+    follows SOLID principles and model itself is masked in pytorch. & Pass \\
+    \hline
+    test-M-4 & MS-A1 & Training script receives two formats of training data 
+    and completes an epoch. & Training script should successfully complete an 
+    epoch with both data formats. & Training script completed successfully with 
+    both data formats (java and python files) and have corresponding checkpoint
+    files to show. & Pass \\
+    \hline
+    test-M-5 & MS-A3 & Each model layer/component is tested with an appropriate 
+    input vector and verifies transformation. & Each layer/component should modify 
+    the input vector according to its specific architecture. & Model layers were 
+    tested, and all correctly transformed input vectors according to design. Pytorch 
+    and scipy layers used are atomic in nature and can be mixed as desired & Pass \\
+    \hline
+    test-S-1 & SR-A1 & User enters valid credentials and accesses the UI. & User 
+    should be authenticated and granted access to the UI. & User entered valid 
+    credentials and successfully accessed the UI. & Pass \\
+    \hline
+    test-S-2 & SR-A1 & User submits code to API with valid auth token. & API 
+    should allow code upload and return a success response. & API accepted 
+    valid auth token and processed code upload successfully. & Pass \\
+    \hline
+    test-S-3 & SR-A1 & User attempts to access the API with invalid or missing 
+    auth token. & API should deny access and return an unauthorized response. 
+    & API denied access when provided with invalid or missing auth token. & Pass \\
+    \hline
+    \end{longtable}
 	
 \section{Comparison to Existing Implementation}	
 
@@ -172,21 +503,731 @@ Visualization & Basic web interface & Modern, interactive UI \\
 \end{enumerate}
 
 \section{Unit Testing}
+\subsection{AnalyzeFiles Component}
+
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{AnalyzeFiles} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Analyze a Dataset" and "Upload a dataset to analyze for potential code plagiarism. Use a ZIP file containing your project files."
+\end{itemize}
+
+\subsubsection{Displays an alert when no file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an alert is displayed when no file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: An alert with the message "Please upload a dataset file first." is displayed.
+\end{itemize}
+
+\subsubsection{Displays an alert when no analysis name is entered}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an alert is displayed when no analysis name is entered.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Upload a valid ZIP file.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: An alert with the message "Please enter an analysis name." is displayed.
+    
+\end{itemize}
+
+\subsubsection{Calls uploadFiles and displays success message when form is submitted}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{uploadFiles} function is called and a success message is displayed when the form is submitted.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Upload a valid ZIP file.
+        \item Enter an analysis name.
+        \item Click the "Analyze Dataset" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully. You'll receive an email with the results once it's done!" is displayed.
+\end{itemize}
+
+\subsubsection{Handles file drop event}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Simulate a file drop event with a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
+\subsection{UploadResults Component}
+
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{UploadResults} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "View Results" and "Upload your results ZIP file to view the analysis."
+\end{itemize}
+
+\subsubsection{Displays an error message when a non-ZIP file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an error message is displayed when a non-ZIP file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a non-ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Only ZIP files are allowed." is displayed.
+\end{itemize}
+
+\subsubsection{Displays an error message when no JSON file is found in the ZIP}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an error message is displayed when no JSON file is found in the ZIP file.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a ZIP file without a JSON file.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "No JSON file found in the ZIP." is displayed.
+\end{itemize}
+
+\subsubsection{Displays a success message when a valid ZIP file is uploaded}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a success message is displayed when a valid ZIP file is uploaded.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: A success message "Results file uploaded successfully." is displayed.
+\end{itemize}
+
+\subsubsection{Displays a warning message when trying to view results without uploading a file}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a warning message is displayed when trying to view results without uploading a file.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Click the "View Results" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: A warning message "Please upload a results file first." is displayed.
+\end{itemize}
+
+\subsubsection{Handles errors during ZIP file processing}
+\begin{itemize}
+    \item \textbf{Description}: Ensures errors during ZIP file processing are handled correctly and an error message is displayed to the user.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Upload a ZIP file that cannot be processed.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Invalid ZIP file or corrupt JSON." is logged into the console.
+\end{itemize}
+
+\subsubsection{Handles file drop event}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadResults} component.
+        \item Simulate a file drop event with a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
+\subsection{Index (Landing Page) Component}
+
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{Index} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+        \item Check for the presence of specific text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Verify Academic and Contest Submissions" and "Empower educators and contest administrators with advanced AI-powered plagiarism detection. Ensure the integrity of student work and competition submissions."
+\end{itemize}
+
+\subsubsection{Displays loading spinner when loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is displayed when the component is in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is true
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isLoading} as true.
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The text "Preparing your experience..." is displayed.
+\end{itemize}
+
+\subsubsection{Calls loginWithRedirect when Get Started button is clicked}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{loginWithRedirect} function is called when the "Get Started" button is clicked.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+        \item Click the "Get Started" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
+\end{itemize}
+
+\subsubsection{Navigates to /home when authenticated}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the user is redirected to the \texttt{Home} page when authenticated.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as true.
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The user is redirected to the \texttt{Home} page.
+\end{itemize}
+
+\subsubsection{Displays features section}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the features section is displayed on the \texttt{Index} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The features section is displayed with the text "Why Choose SyntaxSentinals?" along with the features.
+\end{itemize}
+
+\subsubsection{Displays how it works section}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the "How It Works" section is displayed on the \texttt{Index} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The "How It Works" section is displayed along with the steps.
+\end{itemize}
+
+\subsubsection{Displays footer}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the footer is displayed on the \texttt{Index} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{Index} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The footer is displayed with the text "SyntaxSentinals" and the links.
+
+\end{itemize}
+
+\subsection{Upload File Box Component}
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{UploadFileBox} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the text "Upload a ZIP file" and the file input.
+\end{itemize}
+
+\subsubsection{Uploads a valid file}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a valid file is uploaded using the \texttt{UploadFileBox} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component.
+        \item Upload a valid ZIP file.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is uploaded successfully.
+\end{itemize}
+
+\subsubsection{Removes a file}
+\begin{itemize}
+    \item \textbf{Description}: Ensures a file is removed using the \texttt{UploadFileBox} component.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: A file is uploaded
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component.
+        \item Click the "Remove" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file is removed.
+\end{itemize}
+
+\subsubsection{Clears the file list when clearFiles is true}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the file list is cleared when the \texttt{clearFiles} prop is true.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: A file is uploaded
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{UploadFileBox} component with the \texttt{clearFiles} prop set to true.
+    \end{enumerate}
+    \item \textbf{Expected result}: The file list is cleared.
+\end{itemize}
+
+\subsection{NavBar Component}
+\subsubsection{Renders the component}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{NavBar} component renders correctly.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{NavBar} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the logo and navigation links.
+    
+\end{itemize}
+
+\subsubsection{Displays the login button when not authenticated}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the login button is displayed when the user is not authenticated.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as false.
+        \item Render the \texttt{NavBar} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The login button is displayed.
+\end{itemize}
+
+\subsubsection{Displays the logout button when authenticated}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the logout button is displayed when the user is authenticated.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as true.
+        \item Render the \texttt{NavBar} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The logout button is displayed.
+\end{itemize}
+
+\subsubsection{Calls loginWithRedirect when Log In button is clicked}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{loginWithRedirect} function is called when the "Log In" button is clicked.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \item \begin{enumerate}
+        \item Mock the \texttt{useAuth0} hook to return \texttt{isAuthenticated} as false.
+        \item Render the \texttt{NavBar} component.
+        \item Click the "Log In" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
+\end{itemize}
 
 \section{Changes Due to Testing}
 
-\wss{This section should highlight how feedback from the users and from 
-the supervisor (when one exists) shaped the final product.  In particular 
-the feedback from the Rev 0 demo to the supervisor (or to potential users) 
-should be highlighted.}
+During the testing process, several issues were identified and addressed, leading to improvements in both functionality and reliability:
+
+\begin{itemize}
+\item \textbf{Upload File Handling}
+\begin{itemize}
+\item An issue was detected in \texttt{UploadBox.tsx}, where files were not properly validated before being uploaded. Additional validation logic was added to prevent incorrect file types from being processed.
+\item A missing error message for unsupported file types was implemented to improve user feedback.
+\end{itemize}
+\item \textbf{Error Handling in File Processing}
+\begin{itemize}
+\item In \texttt{UploadResults.tsx}, tests revealed that errors during ZIP file processing were not handled gracefully. Additional error handling was introduced to catch and display meaningful error messages when invalid or corrupted ZIP files were uploaded.
+\end{itemize}
+\item \textbf{Form Validation Enhancements}
+\begin{itemize}
+\item The \texttt{AnalyzeFiles.tsx} component initially allowed form submission without an analysis name, causing backend errors. A required field check was added to prevent submissions without a name.
+\end{itemize}
+\item \textbf{Test Coverage Improvements}
+\begin{itemize}
+\item Some uncovered lines in \texttt{button.tsx} and \texttt{UploadBox.tsx} were identified through test coverage reports. Additional unit tests were written to cover these missing scenarios, increasing overall test coverage.
+\item Server side code was not tested with a testing framework. This will be implemented in the future.
+\end{itemize}
+\item \textbf{Emailing Results}
+\begin{itemize}
+\item We noticed we had not yet implemented the feature where users are emailed after 10 minutes that their request is still processing. Thhis feature will be implemented and tested in the future.
+\end{itemize}
+\item \textbf{Cloud}
+\begin{itemize}
+\item Cloud deployment is a future feature that will be implemented once the model is certified per priorities
+\end{itemize}
+\end{itemize}
+
 
 \section{Automated Testing}
+The tests mentioned in the \texttt{Unit Testing} section are automated using the Jest testing framework. The tests are run using the command \texttt{npm test}.
+
+To ensure continuous integration and automated testing, we have set up a GitHub Actions workflow. The workflow is triggered on every push and pull request to the repository. It runs the tests on an Ubuntu environment with Node.js version 18.x.
+
+\subsection{Testing Workflow Configuration}
+
+The following is the configuration of the GitHub Actions workflow used for automated testing:
+
+\begin{verbatim}
+name: Run Frontend Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./src/frontend
+
+    - name: Run tests
+      run: npm test
+      working-directory: ./src/frontend
+\end{verbatim}
+
+\subsection{Testing Workflow Steps}
+
+\begin{itemize}
+    \item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v4} action to check out the repository code.
+    \item \textbf{Set up Node.js}: This step uses the \texttt{actions/setup-node@v4} action to set up Node.js with the specified version (18.x).
+    \item \textbf{Install dependencies}: This step runs \texttt{npm install} to install the necessary dependencies for the frontend.
+    \item \textbf{Run tests}: This step runs \texttt{npm test} to execute the Jest tests for the frontend.
+\end{itemize}
+
+By using this automated testing workflow, we ensure that our code is continuously tested and validated, providing immediate feedback on any issues that may arise from changes in the codebase.
+
+\subsection{Test Coverage Workflow Configuration}
+
+In addition to running unit tests, we have configured a separate GitHub Actions workflow to generate a test coverage report using Jest. This helps us monitor the extent to which our code is covered by automated tests.
+
+The following is the configuration for the test coverage workflow:
+
+\begin{verbatim}
+name: Run Frontend Unit Tests
+
+on: [push, pull_request]
+
+jobs:
+coverage:
+runs-on: ubuntu-20.04
+
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v3
+
+  - name: Run Jest Coverage Report
+    uses: ArtiomTr/jest-coverage-report-action@v2
+    with:
+      working-directory: ./src/frontend
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+
+\end{verbatim}
+
+\subsection{Test Coverage Workflow Steps}
+
+\begin{itemize}
+\item \textbf{Checkout repository}: This step uses the \texttt{actions/checkout@v3} action to check out the repository code.
+\item \textbf{Run Jest Coverage Report}: This step uses the \\ \texttt{ArtiomTr/jest-coverage-report-action@v2} action to generate a coverage report for the Jest tests in the frontend directory.
+\end{itemize}
+
+By incorporating test coverage reporting into our workflow, we can ensure that our automated tests provide sufficient coverage of the codebase, identifying untested areas and improving software reliability.
 		
 \section{Trace to Requirements}
+
+\begin{center}
+    \begin{longtable}{|>{\centering\arraybackslash}p{4cm}|>{\centering\arraybackslash}p{10cm}|}
+    \hline
+    \textbf{Test ID} & \textbf{Requirements} \\
+    \hline
+    \endfirsthead
+    
+    \hline
+    \textbf{Test ID} & \textbf{Requirements} \\
+    \hline
+    \endhead
+    
+    test-FR-1 & FR-1 \\
+    \hline
+    test-FR-2 & FR-2, FR-4, FR-5 \\
+    \hline
+    test-FR-3 & FR-3 \\
+    \hline
+    test-FR-4 & FR-6 \\
+    \hline
+    test-FR-5 & FR-7 \\
+    \hline
+    test-FR-6 & FR-7 \\
+    \hline
+    test-FR-7 & FR-8 \\
+    \hline
+    test-FR-8 & FR-8 \\
+    \hline
+    test-FR-9 & FR-9 \\
+    \hline
+    test-FR-10 & FR-10 \\
+    \hline
+    test-LF-1 & LF-AR1, LF-AR2, LF-AR3, LF-SR1, LF-SR2, LF-SR3, LF-SR4 \\
+    \hline
+    test-LF-2 & CR-SC3 \\
+    \hline
+    test-UH-1 & UH-E1, UH-E3, UH-L1, UH-UP1, UH-UP2, OE-P1 \\
+    \hline
+    test-UH-2 & UH-E2 \\
+    \hline
+    test-UH-3 & UH-PI2 \\
+    \hline
+    test-V-1 & MS-M1, OR-R2 \\
+    \hline
+    test-PS-1 & SR-P1 \\
+    \hline
+    test-PS-2 & SR-P2 \\
+    \hline
+    test-PS-3 & CR-L1, CR-L2, CR-L3, CR-S2, CR-S5 \\
+    \hline
+    test-DS-1 & MS-M3 \\
+    \hline
+    test-DS-2 & MS-S1, CR-SC1 \\
+    \hline
+    test-D-1 & UH-L2, OE-P2 \\
+    \hline
+    test-PR-1 & PR-SL1, PR-C1 \\
+    \hline
+    test-PR-2 & PR-SL2 \\
+    \hline
+    test-PR-3 & PR-SL2 \\
+    \hline
+    test-PR-4 & PR-RFT1 \\
+    \hline
+    test-PR-5 & PR-PA1, PR-PA2 \\
+    \hline
+    test-PR-6 & PR-SE1 \\
+    \hline
+    test-OE-1 & OE-IAS1 \\
+    \hline
+    test-OE-2 & OE-IAS2 \\
+    \hline
+    test-OE-3 & OE-IAS3 \\
+    \hline
+    test-M-1 & MS-M2 \\
+    \hline
+    test-M-2 & MS-S3 \\
+    \hline
+    test-M-3 & MS-A2 \\
+    \hline
+    test-M-4 & MS-A1 \\
+    \hline
+    test-M-5 & MS-A3 \\
+    \hline
+    test-S-1 & SR-A1 \\
+    \hline
+    test-S-2 & SR-A1 \\
+    \hline
+    test-S-3 & SR-A1 \\
+    \hline
+  
+    \caption{Traceability Matrix}
+    \end{longtable}
+    \end{center}
 		
-\section{Trace to Modules}		
+\section{Trace to Modules}	
+Note: M7 encapsulates all its submodules.
+\begin{center}
+    \begin{longtable}{|>{\centering\arraybackslash}p{4cm}|>{\centering\arraybackslash}p{10cm}|}
+    \hline
+    \textbf{Test ID} & \textbf{Requirements} \\
+    \hline
+    \endfirsthead
+    
+    \hline
+    \textbf{Test ID} & \textbf{Module ID} \\
+    \hline
+    \endhead
+    
+    test-FR-1 &  M2\\
+    \hline
+    test-FR-2 & M4, M5, M6, M7, M8, M9\\
+    \hline
+    test-FR-3 & M2 \\
+    \hline
+    test-FR-4 & M6, M9 \\
+    \hline
+    test-FR-5 & M1 \\
+    \hline
+    test-FR-6 & M1 \\
+    \hline
+    test-FR-7 & M1 \\
+    \hline
+    test-FR-8 & M1 \\
+    \hline
+    test-FR-9 & M10 \\
+    \hline
+    test-FR-10 & M3 \\
+    \hline
+    test-LF-1 & All User Interface Modules \\
+    \hline
+    test-LF-2 & All User Interface Modules \\
+    \hline
+    test-UH-1 & All User Interface Modules \\
+    \hline
+    test-UH-2 & M2, M6 \\
+    \hline
+    test-UH-3 & M2, M6 \\
+    \hline
+    test-V-1 &  M7, M8 \\
+    \hline
+    test-PS-1 &  All Modules\\
+    \hline
+    test-PS-2 &  M6, M9 \\
+    \hline
+    test-PS-3 & All Modules \\
+    \hline
+    test-DS-1 &  Module Independent\\
+    \hline
+    test-DS-2 & All Modules\\
+    \hline
+    test-D-1 & M2\\
+    \hline
+    test-PR-1 &  M7, M8\\
+    \hline
+    test-PR-2 &  M10\\
+    \hline
+    test-PR-3 & M10\\
+    \hline
+    test-PR-4 &  M2, M7, M9\\
+    \hline
+    test-PR-5 &  M7, M8\\
+    \hline
+    test-PR-6 &  Module Independent\\
+    \hline
+    test-OE-1 & Module Independent\\
+    \hline
+    test-OE-2 & Module Independent\\
+    \hline
+    test-OE-3 & Module Independent\\
+    \hline
+    test-M-1 & M7, M8 \\
+    \hline
+    test-M-2 & Module Independent\\
+    \hline
+    test-M-3 & M7 \\
+    \hline
+    test-M-4 & M7 \\
+    \hline
+    test-M-5 & M7 \\
+    \hline
+    test-S-1 & M1 \\
+    \hline
+    test-S-2 & M1 \\
+    \hline
+    test-S-3 & M1 \\
+    \hline
+  
+    \caption{Traceability Matrix}
+    \end{longtable}
+    \end{center}
 
 \section{Code Coverage Metrics}
+
+The below report is for the frontend codebase of SyntaxSentinals. The backend has not been tested with a testing framework yet.
+Instead we ensure the backend is working as expected by manually testing the API endpoints using Postman and ensuring the server is sent the 
+expected request via the frontend testing suite. \\
+
+The test coverage report provides the following key metrics:
+
+\begin{itemize}
+\item \textbf{Statements}: 94.35\% (234/248)
+\item \textbf{Branches}: 81.03\% (47/58)
+\item \textbf{Functions}: 86.79\% (46/53)
+\item \textbf{Lines}: 96.18\% (227/236)
+\end{itemize}
+
+\newpage
+
+Below is a breakdown of coverage by individual files:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Directory} & \textbf{Statements} & \textbf{Branches} & \textbf{Functions} & \textbf{Lines} \\
+    \hline
+    Features.tsx & 100\% & 100\% & 100\% & 100\% \\
+    Navbar.tsx & 100\% & 100\% & 100\% & 100\% \\
+    UploadBox.tsx & 96.42\% & 84.21\% & 93.33\% & 98.14\% \\
+    GetStarted.tsx & 100\% & 100\% & 100\% & 100\% \\
+    Home.tsx & 90.32\% & 69.56\% & 73.91\% & 93.16\% \\
+    Button.tsx & 100\% & 66.66\% & 100\% & 100\% \\
+    utils.ts & 100\% & 100\% & 100\% & 100\% \\
+    AnalyzeFiles.tsx & 91.52\% & 75\% & 75\% & 94.54\% \\
+    UploadResults.tsx & 89.23\% & 63.63\% & 72.72\% & 91.93\% \\
+    \hline
+    \end{tabular}
+    \caption{Test Coverage Breakdown by Directory}
+    \label{tab:coverage}
+\end{table}
+
+Some uncovered lines include:
+
+\begin{itemize}
+\item \textbf{UploadBox.tsx}: Line 26.
+\item \textbf{button.tsx}: Line 44.
+\item \textbf{AnalyzeFiles.tsx}: Lines 22, 25, 76.
+\item \textbf{UploadResults.tsx}: Lines 20, 23, 50-51, 89.
+\end{itemize}
+
+These uncovered areas indicate potential gaps in test cases that should be addressed to achieve full coverage.
 
 \bibliographystyle{plainnat}
 \bibliography{../../refs/References}
@@ -200,11 +1241,59 @@ graduate attribute of Reflection.
 \input{../Reflection.tex}
 
 \begin{enumerate}
-  \item What went well while writing this deliverable? 
+  \item What went well while writing this deliverable?
+  
+  It was relatively straightforward to map out the tests we needed to focus on 
+  based on the Verification and Validation (VnV) plan document. The VnV plan 
+  provided clear expectations for the necessary tests, making it easier to 
+  structure the deliverable around those objectives. We didn't need to perform 
+  as much high-level reassessment of the overall design as we initially thought 
+  we might and had to for previous deliverables. This made the process feel 
+  more smooth, as we could concentrate on detailing how the tests would be 
+  executed and aligning them with the deliverables outlined earlier in the 
+  project. The clear documentation we had so far played a significant role in 
+  creating a sense of continuity, which made writing this deliverable easier.
+
   \item What pain points did you experience during this deliverable, and how
     did you resolve them?
+
+    One of the main challenges we encountered was coming up with compelling 
+    data to verify the non-functional requirements for the project. While we 
+    were able to conduct usability tests with peers who rated our UI on a scale 
+    from 1 to 5, we felt unsure about whether this feedback would provide 
+    enough substance to support the NFRs. We sought advice from our TA, who reassured 
+    us that such usability tests, particularly when supplemented by qualitative 
+    feedback and user comments, could be deemed a reasonable and valid dataset 
+    for justifying the passing of NFR tests. This gave us the confidence to proceed 
+    with the existing data and treat it as adequate for demonstrating that the UI 
+    was user-friendly and met our usability NFRs.
+
+    Another pain point revolved around selecting the right framework for frontend 
+    testing. There was some ambiguity about which testing framework 
+    would best suit the needs of our application, especially given the variety 
+    of tools and options available for testing JavaScript-based web applications. 
+    We resolved this by conducting thorough research into various options. This let 
+    us determine that Jest would be the most appropriate choice for our project. 
+    Jest's'ease of use, and the fact that it was already well integrated with React 
+    (the framework we were using for the frontend) made it a great fit.
+
   \item Which parts of this document stemmed from speaking to your client(s) or
   a proxy (e.g. your peers)? Which ones were not, and why?
+
+  The majority of this document stemmed directly from team discussions. 
+  Since we were working closely together and had a good grasp of the 
+  technical specifications, most of the deliverable's content was informed 
+  by our team's perspectives and experience. The only sections which required 
+  client/peer assessment was anything related to the usability tests. As developers, 
+  it was difficult for us to maintain impartiality about the UI's intuitiveness and 
+  ease of use. We needed unbiased feedback to assess how intuitive and usable our 
+  interface truly was, so we conducted usability tests with external users 
+  (mainly classmates) to gather their insights. Their feedback on how easily they 
+  could interact with the interface was necessary to assign a pass or fail for some tests. 
+  Thus, while most of the document was internally driven, the usability testing portion 
+  was based on direct feedback from external stakeholders to ensure that our assumptions 
+  about the UI held up in real-world use.
+
   \item In what ways was the Verification and Validation (VnV) Plan different
   from the activities that were actually conducted for VnV?  If there were
   differences, what changes required the modification in the plan?  Why did
@@ -213,6 +1302,32 @@ graduate attribute of Reflection.
   predict a feasible amount of effort and the right tasks needed to build the
   evidence that demonstrates the required quality?  (It is expected that most
   teams will have had to deviate from their original VnV Plan.)
+
+While the VnV plan provided a great starting point, we did encounter some 
+deviations from the original plan as the project evolved. Aspects such as cloud 
+deployment and metrics for the NLP model ended up being much more complex and 
+time-consuming than we originally anticipated. We had not factored in the 
+amount of work required for cloud integration and the creation of monitoring 
+tools for the NLP model's performance, nor how much work it would be to get 
+the project to a stage where it was ready for either of those components. These changes 
+meant that certain tests had to be postponed to a later phase of the project, and we had to 
+adjust the scope of the tests that could be conducted in the current phase.
+
+Another area of change was related to user notification systems. Initially, the VnV 
+plan assumed that notifications about long processing times (e.g., 10 minutes or more) 
+would be shown directly in the UI. However, after some reflection and considering user 
+behavior, we realized that it was unlikely that users would remain engaged with the UI 
+during long processing times. Therefore, we decided to send these notifications via 
+email only instead, which led to a change in the VnV testing scope. These modifications were 
+a result of our growing understanding of user expectations. We found that such changes 
+can be anticipated to some extent in future projects if we invest more time in the 
+early stages to gather feedback, conduct prototyping, and set clear technical expectations.
+
+While it was difficult to predict all of these changes upfront, the team was able to adjust 
+quickly thanks to open communication and ascertaining of direction. If we had spent more 
+time in earlier phases fully scoping out all potential technical complexities and user 
+scenarios, we might have been able to avoid some of these surprises. That is a goal for 
+future projects we participate in.
 \end{enumerate}
 
 \end{document}

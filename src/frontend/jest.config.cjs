@@ -9,4 +9,5 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
+  coverageReporters: ['text-summary', 'text'],
 };
