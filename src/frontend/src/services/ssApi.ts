@@ -58,20 +58,6 @@ export const uploadFiles = async (files: FileList, analysisName: string) => {
 };
 
 /**
- * Create a new job and return the job ID
- * @returns {Promise<JobResponse>} - The job response with job ID and status
- */
-export const createJob = async () => {
-  try {
-    const response = await api.post("/results/create");
-    return response.data;
-  } catch (error) {
-    console.error("Error creating job:", error);
-    throw error;
-  }
-};
-
-/**
  * Poll for results using a job ID
  * @param {string} jobId - The job ID to poll for
  * @returns {Promise<JobResponse>} - The job response with status and results if available
@@ -92,7 +78,7 @@ export const pollResults = async (jobId: string) => {
  */
 export const getUserJobs = async () => {
   try {
-    const response = await api.get('/results');
+    const response = await api.get("/results");
     return response.data.jobs;
   } catch (error) {
     console.error("Error getting user jobs:", error);

@@ -113,117 +113,117 @@ router.get("/:jobId", async (req, res, next) => {
   }
 });
 
-/**
- * POST /results/create
- * Create a new job and return the job ID
- */
-router.post("/create", async (req, res, next) => {
-  try {
-    // Generate a unique job ID
-    const jobId = uuidv4();
+// /**
+//  * POST /results/create
+//  * Create a new job and return the job ID
+//  */
+// router.post("/create", async (req, res, next) => {
+//   try {
+//     // Generate a unique job ID
+//     const jobId = uuidv4();
 
-    // Get user Auth0 ID from Auth0
-    const token = req.headers.authorization.split(" ")[1];
-    const response = await fetch(
-      `https://${AuthVariables.AUTH0_DOMAIN}/userinfo`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const userData = await response.json();
-    const auth0Id = userData.sub; // Auth0 ID is in the 'sub' claim
+//     // Get user Auth0 ID from Auth0
+//     const token = req.headers.authorization.split(" ")[1];
+//     const response = await fetch(
+//       `https://${AuthVariables.AUTH0_DOMAIN}/userinfo`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+//     const userData = await response.json();
+//     const auth0Id = userData.sub; // Auth0 ID is in the 'sub' claim
 
-    if (!auth0Id) {
-      logger.warn("No sub claim found in the Auth0 token payload");
-      return next(
-        new HttpRequestException(
-          400,
-          "No user ID found in token payload",
-          "NO_USER_ID_CLAIM"
-        )
-      );
-    }
+//     if (!auth0Id) {
+//       logger.warn("No sub claim found in the Auth0 token payload");
+//       return next(
+//         new HttpRequestException(
+//           400,
+//           "No user ID found in token payload",
+//           "NO_USER_ID_CLAIM"
+//         )
+//       );
+//     }
 
-    // Get analysis name from request body
-    const { analysisName } = req.body;
+//     // Get analysis name from request body
+//     const { analysisName } = req.body;
 
-    // Create a pending job in Firebase
-    await firebaseUtils.storeResults(auth0Id, jobId, null, analysisName);
+//     // Create a pending job in Firebase
+//     await firebaseUtils.storeResults(auth0Id, jobId, null, analysisName);
 
-    // Update the job status to pending
-    await firebaseUtils.updateJobStatus(jobId, "pending");
+//     // Update the job status to pending
+//     await firebaseUtils.updateJobStatus(jobId, "pending");
 
-    // Return the job ID
-    return res.json({
-      jobId,
-      status: "pending",
-      analysisName,
-    });
-  } catch (error) {
-    logger.error("Error creating job:", error);
-    next(error);
-  }
-});
+//     // Return the job ID
+//     return res.json({
+//       jobId,
+//       status: "pending",
+//       analysisName,
+//     });
+//   } catch (error) {
+//     logger.error("Error creating job:", error);
+//     next(error);
+//   }
+// });
 
-/**
- * POST /results/update
- * Update job status and results
- * This endpoint is called by the Python server to update job status and store results
- */
-router.post("/update", async (req, res, next) => {
-  try {
-    const { jobId, status, resultData } = req.body;
+// /**
+//  * POST /results/update
+//  * Update job status and results
+//  * This endpoint is called by the Python server to update job status and store results
+//  */
+// router.post("/update", async (req, res, next) => {
+//   try {
+//     const { jobId, status, resultData } = req.body;
 
-    if (!jobId) {
-      logger.warn("No job ID provided");
-      return next(
-        new HttpRequestException(400, "Job ID is required", "MISSING_JOB_ID")
-      );
-    }
+//     if (!jobId) {
+//       logger.warn("No job ID provided");
+//       return next(
+//         new HttpRequestException(400, "Job ID is required", "MISSING_JOB_ID")
+//       );
+//     }
 
-    if (!status) {
-      logger.warn("No status provided");
-      return next(
-        new HttpRequestException(400, "Status is required", "MISSING_STATUS")
-      );
-    }
+//     if (!status) {
+//       logger.warn("No status provided");
+//       return next(
+//         new HttpRequestException(400, "Status is required", "MISSING_STATUS")
+//       );
+//     }
 
-    // Get the current job data
-    const jobData = await firebaseUtils.getResults(jobId);
+//     // Get the current job data
+//     const jobData = await firebaseUtils.getResults(jobId);
 
-    if (!jobData) {
-      logger.warn(`No job found for job ID: ${jobId}`);
-      return next(
-        new HttpRequestException(404, "Job not found", "JOB_NOT_FOUND")
-      );
-    }
+//     if (!jobData) {
+//       logger.warn(`No job found for job ID: ${jobId}`);
+//       return next(
+//         new HttpRequestException(404, "Job not found", "JOB_NOT_FOUND")
+//       );
+//     }
 
-    // Update the job status
-    await firebaseUtils.updateJobStatus(jobId, status);
-    logger.info(`Updated job status for job ID: ${jobId} to ${status}`);
+//     // Update the job status
+//     await firebaseUtils.updateJobStatus(jobId, status);
+//     logger.info(`Updated job status for job ID: ${jobId} to ${status}`);
 
-    // If result data is provided, store it
-    if (resultData && status === "completed") {
-      await firebaseUtils.storeResults(
-        jobData.auth0Id,
-        jobId,
-        resultData,
-        jobData.analysisName
-      );
-      logger.info(`Stored results for job ID: ${jobId}`);
-    }
+//     // If result data is provided, store it
+//     if (resultData && status === "completed") {
+//       await firebaseUtils.storeResults(
+//         jobData.auth0Id,
+//         jobId,
+//         resultData,
+//         jobData.analysisName
+//       );
+//       logger.info(`Stored results for job ID: ${jobId}`);
+//     }
 
-    return res.json({
-      message: "Job updated successfully",
-      jobId,
-      status,
-    });
-  } catch (error) {
-    logger.error("Error updating job:", error);
-    next(error);
-  }
-});
+//     return res.json({
+//       message: "Job updated successfully",
+//       jobId,
+//       status,
+//     });
+//   } catch (error) {
+//     logger.error("Error updating job:", error);
+//     next(error);
+//   }
+// });
 
 export { router };
