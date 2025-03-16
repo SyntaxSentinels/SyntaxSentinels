@@ -14,7 +14,12 @@ import torch
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from transformers import RobertaTokenizer, RobertaModel, AutoTokenizer, AutoModel
+from transformers import RobertaTokenizer, RobertaModel, AutoTokenizer, AutoModel, BertTokenizer
+
+# Import GraphBERT model and AST extractor
+from controller.algorithms.graphbert_model import GraphBERTModel
+from controller.algorithms.ast_extractor import ASTExtractor
+from controller.algorithms.privacy_preserving_comparison import DolosStyleComparison, PrivacyPreservingComparison
 
 # Device Configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -184,13 +189,56 @@ class EmbeddingSimilarity:
 
 
 # ===========================
+#  GraphBERT-Based Similarity
+# ===========================
+class GraphBERTSimilarity:
+    def __init__(self, bert_model_name="graphbert", batch_size=8):
+        # Initialize the GraphBERT model
+        self.model = GraphBERTModel(model_name=bert_model_name)
+        self.embedding_cache = {}
+        self.batch_size = batch_size
+
+    def hash_code(self, code):
+        """Generate a hash for the code snippet."""
+        return hashlib.sha256(code.encode('utf-8')).hexdigest()
+
+    def compute(self, code1, code2):
+        """Compute similarity between two code snippets using GraphBERT."""
+        try:
+            # Use the GraphBERT model to compute similarity
+            similarity_result = self.model.compute_similarity(code1, code2)
+            
+            # Return the combined similarity score
+            return similarity_result["similarity"]
+        except Exception as e:
+            print(f"Error in GraphBERT similarity computation: {e}")
+            # Fallback to a simpler similarity measure
+            return TokenSimilarity().compute(code1, code2)
+            
+    def compute_line_similarities(self, file1_lines, file2_lines):
+        """Compute similarities between lines of two files."""
+        try:
+            # Use the GraphBERT model to compute line-by-line similarities
+            return self.model.compute_line_similarities(file1_lines, file2_lines)
+        except Exception as e:
+            print(f"Error in GraphBERT line similarity computation: {e}")
+            return []
+
+# ===========================
 #  Code Similarity Pipeline
 # ===========================
 class CodeSimilarityPipeline:
-    def __init__(self, model_name="microsoft/codebert-base"):
+    def __init__(self, model_name="graphbert"):
         self.token_sim = TokenSimilarity()
         self.ast_sim = ASTSimilarity()
-        self.embed_sim = EmbeddingSimilarity(model_name)
+        
+        # Use GraphBERT if specified
+        if "graphbert" in model_name.lower():
+            self.embed_sim = GraphBERTSimilarity(
+                bert_model_name=model_name  # Pass the model name directly
+            )
+        else:
+            self.embed_sim = EmbeddingSimilarity(model_name)
 
     def compute_all(self, code1, code2):
         token_sim = self.token_sim.compute(code1, code2)
@@ -221,83 +269,136 @@ def extract_python_files_from_zip(zip_bytes):
     return python_files
 
 
-def compare_code_lines(code1_lines, code2_lines):
-    """Compare lines between two files and return similarity scores."""
-    # Use difflib to find matching lines
-    import difflib
-    matcher = difflib.SequenceMatcher(None, code1_lines, code2_lines)
+def compare_code_lines(code1_lines, code2_lines, model_name="graphbert"):
+    """
+    Compare lines between two files using privacy-preserving comparison.
     
+    Args:
+        code1_lines: Lines from the first file
+        code2_lines: Lines from the second file
+        model_name: The model to use for comparison
+        
+    Returns:
+        A list of dictionaries with line comparison results
+    """
+    # Initialize the privacy-preserving comparison system
+    comparison = PrivacyPreservingComparison(model_name)
+    
+    # Join lines into a single string for each file
+    code1 = "\n".join(code1_lines)
+    code2 = "\n".join(code2_lines)
+    
+    # Get line-by-line comparisons
+    comparisons = comparison.compare_files(code1_lines, code2_lines)
+    
+    # Format the results for the API response
     line_comparisons = []
-    
-    # Process each matching block
-    for a, b, size in matcher.get_matching_blocks():
-        if size > 0:
-            for i in range(size):
-                line1 = code1_lines[a + i]
-                line2 = code2_lines[b + i]
-                
-                # Skip empty lines
-                if not line1.strip() or not line2.strip():
-                    continue
-                
-                # Compute similarity score for this line pair using token similarity
-                # This is a simplified version - in a real implementation, you might use embeddings
-                token_sim = TokenSimilarity().compute(line1, line2)
-                
-                # Only include if similarity is above threshold
-                if token_sim > 0.7:  # Threshold for considering lines similar
-                    line_comparisons.append({
-                        "file1Line": line1,
-                        "file2Line": line2,
-                        "similarity": token_sim
-                    })
+    for comp in comparisons:
+        # Only include necessary information, not the actual code
+        line_comparisons.append({
+            "file1LineNum": comp["file1_line_num"],
+            "file2LineNum": comp["file2_line_num"],
+            "similarity": comp["similarity"],
+            "tokenSim": comp["token_sim"],
+            "embedSim": comp["embed_sim"],
+            "fingerprintSim": comp["fingerprint_sim"]
+        })
     
     return line_comparisons
 
-def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base"):
+def compute_similarities_from_zip(zip_bytes, model_name="graphbert"):
     """
     Given a zip file (as bytes), extract Python files and compute pairwise similarity scores.
     Returns a list of dictionaries containing similarity results for each file pair.
-    Also includes line-by-line comparison data for each file pair.
+    Uses privacy-preserving comparison to avoid storing actual code content.
     """
     python_files = extract_python_files_from_zip(zip_bytes)
     file_pairs = []
     n = len(python_files)
+    
     # Create all unique pairs (i < j)
     for i in range(n):
         for j in range(i + 1, n):
             file_pairs.append((python_files[i], python_files[j]))
 
-    pipeline = CodeSimilarityPipeline(model_name)
+    # Initialize the appropriate comparison system based on model name
+    if model_name == "graphbert":
+        # Use the GraphBERT model directly for more accurate comparisons
+        print(f"Using GraphBERT model for comparison")
+        graph_bert_model = GraphBERTModel(model_name="graphbert")
+    else:
+        # Use the Dolos-style comparison for other models
+        print(f"Using {model_name} with Dolos-style comparison")
+        comparison_system = DolosStyleComparison(model_name)
+    
     results = []
-    file_contents = {}  # Store file contents for later use
-
-    # Store all file contents
+    file_metadata = {}  # Store file metadata instead of actual content
+    
+    # Store file metadata (line counts, etc.)
     for fname, content in python_files:
-        file_contents[fname] = content.splitlines()
+        lines = content.splitlines()
+        file_metadata[fname] = {
+            "line_count": len(lines),
+            "file_hash": hashlib.sha256(content.encode()).hexdigest()
+        }
 
     def process_pair(pair):
         (fname1, code1), (fname2, code2) = pair
-        token_sim, ast_sim, embed_sim = pipeline.compute_all(code1, code2)
         
-        # Compute line-by-line comparisons
-        code1_lines = code1.splitlines()
-        code2_lines = code2.splitlines()
-        line_comparisons = compare_code_lines(code1_lines, code2_lines)
-        
-        return {
-            "file1": fname1,
-            "file2": fname2,
-            "similarity_score": embed_sim,
-            "line_comparisons": line_comparisons
-        }
+        if model_name == "graphbert":
+            # Use GraphBERT model directly
+            try:
+                # Create temporary files for the GraphBERT model to read
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f1, \
+                     tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f2:
+                    f1.write(code1)
+                    f2.write(code2)
+                    f1_path = f1.name
+                    f2_path = f2.name
+                
+                # Compute similarity using GraphBERT
+                similarity_result = graph_bert_model.compute_file_similarity(f1_path, f2_path)
+                
+                # Clean up temporary files
+                os.unlink(f1_path)
+                os.unlink(f2_path)
+                
+                # Format the result
+                return {
+                    "file1": fname1,
+                    "file2": fname2,
+                    "similarity_score": similarity_result["similarity_score"],
+                    "line_comparisons": similarity_result["line_comparisons"]
+                }
+            except Exception as e:
+                print(f"Error using GraphBERT for {fname1} and {fname2}: {e}")
+                # Fall back to Dolos-style comparison
+                comparison_system = DolosStyleComparison("microsoft/codebert-base")
+                similarity_report = comparison_system.compare_files(code1, code2)
+                
+                return {
+                    "file1": fname1,
+                    "file2": fname2,
+                    "similarity_score": similarity_report["overall_similarity"],
+                    "line_comparisons": similarity_report["line_comparisons"]
+                }
+        else:
+            # Use the Dolos-style comparison
+            similarity_report = comparison_system.compare_files(code1, code2)
+            
+            return {
+                "file1": fname1,
+                "file2": fname2,
+                "similarity_score": similarity_report["overall_similarity"],
+                "line_comparisons": similarity_report["line_comparisons"]
+            }
 
     with ThreadPoolExecutor() as executor:
         for result in executor.map(process_pair, file_pairs):
             results.append(result)
 
-    # Add file contents to the results
+    # Return results with file metadata instead of actual content
     return {
         "similarity_results": results,
-        "file_contents": file_contents
+        "file_metadata": file_metadata
     }

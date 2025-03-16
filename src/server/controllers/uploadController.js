@@ -80,6 +80,7 @@ router.post("/", multer().any(), async (req, res, next) => {
     }
 
     const analysisName = req.body.analysisName;
+    const modelName = req.body.modelName || 'graphbert'; // Default to GraphBERT if not specified
 
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       logger.warn("No files found in request");
@@ -90,10 +91,10 @@ router.post("/", multer().any(), async (req, res, next) => {
     const jobId = uuidv4();
 
     // Create a pending job in Firebase
-    await firebaseUtils.storeResults(auth0Id, jobId, null, analysisName);
+    await firebaseUtils.storeResults(auth0Id, jobId, null, analysisName, modelName);
     await firebaseUtils.updateJobStatus(jobId, "pending");
     logger.info(
-      `Created pending job in Firebase with job ID: ${jobId} and analysis name: ${analysisName}`
+      `Created pending job in Firebase with job ID: ${jobId}, analysis name: ${analysisName}, model: ${modelName}`
     );
 
     // Create a zip archive of the files
@@ -112,8 +113,8 @@ router.post("/", multer().any(), async (req, res, next) => {
     logger.info(`Uploaded zip file to S3: ${s3Key}`);
 
     // Send a message to SQS
-    await awsUtils.sendToSQS(jobId, s3Key, auth0Id, analysisName);
-    logger.info(`Sent job to SQS queue: ${jobId}`);
+    await awsUtils.sendToSQS(jobId, s3Key, auth0Id, analysisName, modelName);
+    logger.info(`Sent job to SQS queue: ${jobId} with model: ${modelName}`);
 
     // Return the job ID to the frontend
     return res.json({

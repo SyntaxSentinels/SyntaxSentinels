@@ -34,13 +34,15 @@ const db = admin.firestore();
  * @param {string} jobId - The unique job ID
  * @param {Object} resultData - The analysis results data
  * @param {string} analysisName - The name of the analysis
+ * @param {string} modelName - The model used for analysis
  * @returns {Promise<string>} - The document ID
  */
 export const storeResults = async (
   auth0Id,
   jobId,
   resultData,
-  analysisName = "Unnamed Analysis"
+  analysisName = "Unnamed Analysis",
+  modelName = "graphbert"
 ) => {
   try {
     // Create a reference to the results collection
@@ -55,6 +57,7 @@ export const storeResults = async (
       jobId,
       resultData,
       analysisName,
+      modelName,
       status: "completed",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -75,6 +78,7 @@ export const storeResults = async (
               jobId,
               timestamp: new Date().toISOString(), // Use ISO string instead of server timestamp
               analysisName,
+              modelName,
             },
           ],
         });
@@ -87,6 +91,7 @@ export const storeResults = async (
           jobId,
           timestamp: new Date().toISOString(), // Use ISO string instead of server timestamp
           analysisName,
+          modelName,
         });
 
         transaction.update(jobHistoryRef, { jobs });
@@ -219,6 +224,7 @@ export const getUserJobs = async (auth0Id) => {
             jobId: doc.id,
             status: data.status,
             analysisName: data.analysisName || "Unnamed Analysis",
+            modelName: data.modelName || "graphbert", // Default to GraphBERT if not specified
             createdAt: data.createdAt ? data.createdAt.toDate() : null,
             updatedAt: data.updatedAt ? data.updatedAt.toDate() : null,
             // Don't include the full result data to keep the response size small
@@ -258,6 +264,7 @@ export const getUserJobs = async (auth0Id) => {
         jobId: doc.id,
         status: data.status,
         analysisName: data.analysisName || "Unnamed Analysis",
+        modelName: data.modelName || "graphbert", // Default to GraphBERT if not specified
         createdAt: data.createdAt ? data.createdAt.toDate() : null,
         updatedAt: data.updatedAt ? data.updatedAt.toDate() : null,
         // Don't include the full result data to keep the response size small

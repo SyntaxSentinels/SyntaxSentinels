@@ -5,17 +5,32 @@ import { useAuth0 } from "@auth0/auth0-react";
 interface SimilarityResult {
   file1: string;
   file2: string;
-  similarity_score: number;
-  line_comparisons?: {
-    file1Line: string;
-    file2Line: string;
+  similarity_score?: number;
+  overall_similarity?: number;
+  file1_coverage?: number;
+  file2_coverage?: number;
+  matched_line_count?: number;
+  heatmap_data?: {
+    file1_line: number;
+    file2_line: number;
     similarity: number;
+  }[];
+  line_comparisons?: {
+    file1_line_num: number;
+    file2_line_num: number;
+    file1_line?: string;
+    file2_line?: string;
+    similarity: number;
+    token_sim?: number;
+    embed_sim?: number;
+    fingerprint_sim?: number;
   }[];
 }
 
 interface SimilarityData {
   similarity_results: SimilarityResult[];
-  file_contents: Record<string, string[]>;
+  file_metadata?: Record<string, { line_count: number, file_hash: string }>;
+  file_contents?: Record<string, string[]>;
 }
 
 // Interface for job information
@@ -35,7 +50,7 @@ interface JobResponse {
   resultData?: SimilarityData;
 }
 
-export const uploadFiles = async (files: FileList, analysisName: string) => {
+export const uploadFiles = async (files: FileList, analysisName: string, modelName: string = "graphbert") => {
   console.log("Uploading files...");
   const formData = new FormData();
   Array.from(files).forEach((file) => {
@@ -43,6 +58,7 @@ export const uploadFiles = async (files: FileList, analysisName: string) => {
   });
 
   formData.append("analysisName", analysisName);
+  formData.append("modelName", modelName);
 
   try {
     const response = await api.post("/upload", formData, {
@@ -100,11 +116,12 @@ export const getUserJobs = async () => {
   }
 };
 
-export const compareFiles = async (file1Path: string, file2Path: string) => {
+export const compareFiles = async (file1Path: string, file2Path: string, modelName: string = "graphbert") => {
   try {
     const response = await api.post("/compare-files", {
       file1: file1Path,
       file2: file2Path,
+      modelName: modelName
     });
     return response.data;
   } catch (error) {

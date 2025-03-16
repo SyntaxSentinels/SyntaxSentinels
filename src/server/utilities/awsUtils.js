@@ -46,9 +46,10 @@ export const uploadToS3 = async (fileBuffer, key) => {
  * @param {string} s3Key - The S3 key where the file is stored
  * @param {string} auth0Id - The user's Auth0 ID
  * @param {string} analysisName - The name of the analysis
+ * @param {string} modelName - The model used for analysis
  * @returns {Promise<Object>} - The SQS send message result
  */
-export const sendToSQS = async (jobId, s3Key, auth0Id, analysisName) => {
+export const sendToSQS = async (jobId, s3Key, auth0Id, analysisName, modelName = "graphbert") => {
   try {
     const params = {
       QueueUrl: process.env.SQS_QUEUE_URL,
@@ -57,6 +58,7 @@ export const sendToSQS = async (jobId, s3Key, auth0Id, analysisName) => {
         s3Key,
         auth0Id,
         analysisName,
+        modelName,
         timestamp: new Date().toISOString()
       }),
       MessageGroupId: auth0Id, // Use auth0Id as group ID to ensure user's jobs are processed in order

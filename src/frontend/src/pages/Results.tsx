@@ -22,17 +22,32 @@ import PlagiarismCompare from "@/components/PlagiarismCompare";
 interface SimilarityResult {
   file1: string;
   file2: string;
-  similarity_score: number;
-  line_comparisons?: {
-    file1Line: string;
-    file2Line: string;
+  similarity_score?: number;
+  overall_similarity?: number;
+  file1_coverage?: number;
+  file2_coverage?: number;
+  matched_line_count?: number;
+  heatmap_data?: {
+    file1_line: number;
+    file2_line: number;
     similarity: number;
+  }[];
+  line_comparisons?: {
+    file1_line_num: number;
+    file2_line_num: number;
+    file1_line?: string;
+    file2_line?: string;
+    similarity: number;
+    token_sim?: number;
+    embed_sim?: number;
+    fingerprint_sim?: number;
   }[];
 }
 
 interface SimilarityData {
   similarity_results: SimilarityResult[];
-  file_contents: Record<string, string[]>;
+  file_metadata?: Record<string, { line_count: number; file_hash: string }>;
+  file_contents?: Record<string, string[]>;
 }
 
 interface SimilarityStats {
@@ -60,7 +75,10 @@ const calculateMedian = (values: number[]) => {
 const generateDistribution = (results: SimilarityResult[]) => {
   const bins = Array(10).fill(0);
   results.forEach((result) => {
-    const index = Math.min(Math.floor((result.similarity_score * 100) / 10), 9);
+    const index = Math.min(
+      Math.floor((result.overall_similarity * 100) / 10),
+      9
+    );
     bins[index]++;
   });
 
@@ -140,17 +158,24 @@ const Results = () => {
       if (response.status === "completed" && response.resultData) {
         const jsonData = response.resultData;
 
+        // Debug: Log the data structure
+        console.log("Result data:", jsonData);
+
         // Process the results
         setSimilarityData(jsonData);
         const results = jsonData.similarity_results;
 
         if (!Array.isArray(results) || results.length === 0) {
+          console.error(
+            "No similarity_results array found or it's empty:",
+            jsonData
+          );
           message.error("No data found in the results.");
           setRefreshing(false);
           return;
         }
 
-        const similarityValues = results.map((r) => r.similarity_score * 100);
+        const similarityValues = results.map((r) => r.overall_similarity * 100);
         const highest = Math.max(...similarityValues);
         const avg = Math.round(
           similarityValues.reduce((acc, val) => acc + val, 0) / results.length
@@ -158,12 +183,12 @@ const Results = () => {
         const median = calculateMedian(similarityValues);
 
         setResults(
-          results.sort((a, b) => b.similarity_score - a.similarity_score)
+          results.sort((a, b) => b.overall_similarity - a.overall_similarity)
         );
 
         // Filter results based on threshold
         setFilteredResults(
-          results.sort((a, b) => b.similarity_score - a.similarity_score)
+          results.sort((a, b) => b.overall_similarity - a.overall_similarity)
         );
 
         setStats({
@@ -198,7 +223,7 @@ const Results = () => {
   // Filter results based on threshold
   useEffect(() => {
     setFilteredResults(
-      results.filter((r) => r.similarity_score * 100 >= threshold)
+      results.filter((r) => r.overall_similarity * 100 >= threshold)
     );
   }, [results, threshold]);
 
@@ -353,7 +378,7 @@ const Results = () => {
                         </TableCell>
                         <TableCell>{result.file2}</TableCell>
                         <TableCell className="text-right">
-                          {(result.similarity_score * 100).toFixed(3)}%
+                          {(result.overall_similarity * 100).toFixed(3)}%
                         </TableCell>
                         <TableCell className="text-center">
                           <Button

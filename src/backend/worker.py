@@ -81,8 +81,9 @@ def process_message(message):
         s3_key = body.get('s3Key')
         auth0_id = body.get('auth0Id')
         analysis_name = body.get('analysisName')
+        model_name = body.get('modelName', 'graphbert')  # Default to GraphBERT if not specified
         
-        logger.info(f"Processing job: {job_id} for user: {auth0_id}")
+        logger.info(f"Processing job: {job_id} for user: {auth0_id} using model: {model_name}")
         
         # Update job status to processing
         update_job_status(job_id, 'processing')
@@ -95,9 +96,9 @@ def process_message(message):
             with open(temp_file_path, 'rb') as f:
                 zip_bytes = f.read()
             
-            # Process the zip file
-            logger.info(f"Processing file: {temp_file_path}")
-            result_data = compute_similarities_from_zip(zip_bytes)
+            # Process the zip file with the specified model
+            logger.info(f"Processing file: {temp_file_path} with model: {model_name}")
+            result_data = compute_similarities_from_zip(zip_bytes, model_name)
             
             # Update job status to completed with results
             update_job_status(job_id, 'completed', result_data)
@@ -162,4 +163,3 @@ def poll_sqs_queue():
 
 if __name__ == "__main__":
     poll_sqs_queue()
-

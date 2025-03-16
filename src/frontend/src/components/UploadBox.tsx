@@ -1,6 +1,7 @@
 import { Input, message, List, Button } from "antd";
 import { InboxOutlined, CloseOutlined } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
+import { cacheFiles } from "@/services/fileCacheService";
 
 const UploadBox = ({ onFileListChange, mode, clearFiles, setClearFiles }) => {
   const [fileList, setFileList] = useState([]);

@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from controller.compute import compute_similarities_from_zip
+from controller.algorithms.privacy_preserving_comparison import DolosStyleComparison
 import os
 import re
 import difflib
@@ -21,10 +22,13 @@ def similarity():
     The ZIP file can be sent either as a multipart/form-data file (with key "file")
     or as raw binary data.
     
-    Optionally, a query parameter "model" can override the default model.
+    Optionally, a "model" query parameter can override the default model.
+    Available models:
+    - "graphbert" (default) - GraphBERT model that combines CodeBERT with AST information
+    - "microsoft/codebert-base" - Original CodeBERT model
     """
     # Retrieve optional model override from query parameters
-    model_name = request.args.get("model", "microsoft/codebert-base")
+    model_name = request.args.get("model", "graphbert")
 
     # Check if the client sent the file as multipart/form-data
     if "file" in request.files:
@@ -47,7 +51,13 @@ def similarity():
 def compare_files():
     """
     Expects a POST request with file1 and file2 paths.
-    Returns line-by-line comparison with similarity scores.
+    Returns a comprehensive similarity report with privacy-preserving line-by-line comparison.
+    
+    Optionally, a "modelName" parameter in the request body or a "model" query parameter 
+    can override the default model.
+    Available models:
+    - "graphbert" (default) - GraphBERT model that combines CodeBERT with AST information
+    - "microsoft/codebert-base" - Original CodeBERT model
     """
     data = request.json
     if not data or 'file1' not in data or 'file2' not in data:
@@ -55,6 +65,10 @@ def compare_files():
 
     file1_path = data['file1']
     file2_path = data['file2']
+    model_name = data.get('modelName') or request.args.get("model", "graphbert")
+    
+    # Initialize the Dolos-style comparison system
+    comparison_system = DolosStyleComparison(model_name)
 
     try:
         # Read the actual file contents
@@ -65,18 +79,28 @@ def compare_files():
             
         # Read the files
         with open(file1_path, 'r', encoding='utf-8') as f1:
-            file1_content = f1.read().splitlines()
+            file1_content = f1.read()
             
         with open(file2_path, 'r', encoding='utf-8') as f2:
-            file2_content = f2.read().splitlines()
+            file2_content = f2.read()
 
-        # Compute line-by-line similarity
-        line_comparisons = compare_code_lines(file1_content, file2_content)
-
+        # Compute comprehensive similarity report
+        similarity_report = comparison_system.compare_files(file1_content, file2_content)
+        
+        # For the frontend, we need to provide line numbers for display
+        # but we don't want to send the actual code content for privacy reasons
+        file1_lines = file1_content.splitlines()
+        file2_lines = file2_content.splitlines()
+        
         return jsonify({
-            "file1Content": file1_content,
-            "file2Content": file2_content,
-            "lineComparisons": line_comparisons
+            "file1LineCount": len(file1_lines),
+            "file2LineCount": len(file2_lines),
+            "overallSimilarity": similarity_report["overall_similarity"],
+            "file1Coverage": similarity_report["file1_coverage"],
+            "file2Coverage": similarity_report["file2_coverage"],
+            "matchedLineCount": similarity_report["matched_line_count"],
+            "heatmapData": similarity_report["heatmap_data"],
+            "lineComparisons": similarity_report["line_comparisons"]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

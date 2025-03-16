@@ -9,6 +9,7 @@ import {
   Col,
   message,
   Tooltip,
+  Select,
 } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import "./AnalyzeFiles.css";
@@ -24,6 +25,7 @@ const AnalyzeFiles: React.FC = () => {
   const [analysisFile, setAnalysisFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [analysisName, setAnalysisName] = useState("");
+  const [modelName, setModelName] = useState("graphbert"); // Default to GraphBERT
   const [formKey, setFormKey] = useState(0); // Add a key to force re-render
   const [clearFiles, setClearFiles] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +99,7 @@ const AnalyzeFiles: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await uploadFiles(analysisFile, analysisName);
+      const response = await uploadFiles(analysisFile, analysisName, modelName);
 
       if (response && response.jobId) {
         // Store the job ID in localStorage
@@ -159,6 +161,19 @@ const AnalyzeFiles: React.FC = () => {
                   size="large"
                   value={analysisName}
                   onChange={(e) => setAnalysisName(e.target.value)}
+                />
+              </Form.Item>
+              
+              <Form.Item label="Model" name="modelName" required>
+                <Select
+                  placeholder="Select a model"
+                  size="large"
+                  value={modelName}
+                  onChange={(value) => setModelName(value)}
+                  options={[
+                    { value: 'graphbert', label: 'GraphBERT (Recommended)' },
+                    { value: 'microsoft/codebert-base', label: 'CodeBERT' }
+                  ]}
                 />
               </Form.Item>
 
