@@ -8,11 +8,13 @@ import {
   TableRow,
 } from "@/components/common/table";
 import { Card } from "@/components/common/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/common/dialog";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
 import { Button, Pagination, Spin, Slider, message } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import CodeSimilarityViewer from "@/components/CodeSimilarityViewer";
 
 // Interfaces for our data structures
 interface SimilarityResult {
@@ -69,6 +71,7 @@ const Results = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [threshold, setThreshold] = useState(50);
   const [filteredResults, setFilteredResults] = useState<SimilarityResult[]>([]);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
   useEffect(() => {
@@ -134,6 +137,20 @@ const Results = () => {
     return filteredResults.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredResults, currentPage]);
 
+  // FIXME: This is just test data for now
+  const fileA = "def add(a, b):\n    result = a + b\n    return result  # This line is mapped\n\ndef multiply(x, y):\n    product = x * y\n    return product  # This spans multiple lines";
+  const fileB = "def sum_numbers(a, b):\n    total = a + b\n    return total  # This line maps to File A's return statement\n\ndef multiply_values(x, y):\n    multiplied = x * y\n    return multiplied  # This spans multiple lines";
+  const spanClusters = [
+    {
+      "sourceSpans": [{ "startLine": 1, "startColumn": 5, "endLine": 1, "endColumn": 8 }], 
+      "targetSpans": [{ "startLine": 1, "startColumn": 5, "endLine": 1, "endColumn": 15 }, { "startLine": 1, "startColumn": 18, "endLine": 2, "endColumn": 3 }]
+    },
+    {
+      "sourceSpans": [{ "startLine": 2, "startColumn": 12, "endLine": 2, "endColumn": 13 }],
+      "targetSpans": [{ "startLine": 2, "startColumn": 12, "endLine": 2, "endColumn": 13 }]
+    }
+  ]
+  
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="container mx-auto">
@@ -238,10 +255,8 @@ const Results = () => {
                   </TableHeader>
                   <TableBody>
                     {displayedResults.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">
-                          {result.file1}
-                        </TableCell>
+                      <TableRow key={index} onClick={() => setSelectedSubmission(result)} className="cursor-pointer hover:bg-gray-100">
+                        <TableCell className="font-medium">{result.file1}</TableCell>
                         <TableCell>{result.file2}</TableCell>
                         <TableCell className="text-right">
                           {(result.similarity_score * 100).toFixed(3)}%
@@ -259,6 +274,29 @@ const Results = () => {
                 />
               </div>
             </Card>
+
+            {/* Full-Screen Modal */}
+            <Dialog open={!!selectedSubmission} onOpenChange={() => setSelectedSubmission(null)}>
+            <DialogContent className="max-w-full h-full bg-white p-6">
+                <DialogHeader>
+                  <DialogTitle>Edit profile</DialogTitle>
+                </DialogHeader>
+                  <CodeSimilarityViewer 
+                  fileA={fileA}
+                  fileB={fileB}
+                  spanClusters={spanClusters}
+                />
+                <div>
+                  {selectedSubmission && (
+                    <div>
+                      <p><strong>File 1:</strong> {selectedSubmission.file1}</p>
+                      <p><strong>File 2:</strong> {selectedSubmission.file2}</p>
+                      <p><strong>Similarity:</strong> {(selectedSubmission.similarity_score * 100).toFixed(3)}%</p>
+                    </div>
+                  )}
+                </div>
+                </DialogContent>
+            </Dialog>
           </>
         )}
       </div>
