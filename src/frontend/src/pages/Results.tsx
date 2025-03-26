@@ -11,7 +11,7 @@ import { Card } from "@/components/common/card";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
-import { Button, Pagination, Spin } from "antd";
+import { Button, Pagination, Spin, Slider, message } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 
 // Interfaces for our data structures
@@ -26,6 +26,10 @@ interface SimilarityStats {
   averageSimilarity: number;
   medianSimilarity: number;
   totalSubmissions: number;
+}
+
+function numberOfFiles(x) {
+  return (1+ (1+8 *x)**0.5)/2
 }
 
 // Helper function to calculate median
@@ -63,6 +67,8 @@ const Results = () => {
   });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [threshold, setThreshold] = useState(50);
+  const [filteredResults, setFilteredResults] = useState<SimilarityResult[]>([]);
   const itemsPerPage = 20; // Show only 20 items per page
 
   useEffect(() => {
@@ -71,6 +77,7 @@ const Results = () => {
     setTimeout(() => {
       const storedData = localStorage.getItem("resultsData");
       if (!storedData) {
+        message.error("No data found. Please submit code files first.");
         navigate("/");
         return;
       }
@@ -78,6 +85,7 @@ const Results = () => {
       try {
         const jsonData: SimilarityResult[] = JSON.parse(storedData);
         if (!Array.isArray(jsonData) || jsonData.length === 0) {
+          message.error("No data found. Please submit code files first.");
           navigate("/");
           return;
         }
@@ -92,6 +100,12 @@ const Results = () => {
         setResults(
           jsonData.sort((a, b) => b.similarity_score - a.similarity_score)
         );
+
+        // Filter results based on threshold
+        setFilteredResults(
+          jsonData.sort((a, b) => b.similarity_score - a.similarity_score)
+        );
+
         setStats({
           highestSimilarity: highest,
           averageSimilarity: avg,
@@ -99,6 +113,7 @@ const Results = () => {
           totalSubmissions: jsonData.length,
         });
       } catch {
+        message.error("An error occurred while fetching data. Please try again.");
         navigate("/");
       } finally {
         setLoading(false);
@@ -106,11 +121,18 @@ const Results = () => {
     }, 500); // Simulate a slight delay for smoother loading
   }, [navigate]);
 
+  // Filter results based on threshold
+  useEffect(() => {
+    setFilteredResults(
+      results.filter((r) => r.similarity_score * 100 >= threshold)
+    );
+  }, [results, threshold]);
+
   // Paginate table data
   const displayedResults = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return results.slice(startIndex, startIndex + itemsPerPage);
-  }, [results, currentPage]);
+    return filteredResults.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredResults, currentPage]);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -163,14 +185,14 @@ const Results = () => {
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
                   Total Submissions
                 </h3>
-                <p className="text-4xl font-bold">{stats.totalSubmissions}</p>
+                <p className="text-4xl font-bold">{numberOfFiles(stats.totalSubmissions)}</p>
               </Card>
             </div>
 
             {/* Similarity Distribution Chart */}
             <Card className="p-6 mb-8">
               <h2 className="text-xl font-semibold mb-4">
-                Similarity Distribution
+                Similarity Distribution (pairs)
               </h2>
               <div className="w-full aspect-[2/1] min-h-[400px]">
                 <ChartContainer config={{}}>
@@ -193,6 +215,11 @@ const Results = () => {
                   </BarChart>
                 </ChartContainer>
               </div>
+            </Card>
+
+            <Card className="p-6 mb-6">
+              <h2 className="text-lg font-semibold mb-2">Similarity Threshold: {threshold}%</h2>
+              <Slider min={0} max={100} step={1} value={threshold} onChange={setThreshold} tooltipVisible className="w-full" />
             </Card>
 
             {/* Submissions Table with Pagination */}
@@ -225,7 +252,7 @@ const Results = () => {
                 </Table>
                 <Pagination
                   current={currentPage}
-                  total={results.length}
+                  total={filteredResults.length}
                   pageSize={itemsPerPage}
                   onChange={(page) => setCurrentPage(page)}
                   className="mt-4 text-center"

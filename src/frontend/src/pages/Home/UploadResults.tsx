@@ -81,13 +81,11 @@ const UploadResults: React.FC = () => {
   };
 
   const handleResultsClick = () => {
-    console.log(jsonData, resultsFile);
     if (!jsonData) {
       message.warning("Please upload a valid results ZIP file first.");
       return;
     }
 
-    console.log("Viewing results...");
     navigate("/results", { state: { jsonData } });
   };
 
@@ -111,8 +109,7 @@ const UploadResults: React.FC = () => {
 
           <UploadBox
             onFileListChange={handleResultsFileUpload}
-            mode="results"
-          />
+            mode="results" clearFiles={undefined} setClearFiles={undefined}          />
 
           <Form layout="vertical" className="upload-results-form">
             <Button

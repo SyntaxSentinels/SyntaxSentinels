@@ -154,17 +154,6 @@ router.post("/", multer().any(), async (req, res, next) => {
         "similarity_results.json"
       );
 
-      // delete similarilty_results.json file
-      fs.unlink(resultsJsonPath, (err) => {
-        if (err) {
-          logger.error(
-            `Error deleting file ${resultsJsonPath}: ${err.message}`
-          );
-        } else {
-          logger.info(`File deleted: ${resultsJsonPath}`);
-        }
-      });
-
       logger.info(`Email sent successfully to ${userEmail}: ${info.messageId}`);
       return res.json({
         message: "Email sent successfully!",
