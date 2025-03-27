@@ -11,25 +11,32 @@ import {
   TableRow,
 } from "@/components/common/table";
 import { Card } from "@/components/common/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/common/dialog";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
 import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
 import CodeSimilarityViewer from "@/components/CodeSimilarityViewer";
-import PlagiarismCompare from "@/components/PlagiarismCompare";
 
 // Interfaces for our data structures
 interface SimilarityResult {
   file1: string;
   file2: string;
   similarity_score: number;
-  line_comparisons?: {
-    file1Line: string;
-    file2Line: string;
-    similarity: number;
-  }[];
+  matches: {
+    ss: {
+      sl: number;
+      sc: number;
+      el: number;
+      ec: number;
+    }[];
+    ts: {
+      sl: number;
+      sc: number;
+      el: number;
+      ec: number;
+    }[];
+  }
 }
 
 interface SimilarityData {
@@ -74,48 +81,48 @@ const generateDistribution = (results: SimilarityResult[]) => {
 
 
 function compareSpan(left, right) {
-  let diff = left.startLine - right.startLine;
+  let diff = left.sl - right.sl;
   if (diff !== 0) { return diff; }
-  diff = left.startColumn - right.startColumn;
+  diff = left.sc - right.sc;
   if (diff !== 0) { return diff; }
-  diff = left.endLine - right.endLine;
+  diff = left.el - right.el;
   if (diff !== 0) { return diff; }
-  diff = left.endColumn - right.endColumn;
+  diff = left.ec - right.ec;
   if (diff !== 0) { return diff; }
   return 0;
 }
 
 function mergeSpans(one, other) {
-  let startLine, startColumn, endLine, endColumn;
-  if(one.startLine < other.startLine) {
-    startLine = one.startLine;
-    startColumn = one.startColumn;
-  } else if (one.startLine > other.startLine) {
-    startLine = other.startLine;
-    startColumn = other.startColumn;
+  let sl, sc, el, ec;
+  if(one.sl < other.sl) {
+    sl = one.sl;
+    sc = one.sc;
+  } else if (one.sl > other.sl) {
+    sl = other.sl;
+    sc = other.sc;
   } else {
-    startLine = one.startLine;
-    startColumn = Math.min(one.startColumn, other.startColumn);
+    sl = one.sl;
+    sc = Math.min(one.sc, other.sc);
   }
-  if(one.endLine > other.endLine) {
-    endLine = one.endLine;
-    endColumn = one.endColumn;
-  } else if (one.endLine < other.endLine) {
-    endLine = other.endLine;
-    endColumn = other.endColumn;
+  if(one.el > other.el) {
+    el = one.el;
+    ec = one.ec;
+  } else if (one.el < other.el) {
+    el = other.el;
+    ec = other.ec;
   } else {
-    endLine = one.endLine;
-    endColumn = Math.max(one.endColumn, other.endColumn);
+    el = one.el;
+    ec = Math.max(one.ec, other.ec);
   }
-  return {"startLine": startLine, "startColumn": startColumn, "endLine": endLine, "endColumn": endColumn};
+  return {"sl": sl, "sc": sc, "el": el, "ec": ec};
 }
 
 function spansOverlap(span1, span2): boolean {
   const [left, right] = [span1, span2].sort(compareSpan);
-  if (left.endLine < right.startLine) {
+  if (left.el < right.sl) {
     return false;
-  } else if (left.endLine === right.startLine) {
-    return right.startColumn < left.endColumn;
+  } else if (left.el === right.sl) {
+    return right.sc < left.ec;
   } else {
     return true;
   }
@@ -125,7 +132,7 @@ function spansOverlap(span1, span2): boolean {
 function mergeOverlappingSpans(matches: SimilarityResult['matches']): SimilarityResult['matches'] {
   // Helper function to merge spans in a list
   function mergeSpansList(spans) {
-    // Sort spans by startLine and startColumn
+    // Sort spans by sl and sc
     spans.sort(compareSpan);
 
     const mergedSpans = [];
@@ -151,12 +158,12 @@ function mergeOverlappingSpans(matches: SimilarityResult['matches']): Similarity
   // Function to check if two matches overlap
   function matchesOverlap(match1, match2) {
     // Check if there is any overlap in sourceSpans
-    const sourceOverlap = match1.sourceSpans.some(span1 =>
-      match2.sourceSpans.some(span2 => spansOverlap(span1, span2))
+    const sourceOverlap = match1.ss.some(span1 =>
+      match2.ss.some(span2 => spansOverlap(span1, span2))
     );
     // Check if there is any overlap in targetSpans
-    const targetOverlap = match1.targetSpans.some(span1 =>
-      match2.targetSpans.some(span2 => spansOverlap(span1, span2))
+    const targetOverlap = match1.ts.some(span1 =>
+      match2.ts.some(span2 => spansOverlap(span1, span2))
     );
     return sourceOverlap || targetOverlap;
   }
@@ -175,8 +182,8 @@ function mergeOverlappingSpans(matches: SimilarityResult['matches']): Similarity
 
       // If the current match overlaps with an existing match, merge them
       if (matchesOverlap(currentMatch, existingMatch)) {
-        existingMatch.sourceSpans = mergeSpansList([...existingMatch.sourceSpans, ...currentMatch.sourceSpans]);
-        existingMatch.targetSpans = mergeSpansList([...existingMatch.targetSpans, ...currentMatch.targetSpans]);
+        existingMatch.ss = mergeSpansList([...existingMatch.ss, ...currentMatch.ss]);
+        existingMatch.ts = mergeSpansList([...existingMatch.ts, ...currentMatch.ts]);
         merged = true;
         break;
       }
@@ -187,7 +194,7 @@ function mergeOverlappingSpans(matches: SimilarityResult['matches']): Similarity
       mergedMatches.push({ ...currentMatch });
     }
   }
-
+  console.log(matches, mergedMatches);
   return mergedMatches;
 }
 
@@ -214,12 +221,27 @@ const Results = () => {
   const [selectedFiles, setSelectedFiles] = useState<{
     file1: string;
     file2: string;
+    matches: {
+      ss: {
+        sl: number;
+        sc: number;
+        el: number;
+        ec: number;
+      }[];
+      ts: {
+        sl: number;
+        sc: number;
+        el: number;
+        ec: number;
+      }[];
+    }
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
   const location = useLocation();
   const [jobId, setJobId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [fileContent, setFileContent] = useState(null);
 
   // Extract job ID from URL query parameters or localStorage
   useEffect(() => {
@@ -256,6 +278,33 @@ const Results = () => {
     if (!jobId) return;
 
     try {
+      const request = indexedDB.open("AnalysisDB");
+
+      request.onsuccess = function(event) {
+        const db = event.target.result; // Get database instance
+        
+        // Start a transaction for 'jobs' store (read-only)
+        const transaction = db.transaction("jobs", "readonly");
+        const jobsStore = transaction.objectStore("jobs");
+    
+        // Replace 'yourJobId' with the actual job ID
+        const jobRequest = jobsStore.get(jobId);
+    
+        jobRequest.onsuccess = function() {
+          if (jobRequest.result) {
+            setFileContent(jobRequest.result);
+          } else {
+            console.log("Job not found");
+          }
+        };
+    
+        jobRequest.onerror = function() {
+          console.error("Error retrieving job");
+        };
+      };
+
+      // setFileContent
+
       setRefreshing(true);
       const response = await pollResults(jobId);
 
@@ -263,8 +312,12 @@ const Results = () => {
         const jsonData = response.resultData;
 
         // Process the results
-        setSimilarityData(jsonData);
-        const results = jsonData.similarity_results;
+        const results = JSON.parse(jsonData.similarity_results);
+        results.forEach(result => {
+          result.matches = mergeOverlappingSpans(result.matches);
+        });
+        setSimilarityData(results);
+        console.log("results:", results);
 
         if (!Array.isArray(results) || results.length === 0) {
           message.error("No data found in the results.");
@@ -331,8 +384,8 @@ const Results = () => {
   }, [filteredResults, currentPage]);
 
   // Handle opening the comparison modal
-  const handleCompareClick = (file1: string, file2: string) => {
-    setSelectedFiles({ file1, file2 });
+  const handleCompareClick = (file1: string, file2: string, matches) => {
+    setSelectedFiles({ file1, file2, matches });
     setIsCompareModalOpen(true);
   };
 
@@ -469,25 +522,27 @@ const Results = () => {
                   </TableHeader>
                   <TableBody>
                     {displayedResults.map((result, index) => (
-                      <TableRow key={index} onClick={() => setSelectedSubmission(result)} className="cursor-pointer hover:bg-gray-100">
-                        <TableCell className="font-medium">{result.file1}</TableCell>
-                        <TableCell>{result.file2}</TableCell>
-                        <TableCell className="text-right">
-                          {(result.similarity_score * 100).toFixed(3)}%
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Button
-                            type="primary"
-                            icon={<EyeOutlined />}
-                            onClick={() =>
-                              handleCompareClick(result.file1, result.file2)
-                            }
-                            size="small"
-                          >
-                            Compare
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                      <TableRow key={index}>
+                      <TableCell className="font-medium">
+                        {result.file1}
+                      </TableCell>
+                      <TableCell>{result.file2}</TableCell>
+                      <TableCell className="text-right">
+                        {(result.similarity_score * 100).toFixed(3)}%
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          type="primary"
+                          icon={<EyeOutlined />}
+                          onClick={() =>
+                            handleCompareClick(result.file1, result.file2, result.matches)
+                          }
+                          size="small"
+                        >
+                          Compare
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -500,31 +555,6 @@ const Results = () => {
                 />
               </div>
             </Card>
-
-            {/* Full-Screen Modal */}
-            <Dialog open={!!selectedSubmission} onOpenChange={() => setSelectedSubmission(null)}>
-            <DialogContent className="max-w-full h-full bg-white p-6">
-                <DialogHeader>
-                  <DialogTitle>Similarity result</DialogTitle>
-                </DialogHeader>
-                <div>
-                  {selectedSubmission && (
-                    <>
-                      <CodeSimilarityViewer 
-                        fileA={allFileContents[selectedSubmission.file1]}
-                        fileB={allFileContents[selectedSubmission.file2]}
-                        spanClusters={selectedSubmission.matches}
-                      />
-                      <div>
-                        <p><strong>File 1:</strong> {selectedSubmission.file1}</p>
-                        <p><strong>File 2:</strong> {selectedSubmission.file2}</p>
-                        <p><strong>Similarity:</strong> {(selectedSubmission.similarity_score * 100).toFixed(3)}%</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                </DialogContent>
-            </Dialog>
           </>
         )}
       </div>
@@ -540,13 +570,13 @@ const Results = () => {
           closeIcon={null}
         >
           {similarityData && (
-            <PlagiarismCompare
-              file1Path={selectedFiles.file1}
-              file2Path={selectedFiles.file2}
-              onClose={handleCloseCompareModal}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              similarityData={similarityData as any}
-            />
+            <>
+              <CodeSimilarityViewer 
+                file1Content={fileContent[selectedFiles.file1] || ""}
+                file2Content={fileContent[selectedFiles.file1] || ""}
+                spanClusters={selectedFiles.matches}
+              />
+            </>
           )}
         </Modal>
       )}
