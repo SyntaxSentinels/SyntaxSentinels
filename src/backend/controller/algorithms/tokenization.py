@@ -7,6 +7,7 @@ import tokenize
 from itertools import combinations
 from dataclasses import dataclass
 import os
+import io
 
 @dataclass
 class Fingerprint:
@@ -60,28 +61,28 @@ class Tokenizer:
         return hsh
 
 
-    def _tokenize_file(self, file_path: str) -> tuple[list[Token], set[str]]:
+    def _tokenize_file(self, file_contents: str) -> tuple[list[Token], set[str]]:
         """
         Tokenizes the given Python file and returns a list of token strings.
         """
         comments = set()
         tokens = []
         try:
-            with open(file_path, 'rb') as f:
-                token_generator = tokenize.tokenize(f.readline)
-                for tok in token_generator:
-                    # Ignore tokens we don't care about.
-                    if tok.type == tokenize.COMMENT:
-                        # Handle comments specially, we want to check for lazy exact matches
-                        comments.add(tok.string)
-                    if tok.type in (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.ENCODING):
-                        continue
-                    normalized = self._normalize_token(tok.type, tok.string)
+            readline_func = io.StringIO(file_contents).readline
+            token_generator = tokenize.generate_tokens(readline_func)
+            for tok in token_generator:
+                # Ignore tokens we don't care about.
+                if tok.type == tokenize.COMMENT:
+                    # Handle comments specially, we want to check for lazy exact matches
+                    comments.add(tok.string)
+                if tok.type in (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.ENCODING):
+                    continue
+                normalized = self._normalize_token(tok.type, tok.string)
 
-                    if normalized != "":
-                        tokens.append(Token(tok.start, tok.end, normalized))
+                if normalized != "":
+                    tokens.append(Token(tok.start, tok.end, normalized))
         except Exception as e:
-            print(f"Error tokenizing {file_path}: {e}", file=sys.stderr)
+            print(f"Error tokenizing file: {e}", file=sys.stderr)
 
         return tokens, comments
 
@@ -109,10 +110,10 @@ class Tokenizer:
             h = (h * BASE + token_val) % MOD
         
         first_span = {
-            'startLine': tokens[0].start_pos[0],
-            'startColumn': tokens[0].start_pos[1]+1,
-            'endLine': tokens[k-1].end_pos[0],
-            'endColumn': tokens[k-1].end_pos[1]+1,
+            'sl': tokens[0].start_pos[0],
+            'sc': tokens[0].start_pos[1]+1,
+            'el': tokens[k-1].end_pos[0],
+            'ec': tokens[k-1].end_pos[1]+1,
         }
         hashes.append(Fingerprint(hash_val=h, position=0, span=first_span))
         
@@ -122,10 +123,10 @@ class Tokenizer:
             h = (h * BASE + self._hash_token(tokens[i + k - 1])) % MOD
             
             span = {
-                'startLine': tokens[i].start_pos[0],
-                'startColumn': tokens[i].start_pos[1]+1,
-                'endLine': tokens[i+k-1].end_pos[0],
-                'endColumn': tokens[i+k-1].end_pos[1]+1,
+                'sl': tokens[i].start_pos[0],
+                'sc': tokens[i].start_pos[1]+1,
+                'el': tokens[i+k-1].end_pos[0],
+                'ec': tokens[i+k-1].end_pos[1]+1,
             }
             hashes.append(Fingerprint(hash_val=h, position=i, span=span))
 
@@ -161,7 +162,7 @@ class Tokenizer:
         return kgram_hashes, fingerprints
 
 
-    def index_files(self, file_paths: list[str], k: int, w: int) -> tuple[dict[str, tuple[list[Fingerprint], dict[int, Fingerprint]]], dict[str, set[str]]]:
+    def index_files(self, file_dict: dict[str, str], k: int, w: int) -> tuple[dict[str, tuple[list[Fingerprint], dict[int, Fingerprint]]], dict[str, set[str]]]:
         """
         Processes each file: tokenizes, fingerprints, and then builds an index of fingerprints.
         
@@ -172,8 +173,8 @@ class Tokenizer:
         file_fingerprints_and_hashes: dict[str, tuple[list[Fingerprint], dict[int, Fingerprint]]] = {}
         file_comments = {}
 
-        for file_path in file_paths:
-            tokens, comments = self._tokenize_file(file_path)
+        for file_path, file_contents in file_dict.items():
+            tokens, comments = self._tokenize_file(file_contents)
             hashes, fingerprints = self._winnowing(tokens, k, w)
             file_fingerprints_and_hashes[file_path] = hashes, fingerprints
             file_comments[file_path] = comments
@@ -249,8 +250,8 @@ class Tokenizer:
                     surrounding_hashes2 = [file_hashes[file2][i] for i in range(max(0, fp2.position-w), min(len(file_hashes[file2]), fp2.position+w+1))]
                     lcs1, lcs2 = self.hash_lcs(surrounding_hashes1, surrounding_hashes2)
                     matches.append({
-                        'sourceSpans': [hsh1.span for hsh1 in lcs1],
-                        'targetSpans': [hsh2.span for hsh2 in lcs2],
+                        'ss': [hsh1.span for hsh1 in lcs1],
+                        'ts': [hsh2.span for hsh2 in lcs2],
                     })
 
                 # Create report entry
@@ -263,6 +264,17 @@ class Tokenizer:
         
         return report
 
+
+def tokenize_all_files(file_dict, k=7, w=5, m=0.0):
+    tokenizer = Tokenizer()
+    file_fingerprints, file_comments = tokenizer.index_files(file_dict, k=k, w=w)
+    
+    similarities = tokenizer.report_similarity(w, file_fingerprints, file_comments, min_common_percent=m)
+    similarities_json = json.dumps(similarities, separators=(',', ':'))
+    file_contents_json = json.dumps(file_dict, separators=(',', ':'))
+    return similarities_json, file_contents_json
+
+
 def main():
     parser = argparse.ArgumentParser(description="Tokenization-based similarity scoring with span tracking.")
     parser.add_argument('files', metavar='FILE', nargs='+', help='Python source files to process')
@@ -271,24 +283,17 @@ def main():
     parser.add_argument('--m', type=float, default=0.5, help='Minimum percentage of common fingerprints to report similarity (default: 0.5)')
     
     args = parser.parse_args()
+    file_dict = {}
+    for filename in args.files:
+        with open(filename, "r") as f:
+            file_dict[filename] = f.read()
+    similarity_scores, file_contents = tokenize_all_files(file_dict, k=args.k, w=args.w, m=args.m)
 
-    tokenizer = Tokenizer()
-    file_fingerprints, file_comments = tokenizer.index_files(args.files, k=args.k, w=args.w)
-    
-    similarities = tokenizer.report_similarity(args.w, file_fingerprints, file_comments, min_common_percent=args.m)
     with open("similarity_scores.json", "w") as f:
-        print(json.dumps(similarities, indent=4), file=f)
-
-    file_contents = {}
-    for file_path in args.files:
-        try:
-            with open(file_path, 'r') as f:
-                file_contents[os.path.basename(file_path)] = f.read()
-        except Exception as e:
-            print(f"Error reading {file_path}: {e}", file=sys.stderr)
-
+        print(similarity_scores, file=f)
     with open("file_contents.json", "w") as f:
-        print(json.dumps(file_contents, indent=4), file=f)
+        print(file_contents, file=f)
+
 
 if __name__ == '__main__':
     main()
