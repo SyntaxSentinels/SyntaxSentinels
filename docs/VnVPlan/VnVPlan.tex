@@ -1181,31 +1181,9 @@ These testcases ensure that the system is able to handle a certain amount of loa
   % \end{enumerate}
 \end{enumerate}
 
-\paragraph{Notification is sent when Processing Time Exceeds Ten Minutes}
-\begin{enumerate}
-  \item{test-PR-2}
-
-  NFR: PR-SL2
-
-  Type: Performance, Dynamic
-            
-  Initial State: System is idle; no processes are currently running.
-            
-  Input: Initiate a new task that is simulated to take over ten minutes.
-            
-  Output: Automated system log entry indicating that a user notification was triggered after ten minutes.
-            
-  How test will be performed: 
-  \begin{enumerate}
-    \item {Setup a mock process to run for over 10 minutes.}
-    \item {Verify after 10 minutes were up wether a function call was made to send the notification.}
-    \item {Automatically check system logs or notifications queue to verify a notification was generated after ten minutes.}
-  \end{enumerate}
-\end{enumerate}
-
 \paragraph{System remains operational after malformed input}
 \begin{enumerate}
-  \item{test-PR-3}
+  \item{test-PR-2}
 
   NFR: PR-RFT1
 
@@ -1229,7 +1207,7 @@ These testcases ensure that the system is able to handle a certain amount of loa
 
 \paragraph{System meets accuracy expectations}
 \begin{enumerate}
-  \item{test-PR-4}
+  \item{test-PR-3}
 
   NFR: PR-PA1, PR-PA2
 
@@ -1253,7 +1231,7 @@ These testcases ensure that the system is able to handle a certain amount of loa
 
 \paragraph{Feature Updates Do Not Degrade Performance}
 \begin{enumerate}
-  \item{test-PR-5}
+  \item{test-PR-4}
 
   NFR: PR-SE1
 
