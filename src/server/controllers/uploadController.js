@@ -2,10 +2,12 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { spawn } from "child_process";
 import nodemailer from "nodemailer";
 import archiver from "archiver";
 import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
+import firebaseUtils from "../utilities/firebaseUtils.js";
+import awsUtils from "../utilities/awsUtils.js";
 
 // Import your environment, logger, and custom exceptions
 import {
@@ -66,30 +68,35 @@ router.post("/", multer().any(), async (req, res, next) => {
       }
     );
     const data = await response.json();
+    const auth0Id = data.sub; // Auth0 ID is in the 'sub' claim
     const userEmail = data.email;
 
-    if (!userEmail) {
-      logger.warn("No email claim found in the Auth0 token payload");
+    if (!auth0Id) {
+      logger.warn("No sub claim found in the Auth0 token payload");
       throw new BadRequestException(
-        "No email claim found in token payload.",
-        "NO_EMAIL_CLAIM"
+        "No user ID found in token payload.",
+        "NO_USER_ID_CLAIM"
       );
     }
 
-
     const analysisName = req.body.analysisName;
-
-    const uploadDir = path.join(__dirname, "..", "files");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-      logger.info(`Created directory: ${uploadDir}`);
-    }
 
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       logger.warn("No files found in request");
       throw new BadRequestException("No files uploaded.", "NO_FILES_UPLOADED");
     }
 
+    // Generate a unique job ID
+    const jobId = uuidv4();
+
+    // Create a pending job in Firebase
+    await firebaseUtils.storeResults(auth0Id, jobId, null, analysisName);
+    await firebaseUtils.updateJobStatus(jobId, "pending");
+    logger.info(
+      `Created pending job in Firebase with job ID: ${jobId} and analysis name: ${analysisName}`
+    );
+
+    // Create a zip archive of the files
     const archive = archiver("zip", { zlib: { level: 9 } });
     req.files.forEach((file) => {
       archive.append(file.buffer, { name: file.originalname });
@@ -99,72 +106,21 @@ router.post("/", multer().any(), async (req, res, next) => {
     // Wait until the archive stream is fully converted into a Buffer
     const zipBuffer = await streamToBuffer(archive);
 
-    // Send the ZIP buffer to the Python API endpoint
-    const pythonApiUrl = SystemVariables.PYTHON_API_URL;
+    // Upload the zip file to S3
+    const s3Key = `uploads/${auth0Id}/${jobId}.zip`;
+    await awsUtils.uploadToS3(zipBuffer, s3Key);
+    logger.info(`Uploaded zip file to S3: ${s3Key}`);
 
-    // log time it took to complete the request
-    const start = new Date();
-    const pythonResponse = await fetch(pythonApiUrl, {
-      method: "POST",
-      body: zipBuffer,
-      headers: {
-        "Content-Type": "application/zip",
-      },
+    // Send a message to SQS
+    await awsUtils.sendToSQS(jobId, s3Key, auth0Id, analysisName);
+    logger.info(`Sent job to SQS queue: ${jobId}`);
+
+    // Return the job ID to the frontend
+    return res.json({
+      message: "Job submitted successfully!",
+      jobId,
+      status: "pending",
     });
-
-    const end = new Date();
-    const duration = end - start;
-    logger.info(`Python API request took ${duration}ms`);
-
-    if (!pythonResponse.ok) {
-      const errorData = await pythonResponse.json();
-      throw new Error(`Python API error: ${errorData.error}`);
-    }
-
-    const resultData = await pythonResponse.json();
-    logger.info("Python API response:", pythonResponse.ok === true);
-
-    const archiveResult = archiver("zip", { zlib: { level: 9 } });
-    archiveResult.append(JSON.stringify(resultData), {
-      name: "similarity_results.json",
-    });
-    archiveResult.finalize();
-
-    const zipBufferResult = await streamToBuffer(archiveResult);
-
-    // Send the email
-    try {
-      const info = await transporter.sendMail({
-        from: '"Syntax Sentinels" <syntaxsentinals@gmail.com>',
-        to: userEmail,
-        subject: "SyntaxSentinels: Analysis Report",
-        html: fs.readFileSync(templatePath, "utf8"),
-        attachments: [
-          {
-            filename: `${analysisName}.zip`,
-            content: zipBufferResult,
-            contentType: "application/zip",
-          },
-        ],
-      });
-
-      const resultsJsonPath = path.join(
-        __dirname,
-        "../..",
-        "similarity_results.json"
-      );
-
-      logger.info(`Email sent successfully to ${userEmail}: ${info.messageId}`);
-      return res.json({
-        message: "Email sent successfully!",
-        info,
-      });
-    } catch (err) {
-      logger.error("Error sending email:", err);
-      return next(
-        new HttpRequestException(500, err.message, "EMAIL_SENDING_ERROR")
-      );
-    }
   } catch (error) {
     logger.error("Error processing upload:", error);
     next(error);
