@@ -281,15 +281,15 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
         token_sim, ast_sim, embed_sim = pipeline.compute_all(code1, code2)
         
         # Compute line-by-line comparisons
-        code1_lines = code1.splitlines()
-        code2_lines = code2.splitlines()
-        line_comparisons = compare_code_lines(code1_lines, code2_lines)
+        # code1_lines = code1.splitlines()
+        # code2_lines = code2.splitlines()
+        # line_comparisons = compare_code_lines(code1_lines, code2_lines)
         
         return {
             "file1": fname1,
             "file2": fname2,
             "similarity_score": embed_sim,
-            "line_comparisons": line_comparisons
+            # "line_comparisons": line_comparisons
         }
 
     with ThreadPoolExecutor() as executor:
@@ -299,5 +299,5 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
     # Add file contents to the results
     return {
         "similarity_results": results,
-        "file_contents": file_contents
+        # "file_contents": file_contents
     }

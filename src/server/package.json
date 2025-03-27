@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.777.0",
+    "@aws-sdk/client-sqs": "^3.777.0",
+    "@lezer/python": "^1.1.16",
     "@sendgrid/mail": "^8.1.4",
     "archiver": "^7.0.1",
     "cors": "^2.8.5",
@@ -25,6 +28,7 @@
     "nodemon": "^3.1.9",
     "path": "^0.12.7",
     "response-time": "^2.3.3",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "yargs": "^17.7.2"
   }
 }

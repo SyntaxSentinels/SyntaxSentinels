@@ -8,6 +8,7 @@ import uploadApi from "./controllers/uploadController.js";
 import resultsApi from "./controllers/resultsController.js";
 import logger from "./utilities/loggerUtils.js";
 import firebaseUtils from "./utilities/firebaseUtils.js";
+import similarityApi from "./controllers/similarityController.js";
 
 import {
   UnauthorizedException,
@@ -103,6 +104,7 @@ app.use(jwtErrorHandler);
 
 app.use(apiUrlFor("upload"), uploadApi);
 app.use(apiUrlFor("results"), resultsApi);
+app.use(apiUrlFor("similarity"), similarityApi);
 
 app.use((err, req, res, next) => {
   const errorContent = ErrorContent.convertFromException(err);

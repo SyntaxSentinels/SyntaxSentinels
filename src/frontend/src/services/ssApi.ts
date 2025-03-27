@@ -98,3 +98,64 @@ export const compareFiles = async (file1Path: string, file2Path: string) => {
     throw error;
   }
 };
+
+export const compareFilesApi = async ({
+  file1Content,
+  file2Content,
+  file1Name,
+  file2Name,
+  k, // Now optional
+  w, // Now optional
+}: {
+  file1Content: string;
+  file2Content: string;
+  file1Name?: string; // Keep optional if they are
+  file2Name?: string; // Keep optional if they are
+  k?: number; // Mark k as optional
+  w?: number; // Mark w as optional
+}): Promise<DetailedComparisonResult> => {
+  try {
+    // Construct payload, only including k/w if provided
+    const payload: any = {
+      file1Content,
+      file2Content,
+      // Only include names if they have a value (optional chaining might be better if applicable)
+      ...(file1Name && { file1Name }),
+      ...(file2Name && { file2Name }),
+      // Only include k/w if they have a value
+      ...(k !== undefined && { k }),
+      ...(w !== undefined && { w }),
+    };
+
+    // Replace 'apiClient.post' with your actual API call method
+    const response = await api.post("/similarity/compare", payload);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error comparing files:",
+      error.response?.data || error.message
+    );
+    throw new Error(
+      error.response?.data?.message || "Failed to compare files."
+    );
+  }
+};
+
+interface DetailedComparisonResult {
+  file1: string;
+  file2: string;
+  similarity_score: number;
+  matches: ApiMatchCluster[]; // Matches from the API (ss, ts)
+}
+interface Span {
+  startLine: number;
+  startColumn: number;
+  endLine: number;
+  endColumn: number;
+}
+
+// Interface for the matches structure coming from the API (assuming ss/ts)
+interface ApiMatchCluster {
+  ss: Span[];
+  ts: Span[];
+}
