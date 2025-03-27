@@ -6,6 +6,7 @@ import argparse
 import tokenize
 from itertools import combinations
 from dataclasses import dataclass
+import os
 
 @dataclass
 class Fingerprint:
@@ -35,8 +36,8 @@ class Tokenizer:
             if keyword.iskeyword(tok_string):
                 return tok_string
             else:
-                return tok_string.strip()
-                # return NormalizedTokenType.IDENTIFIER
+                return NormalizedTokenType.IDENTIFIER
+                # return tok_string.strip()
         elif tok_type == tokenize.NUMBER:
             return NormalizedTokenType.NUMERIC_LITERAL
         elif tok_type == tokenize.STRING:
@@ -109,9 +110,9 @@ class Tokenizer:
         
         first_span = {
             'startLine': tokens[0].start_pos[0],
-            'startColumn': tokens[0].start_pos[1],
+            'startColumn': tokens[0].start_pos[1]+1,
             'endLine': tokens[k-1].end_pos[0],
-            'endColumn': tokens[k-1].end_pos[1]
+            'endColumn': tokens[k-1].end_pos[1]+1,
         }
         hashes.append(Fingerprint(hash_val=h, position=0, span=first_span))
         
@@ -122,9 +123,9 @@ class Tokenizer:
             
             span = {
                 'startLine': tokens[i].start_pos[0],
-                'startColumn': tokens[i].start_pos[1],
+                'startColumn': tokens[i].start_pos[1]+1,
                 'endLine': tokens[i+k-1].end_pos[0],
-                'endColumn': tokens[i+k-1].end_pos[1]
+                'endColumn': tokens[i+k-1].end_pos[1]+1,
             }
             hashes.append(Fingerprint(hash_val=h, position=i, span=span))
 
@@ -179,7 +180,38 @@ class Tokenizer:
         return file_fingerprints_and_hashes, file_comments
 
 
-    def report_similarity(self, 
+    def hash_lcs(self, seq1: list[Fingerprint], seq2: list[Fingerprint]):
+        """
+        Find the Longest Common Subsequence (LCS) between two sequences of hashes.
+        """
+        m, n = len(seq1), len(seq2)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if seq1[i-1].hash_val == seq2[j-1].hash_val:
+                    dp[i][j] = dp[i-1][j-1] + 1
+                else:
+                    dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+        
+        # Reconstruct
+        lcs1 = []
+        lcs2 = []
+        i, j = m, n
+        while i > 0 and j > 0:
+            if seq1[i-1].hash_val == seq2[j-1].hash_val:
+                lcs1.append(seq1[i-1])
+                lcs2.append(seq2[j-1])
+                i -= 1
+                j -= 1
+            elif dp[i-1][j] > dp[i][j-1]:
+                i -= 1
+            else:
+                j -= 1
+        
+        return lcs1[::-1], lcs2[::-1]
+
+
+    def report_similarity(self, w: int,
                            file_fingerprints_and_hashes: dict[str, tuple[list[Fingerprint], dict[int, Fingerprint]]],
                            file_comments: dict[str, set[str]],
                            min_common_percent: float) -> list[dict]:
@@ -213,15 +245,18 @@ class Tokenizer:
                 # Prepare matches
                 matches = []
                 for (_, (fp1, fp2)) in common_fingerprints.items():
+                    surrounding_hashes1 = [file_hashes[file1][i] for i in range(max(0, fp1.position-w), min(len(file_hashes[file1]), fp1.position+w+1))]
+                    surrounding_hashes2 = [file_hashes[file2][i] for i in range(max(0, fp2.position-w), min(len(file_hashes[file2]), fp2.position+w+1))]
+                    lcs1, lcs2 = self.hash_lcs(surrounding_hashes1, surrounding_hashes2)
                     matches.append({
-                        'sourceSpans': [fp1.span],
-                        'targetSpans': [fp2.span],
+                        'sourceSpans': [hsh1.span for hsh1 in lcs1],
+                        'targetSpans': [hsh2.span for hsh2 in lcs2],
                     })
-                
+
                 # Create report entry
                 report.append({
-                    'file1': file1.split('/')[-1],
-                    'file2': file2.split('/')[-1],
+                    'file1': os.path.basename(file1),
+                    'file2': os.path.basename(file2),
                     'similarity_score': similarity_score,
                     'matches': matches,
                 })
@@ -231,7 +266,7 @@ class Tokenizer:
 def main():
     parser = argparse.ArgumentParser(description="Tokenization-based similarity scoring with span tracking.")
     parser.add_argument('files', metavar='FILE', nargs='+', help='Python source files to process')
-    parser.add_argument('--k', type=int, default=5, help='k-gram size for fingerprinting (default: 5)')
+    parser.add_argument('--k', type=int, default=7, help='k-gram size for fingerprinting (default: 7)')
     parser.add_argument('--w', type=int, default=4, help='Window size for winnowing (default: 4)')
     parser.add_argument('--m', type=float, default=0.5, help='Minimum percentage of common fingerprints to report similarity (default: 0.5)')
     
@@ -240,22 +275,20 @@ def main():
     tokenizer = Tokenizer()
     file_fingerprints, file_comments = tokenizer.index_files(args.files, k=args.k, w=args.w)
     
-    similarities = tokenizer.report_similarity(file_fingerprints, file_comments, min_common_percent=args.m)
+    similarities = tokenizer.report_similarity(args.w, file_fingerprints, file_comments, min_common_percent=args.m)
     with open("similarity_scores.json", "w") as f:
         print(json.dumps(similarities, indent=4), file=f)
-
 
     file_contents = {}
     for file_path in args.files:
         try:
             with open(file_path, 'r') as f:
-                file_contents[file_path.split('/')[-1]] = f.read()
+                file_contents[os.path.basename(file_path)] = f.read()
         except Exception as e:
             print(f"Error reading {file_path}: {e}", file=sys.stderr)
 
     with open("file_contents.json", "w") as f:
         print(json.dumps(file_contents, indent=4), file=f)
-
 
 if __name__ == '__main__':
     main()
