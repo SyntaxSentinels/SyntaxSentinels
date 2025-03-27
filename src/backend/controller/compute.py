@@ -250,4 +250,4 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
         for result in executor.map(process_pair, file_pairs):
             results.append(result)
 
-    return results
+    return {"python_files": python_files, "results": results}

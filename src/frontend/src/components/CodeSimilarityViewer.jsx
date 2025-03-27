@@ -148,7 +148,7 @@ const CodeSimilarityViewer = ({
   }, [fileA, fileB, spanClusters]);
 
   return (
-    <div style={{ display: 'flex', width: '100%' }}>
+    <div style={{ display: 'flex', width: '100%', height: '600px' }}>
       <div ref={editorARef} style={{ width: '50%', height: '100%', borderRight: '1px solid #e0e0e0' }} />
       <div ref={editorBRef} style={{ width: '50%', height: '100%', borderLeft: '1px solid #e0e0e0' }} />
     </div>

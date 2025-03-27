@@ -21,6 +21,20 @@ interface SimilarityResult {
   file1: string;
   file2: string;
   similarity_score: number;
+  matches: {
+    sourceSpans: {
+      startLine: number;
+      startColumn: number;
+      endLine: number;
+      endColumn: number;
+    }[];
+    targetSpans: {
+      startLine: number;
+      startColumn: number;
+      endLine: number;
+      endColumn: number;
+    }[];
+  }[];
 }
 
 interface SimilarityStats {
@@ -58,6 +72,126 @@ const generateDistribution = (results: SimilarityResult[]) => {
   }));
 };
 
+
+function compareSpan(left, right) {
+  let diff = left.startLine - right.startLine;
+  if (diff !== 0) { return diff; }
+  diff = left.startColumn - right.startColumn;
+  if (diff !== 0) { return diff; }
+  diff = left.endLine - right.endLine;
+  if (diff !== 0) { return diff; }
+  diff = left.endColumn - right.endColumn;
+  if (diff !== 0) { return diff; }
+  return 0;
+}
+
+function mergeSpans(one, other) {
+  let startLine, startColumn, endLine, endColumn;
+  if(one.startLine < other.startLine) {
+    startLine = one.startLine;
+    startColumn = one.startColumn;
+  } else if (one.startLine > other.startLine) {
+    startLine = other.startLine;
+    startColumn = other.startColumn;
+  } else {
+    startLine = one.startLine;
+    startColumn = Math.min(one.startColumn, other.startColumn);
+  }
+  if(one.endLine > other.endLine) {
+    endLine = one.endLine;
+    endColumn = one.endColumn;
+  } else if (one.endLine < other.endLine) {
+    endLine = other.endLine;
+    endColumn = other.endColumn;
+  } else {
+    endLine = one.endLine;
+    endColumn = Math.max(one.endColumn, other.endColumn);
+  }
+  return {"startLine": startLine, "startColumn": startColumn, "endLine": endLine, "endColumn": endColumn};
+}
+
+function spansOverlap(span1, span2): boolean {
+  const [left, right] = [span1, span2].sort(compareSpan);
+  if (left.endLine < right.startLine) {
+    return false;
+  } else if (left.endLine === right.startLine) {
+    return right.startColumn < left.endColumn;
+  } else {
+    return true;
+  }
+}
+
+
+function mergeOverlappingSpans(matches: SimilarityResult['matches']): SimilarityResult['matches'] {
+  // Helper function to merge spans in a list
+  function mergeSpansList(spans) {
+    // Sort spans by startLine and startColumn
+    spans.sort(compareSpan);
+
+    const mergedSpans = [];
+    let currentSpan = spans[0]; // Start with the first span
+
+    for (let i = 1; i < spans.length; i++) {
+      const nextSpan = spans[i];
+      // If the current span overlaps with the next one, merge them
+      if (spansOverlap(currentSpan, nextSpan)) {
+        currentSpan = mergeSpans(currentSpan, nextSpan);
+      } else {
+        // No overlap, push the current span and move to the next one
+        mergedSpans.push(currentSpan);
+        currentSpan = nextSpan;
+      }
+    }
+
+    // Push the last span after the loop
+    mergedSpans.push(currentSpan);
+    return mergedSpans;
+  }
+
+  // Function to check if two matches overlap
+  function matchesOverlap(match1, match2) {
+    // Check if there is any overlap in sourceSpans
+    const sourceOverlap = match1.sourceSpans.some(span1 =>
+      match2.sourceSpans.some(span2 => spansOverlap(span1, span2))
+    );
+    // Check if there is any overlap in targetSpans
+    const targetOverlap = match1.targetSpans.some(span1 =>
+      match2.targetSpans.some(span2 => spansOverlap(span1, span2))
+    );
+    return sourceOverlap || targetOverlap;
+  }
+
+  // Start with an empty list for merged matches
+  let mergedMatches = [];
+
+  // Loop through all matches and attempt to merge them
+  for (let i = 0; i < matches.length; i++) {
+    let currentMatch = matches[i];
+    let merged = false;
+
+    // Try to merge the current match with any match in the mergedMatches list
+    for (let j = 0; j < mergedMatches.length; j++) {
+      const existingMatch = mergedMatches[j];
+
+      // If the current match overlaps with an existing match, merge them
+      if (matchesOverlap(currentMatch, existingMatch)) {
+        existingMatch.sourceSpans = mergeSpansList([...existingMatch.sourceSpans, ...currentMatch.sourceSpans]);
+        existingMatch.targetSpans = mergeSpansList([...existingMatch.targetSpans, ...currentMatch.targetSpans]);
+        merged = true;
+        break;
+      }
+    }
+
+    // If no merge occurred, add the current match as a new match
+    if (!merged) {
+      mergedMatches.push({ ...currentMatch });
+    }
+  }
+
+  return mergedMatches;
+}
+
+
 const Results = () => {
   const navigate = useNavigate();
   const [results, setResults] = useState<SimilarityResult[]>([]);
@@ -72,48 +206,57 @@ const Results = () => {
   const [threshold, setThreshold] = useState(50);
   const [filteredResults, setFilteredResults] = useState<SimilarityResult[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [allFileContents, setAllFileContents] = useState(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
   useEffect(() => {
     setLoading(true);
     // Retrieve results from local storage
     setTimeout(() => {
-      const storedData = localStorage.getItem("resultsData");
-      if (!storedData) {
+      const storedDataSimilarity = localStorage.getItem("resultsDataSimilarity");
+      const storedDataContents = localStorage.getItem("resultsDataContents");
+      if (!storedDataSimilarity || !storedDataContents) {
         message.error("No data found. Please submit code files first.");
         navigate("/");
         return;
       }
 
       try {
-        const jsonData: SimilarityResult[] = JSON.parse(storedData);
-        if (!Array.isArray(jsonData) || jsonData.length === 0) {
+        const jsonDataSimilarity: SimilarityResult[] = JSON.parse(storedDataSimilarity);
+        const jsonDataContents: SimilarityResult[] = JSON.parse(storedDataContents);
+
+        setAllFileContents(jsonDataContents); // FIXME: unsafe, not type checked yet...
+        if (!Array.isArray(jsonDataSimilarity) || jsonDataSimilarity.length === 0) {
           message.error("No data found. Please submit code files first.");
           navigate("/");
           return;
         }
 
-        const similarityValues = jsonData.map((r) => r.similarity_score * 100);
+        jsonDataSimilarity.forEach(result => {
+          result.matches = mergeOverlappingSpans(result.matches);
+        });
+
+        const similarityValues = jsonDataSimilarity.map((r) => r.similarity_score * 100);
         const highest = Math.max(...similarityValues);
         const avg = Math.round(
-          similarityValues.reduce((acc, val) => acc + val, 0) / jsonData.length
+          similarityValues.reduce((acc, val) => acc + val, 0) / jsonDataSimilarity.length
         );
         const median = calculateMedian(similarityValues);
 
         setResults(
-          jsonData.sort((a, b) => b.similarity_score - a.similarity_score)
+          jsonDataSimilarity.sort((a, b) => b.similarity_score - a.similarity_score)
         );
 
         // Filter results based on threshold
         setFilteredResults(
-          jsonData.sort((a, b) => b.similarity_score - a.similarity_score)
+          jsonDataSimilarity.sort((a, b) => b.similarity_score - a.similarity_score)
         );
 
         setStats({
           highestSimilarity: highest,
           averageSimilarity: avg,
           medianSimilarity: median,
-          totalSubmissions: jsonData.length,
+          totalSubmissions: jsonDataSimilarity.length,
         });
       } catch {
         message.error("An error occurred while fetching data. Please try again.");
@@ -137,19 +280,6 @@ const Results = () => {
     return filteredResults.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredResults, currentPage]);
 
-  // FIXME: This is just test data for now
-  const fileA = "def add(a, b):\n    result = a + b\n    return result  # This line is mapped\n\ndef multiply(x, y):\n    product = x * y\n    return product  # This spans multiple lines";
-  const fileB = "def sum_numbers(a, b):\n    total = a + b\n    return total  # This line maps to File A's return statement\n\ndef multiply_values(x, y):\n    multiplied = x * y\n    return multiplied  # This spans multiple lines";
-  const spanClusters = [
-    {
-      "sourceSpans": [{ "startLine": 1, "startColumn": 5, "endLine": 1, "endColumn": 8 }], 
-      "targetSpans": [{ "startLine": 1, "startColumn": 5, "endLine": 1, "endColumn": 15 }, { "startLine": 1, "startColumn": 18, "endLine": 2, "endColumn": 3 }]
-    },
-    {
-      "sourceSpans": [{ "startLine": 2, "startColumn": 12, "endLine": 2, "endColumn": 13 }],
-      "targetSpans": [{ "startLine": 2, "startColumn": 12, "endLine": 2, "endColumn": 13 }]
-    }
-  ]
   
   return (
     <div className="min-h-screen bg-background p-8">
@@ -279,20 +409,22 @@ const Results = () => {
             <Dialog open={!!selectedSubmission} onOpenChange={() => setSelectedSubmission(null)}>
             <DialogContent className="max-w-full h-full bg-white p-6">
                 <DialogHeader>
-                  <DialogTitle>Edit profile</DialogTitle>
+                  <DialogTitle>Similarity result</DialogTitle>
                 </DialogHeader>
-                  <CodeSimilarityViewer 
-                  fileA={fileA}
-                  fileB={fileB}
-                  spanClusters={spanClusters}
-                />
                 <div>
                   {selectedSubmission && (
-                    <div>
-                      <p><strong>File 1:</strong> {selectedSubmission.file1}</p>
-                      <p><strong>File 2:</strong> {selectedSubmission.file2}</p>
-                      <p><strong>Similarity:</strong> {(selectedSubmission.similarity_score * 100).toFixed(3)}%</p>
-                    </div>
+                    <>
+                      <CodeSimilarityViewer 
+                        fileA={allFileContents[selectedSubmission.file1]}
+                        fileB={allFileContents[selectedSubmission.file2]}
+                        spanClusters={selectedSubmission.matches}
+                      />
+                      <div>
+                        <p><strong>File 1:</strong> {selectedSubmission.file1}</p>
+                        <p><strong>File 2:</strong> {selectedSubmission.file2}</p>
+                        <p><strong>Similarity:</strong> {(selectedSubmission.similarity_score * 100).toFixed(3)}%</p>
+                      </div>
+                    </>
                   )}
                 </div>
                 </DialogContent>

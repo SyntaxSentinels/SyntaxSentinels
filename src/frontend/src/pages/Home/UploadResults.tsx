@@ -10,7 +10,8 @@ const { Title, Paragraph } = Typography;
 const UploadResults: React.FC = () => {
   const navigate = useNavigate();
   const [resultsFile, setResultsFile] = useState<File | null>(null);
-  const [jsonData, setJsonData] = useState<any>(null);
+  const [jsonSimilarityData, setJsonSimilarityData] = useState<any>(null);
+  const [jsonFileContents, setJsonFileContents] = useState<any>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   // Drag Event Handlers
@@ -64,15 +65,26 @@ const UploadResults: React.FC = () => {
         setResultsFile(null);
         return;
       }
+      
+      if (!jsonFiles.includes("similarity_scores.json") || !jsonFiles.includes("file_contents.json")) {
+        message.error("Invalid ZIP file or corrupt JSON.");
+        setResultsFile(null);
+        return;
+      }
 
       // Extract and validate JSON file
-      const jsonFile = await zipContents.files[jsonFiles[0]].async("text");
-      const parsedJson = JSON.parse(jsonFile);
+      const jsonFileSimilarity = await zipContents.files["similarity_scores.json"].async("text");
+      const parsedSimilarityJson = JSON.parse(jsonFileSimilarity);
+      const jsonFileContents = await zipContents.files["file_contents.json"].async("text");
+      const parsedContentsJson = JSON.parse(jsonFileContents);
 
-      setJsonData(parsedJson);
+      setJsonSimilarityData(parsedSimilarityJson);
+      setJsonFileContents(parsedContentsJson);
+
       message.success("Results file uploaded successfully.");
       // save into local storage
-      localStorage.setItem("resultsData", JSON.stringify(parsedJson));
+      localStorage.setItem("resultsDataSimilarity", JSON.stringify(parsedSimilarityJson));
+      localStorage.setItem("resultsDataContents", JSON.stringify(parsedContentsJson));
     } catch (error) {
       console.error("Error reading ZIP file:", error);
       message.error("Invalid ZIP file or corrupt JSON.");
@@ -81,12 +93,12 @@ const UploadResults: React.FC = () => {
   };
 
   const handleResultsClick = () => {
-    if (!jsonData) {
+    if (!jsonSimilarityData || !jsonFileContents) {
       message.warning("Please upload a valid results ZIP file first.");
       return;
     }
 
-    navigate("/results", { state: { jsonData } });
+    navigate("/results", { state: { jsonSimilarityData, jsonFileContents } });
   };
 
   return (
