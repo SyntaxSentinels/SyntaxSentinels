@@ -590,7 +590,7 @@ const Results = () => {
             <>
               <CodeSimilarityViewer
                 file1Content={fileContent[selectedFiles.file1] || ""}
-                file2Content={fileContent[selectedFiles.file1] || ""}
+                file2Content={fileContent[selectedFiles.file2] || ""}
                 spanClusters={selectedFiles.matches}
               />
             </>
