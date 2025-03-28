@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import zlib from "zlib";
 import { auth } from "express-oauth2-jwt-bearer";
 import { loggerMiddleware } from "./middleware/loggerMiddleware.js";
 import { apiUrlFor } from "./utilities/apiUtils.js";
@@ -18,6 +19,8 @@ import { ErrorContent } from "./types/errorContent.js";
 
 const app = express();
 app.use(cors());
+app.use(express.json({ limit: "10mb" })); // Increase limit to 10MB
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // JWT Authentication Middleware
 const checkJwt = auth({
@@ -46,7 +49,8 @@ app.use(express.json());
 const updateRouter = express.Router();
 updateRouter.post("/update", async (req, res, next) => {
   try {
-    const { jobId, status, resultData } = req.body;
+    const { jobId, status } = req.body;
+    let { resultData } = req.body; // resultData is optional
 
     if (!jobId) {
       logger.warn("No job ID provided");
@@ -60,6 +64,20 @@ updateRouter.post("/update", async (req, res, next) => {
       return next(
         new HttpRequestException(400, "Status is required", "MISSING_STATUS")
       );
+    }
+
+    function decompressData(compressedData) {
+      return new Promise((resolve, reject) => {
+        const buffer = Buffer.from(compressedData, "base64");
+        zlib.gunzip(buffer, (err, result) => {
+          if (err) reject(err);
+          resolve(JSON.parse(result.toString()));
+        });
+      });
+    }
+
+    if (resultData) {
+      resultData = await decompressData(resultData);
     }
 
     // Get the current job data

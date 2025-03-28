@@ -103,7 +103,6 @@ const AnalyzeFiles: React.FC = () => {
       if (response && response.jobId) {
         const jobId = response.jobId;
         // Store the job ID in localStorage
-        // localStorage.setItem("jobId", jobId);
 
         // Convert files to JSON and store in IndexedDB
         const filesData = {};

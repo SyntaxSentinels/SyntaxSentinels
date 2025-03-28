@@ -4,6 +4,7 @@ import logger from "../utilities/loggerUtils.js";
 import { HttpRequestException } from "../types/exceptions.js";
 import firebaseUtils from "../utilities/firebaseUtils.js";
 import { AuthVariables } from "../constants/envConstants.js";
+import { fetchUserDataFromAuth0 } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 export default router;
@@ -14,21 +15,24 @@ export default router;
  */
 router.get("/", async (req, res, next) => {
   try {
-    // Get user Auth0 ID from Auth0
-    const token = req.headers.authorization.split(" ")[1];
-    const response = await fetch(
-      `https://${AuthVariables.AUTH0_DOMAIN}/userinfo`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const userData = await response.json();
-    const auth0Id = userData.sub; // Auth0 ID is in the 'sub' claim
+    // Extract token from Authorization header
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return next(
+        new HttpRequestException(
+          400,
+          "Authorization token missing",
+          "MISSING_TOKEN"
+        )
+      );
+    }
+
+    // Fetch user data from Auth0
+    const userData = await fetchUserDataFromAuth0(token);
+    const auth0Id = userData?.sub;
 
     if (!auth0Id) {
-      logger.warn("No sub claim found in the Auth0 token payload");
+      logger.warn("No 'sub' claim found in the Auth0 token payload");
       return next(
         new HttpRequestException(
           400,
@@ -38,15 +42,14 @@ router.get("/", async (req, res, next) => {
       );
     }
 
-    // Get all jobs for this user from Firebase
+    // Fetch user jobs from Firebase
     const jobs = await firebaseUtils.getUserJobs(auth0Id);
 
-    return res.json({
-      jobs,
-    });
+    // Return an empty array if no jobs are found
+    return res.json({ jobs: jobs || [] });
   } catch (error) {
     logger.error("Error retrieving user jobs:", error);
-    next(error);
+    return next(error);
   }
 });
 
