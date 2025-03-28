@@ -6,6 +6,8 @@ import zipfile
 import logging
 import requests
 import boto3
+import gzip
+import base64
 from dotenv import load_dotenv
 from controller.compute import compute_similarities_from_zip
 
@@ -57,8 +59,13 @@ def update_job_status(job_id, status, result_data=None):
         'status': status
     }
     
+    def compress_data(data):
+        json_data = json.dumps(data)  # Convert to JSON string
+        compressed = gzip.compress(json_data.encode("utf-8"))  # Encode and compress
+        return base64.b64encode(compressed).decode("utf-8")  # Encode to base64 for safe transmission
+
     if result_data:
-        payload['resultData'] = result_data
+        payload['resultData'] = compress_data(result_data)
         
     try:
         response = requests.post(url, json=payload)

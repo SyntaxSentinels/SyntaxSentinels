@@ -16,18 +16,27 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
 import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
-import PlagiarismCompare from "@/components/PlagiarismCompare";
+import CodeSimilarityViewer from "@/components/CodeSimilarityViewer";
 
 // Interfaces for our data structures
 interface SimilarityResult {
   file1: string;
   file2: string;
   similarity_score: number;
-  line_comparisons?: {
-    file1Line: string;
-    file2Line: string;
-    similarity: number;
-  }[];
+  matches: {
+    ss: {
+      sl: number;
+      sc: number;
+      el: number;
+      ec: number;
+    }[];
+    ts: {
+      sl: number;
+      sc: number;
+      el: number;
+      ec: number;
+    }[];
+  };
 }
 
 interface SimilarityData {
@@ -70,6 +79,139 @@ const generateDistribution = (results: SimilarityResult[]) => {
   }));
 };
 
+function compareSpan(left, right) {
+  let diff = left.sl - right.sl;
+  if (diff !== 0) {
+    return diff;
+  }
+  diff = left.sc - right.sc;
+  if (diff !== 0) {
+    return diff;
+  }
+  diff = left.el - right.el;
+  if (diff !== 0) {
+    return diff;
+  }
+  diff = left.ec - right.ec;
+  if (diff !== 0) {
+    return diff;
+  }
+  return 0;
+}
+
+function mergeSpans(one, other) {
+  let sl, sc, el, ec;
+  if (one.sl < other.sl) {
+    sl = one.sl;
+    sc = one.sc;
+  } else if (one.sl > other.sl) {
+    sl = other.sl;
+    sc = other.sc;
+  } else {
+    sl = one.sl;
+    sc = Math.min(one.sc, other.sc);
+  }
+  if (one.el > other.el) {
+    el = one.el;
+    ec = one.ec;
+  } else if (one.el < other.el) {
+    el = other.el;
+    ec = other.ec;
+  } else {
+    el = one.el;
+    ec = Math.max(one.ec, other.ec);
+  }
+  return { sl: sl, sc: sc, el: el, ec: ec };
+}
+
+function spansOverlap(span1, span2): boolean {
+  const [left, right] = [span1, span2].sort(compareSpan);
+  if (left.el < right.sl) {
+    return false;
+  } else if (left.el === right.sl) {
+    return right.sc < left.ec;
+  } else {
+    return true;
+  }
+}
+
+function mergeOverlappingSpans(
+  matches: SimilarityResult["matches"]
+): SimilarityResult["matches"] {
+  // Helper function to merge spans in a list
+  function mergeSpansList(spans) {
+    // Sort spans by sl and sc
+    spans.sort(compareSpan);
+
+    const mergedSpans = [];
+    let currentSpan = spans[0]; // Start with the first span
+
+    for (let i = 1; i < spans.length; i++) {
+      const nextSpan = spans[i];
+      // If the current span overlaps with the next one, merge them
+      if (spansOverlap(currentSpan, nextSpan)) {
+        currentSpan = mergeSpans(currentSpan, nextSpan);
+      } else {
+        // No overlap, push the current span and move to the next one
+        mergedSpans.push(currentSpan);
+        currentSpan = nextSpan;
+      }
+    }
+
+    // Push the last span after the loop
+    mergedSpans.push(currentSpan);
+    return mergedSpans;
+  }
+
+  // Function to check if two matches overlap
+  function matchesOverlap(match1, match2) {
+    // Check if there is any overlap in sourceSpans
+    const sourceOverlap = match1.ss.some((span1) =>
+      match2.ss.some((span2) => spansOverlap(span1, span2))
+    );
+    // Check if there is any overlap in targetSpans
+    const targetOverlap = match1.ts.some((span1) =>
+      match2.ts.some((span2) => spansOverlap(span1, span2))
+    );
+    return sourceOverlap || targetOverlap;
+  }
+
+  // Start with an empty list for merged matches
+  let mergedMatches = [];
+
+  // Loop through all matches and attempt to merge them
+  for (let i = 0; i < matches.length; i++) {
+    let currentMatch = matches[i];
+    let merged = false;
+
+    // Try to merge the current match with any match in the mergedMatches list
+    for (let j = 0; j < mergedMatches.length; j++) {
+      const existingMatch = mergedMatches[j];
+
+      // If the current match overlaps with an existing match, merge them
+      if (matchesOverlap(currentMatch, existingMatch)) {
+        existingMatch.ss = mergeSpansList([
+          ...existingMatch.ss,
+          ...currentMatch.ss,
+        ]);
+        existingMatch.ts = mergeSpansList([
+          ...existingMatch.ts,
+          ...currentMatch.ts,
+        ]);
+        merged = true;
+        break;
+      }
+    }
+
+    // If no merge occurred, add the current match as a new match
+    if (!merged) {
+      mergedMatches.push({ ...currentMatch });
+    }
+  }
+  console.log(matches, mergedMatches);
+  return mergedMatches;
+}
+
 const Results = () => {
   const navigate = useNavigate();
   const [results, setResults] = useState<SimilarityResult[]>([]);
@@ -92,12 +234,27 @@ const Results = () => {
   const [selectedFiles, setSelectedFiles] = useState<{
     file1: string;
     file2: string;
+    matches: {
+      ss: {
+        sl: number;
+        sc: number;
+        el: number;
+        ec: number;
+      }[];
+      ts: {
+        sl: number;
+        sc: number;
+        el: number;
+        ec: number;
+      }[];
+    };
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
   const location = useLocation();
   const [jobId, setJobId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [fileContent, setFileContent] = useState(null);
 
   // Extract job ID from URL query parameters or localStorage
   useEffect(() => {
@@ -134,6 +291,33 @@ const Results = () => {
     if (!jobId) return;
 
     try {
+      const request = indexedDB.open("AnalysisDB");
+
+      request.onsuccess = function (event) {
+        const db = event.target.result; // Get database instance
+
+        // Start a transaction for 'jobs' store (read-only)
+        const transaction = db.transaction("jobs", "readonly");
+        const jobsStore = transaction.objectStore("jobs");
+
+        // Replace 'yourJobId' with the actual job ID
+        const jobRequest = jobsStore.get(jobId);
+
+        jobRequest.onsuccess = function () {
+          if (jobRequest.result) {
+            setFileContent(jobRequest.result);
+          } else {
+            console.log("Job not found");
+          }
+        };
+
+        jobRequest.onerror = function () {
+          console.error("Error retrieving job");
+        };
+      };
+
+      // setFileContent
+
       setRefreshing(true);
       const response = await pollResults(jobId);
 
@@ -141,8 +325,12 @@ const Results = () => {
         const jsonData = response.resultData;
 
         // Process the results
-        setSimilarityData(jsonData);
-        const results = jsonData.similarity_results;
+        const results = JSON.parse(jsonData.similarity_results);
+        results.forEach((result) => {
+          result.matches = mergeOverlappingSpans(result.matches);
+        });
+        setSimilarityData(results);
+        console.log("results:", results);
 
         if (!Array.isArray(results) || results.length === 0) {
           message.error("No data found in the results.");
@@ -209,8 +397,8 @@ const Results = () => {
   }, [filteredResults, currentPage]);
 
   // Handle opening the comparison modal
-  const handleCompareClick = (file1: string, file2: string) => {
-    setSelectedFiles({ file1, file2 });
+  const handleCompareClick = (file1: string, file2: string, matches) => {
+    setSelectedFiles({ file1, file2, matches });
     setIsCompareModalOpen(true);
   };
 
@@ -233,7 +421,7 @@ const Results = () => {
             Back
           </Button>
 
-          <Button
+          {/* <Button
             type="primary"
             icon={<ReloadOutlined />}
             onClick={fetchResults}
@@ -241,7 +429,7 @@ const Results = () => {
             disabled={loading}
           >
             Refresh Results
-          </Button>
+          </Button> */}
         </div>
 
         <div className="mb-8">
@@ -360,7 +548,11 @@ const Results = () => {
                             type="primary"
                             icon={<EyeOutlined />}
                             onClick={() =>
-                              handleCompareClick(result.file1, result.file2)
+                              handleCompareClick(
+                                result.file1,
+                                result.file2,
+                                result.matches
+                              )
                             }
                             size="small"
                           >
@@ -395,13 +587,13 @@ const Results = () => {
           closeIcon={null}
         >
           {similarityData && (
-            <PlagiarismCompare
-              file1Path={selectedFiles.file1}
-              file2Path={selectedFiles.file2}
-              onClose={handleCloseCompareModal}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              similarityData={similarityData as any}
-            />
+            <>
+              <CodeSimilarityViewer
+                file1Content={fileContent[selectedFiles.file1] || ""}
+                file2Content={fileContent[selectedFiles.file2] || ""}
+                spanClusters={selectedFiles.matches}
+              />
+            </>
           )}
         </Modal>
       )}
