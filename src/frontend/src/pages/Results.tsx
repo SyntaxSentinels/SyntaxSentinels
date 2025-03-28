@@ -23,27 +23,13 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
 import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
-import CodeSimilarityViewer from "@/components/CodeSimilarityViewer";
+import { CodeSimilarityViewer } from "@/components/CodeSimilarityViewer";
 
 // Interfaces for our data structures
 interface SimilarityResult {
   file1: string;
   file2: string;
   similarity_score: number;
-  matches: {
-    ss: {
-      sl: number;
-      sc: number;
-      el: number;
-      ec: number;
-    }[];
-    ts: {
-      sl: number;
-      sc: number;
-      el: number;
-      ec: number;
-    }[];
-  };
 }
 
 interface SimilarityData {
@@ -86,138 +72,6 @@ const generateDistribution = (results: SimilarityResult[]) => {
   }));
 };
 
-function compareSpan(left, right) {
-  let diff = left.sl - right.sl;
-  if (diff !== 0) {
-    return diff;
-  }
-  diff = left.sc - right.sc;
-  if (diff !== 0) {
-    return diff;
-  }
-  diff = left.el - right.el;
-  if (diff !== 0) {
-    return diff;
-  }
-  diff = left.ec - right.ec;
-  if (diff !== 0) {
-    return diff;
-  }
-  return 0;
-}
-
-function mergeSpans(one, other) {
-  let sl, sc, el, ec;
-  if (one.sl < other.sl) {
-    sl = one.sl;
-    sc = one.sc;
-  } else if (one.sl > other.sl) {
-    sl = other.sl;
-    sc = other.sc;
-  } else {
-    sl = one.sl;
-    sc = Math.min(one.sc, other.sc);
-  }
-  if (one.el > other.el) {
-    el = one.el;
-    ec = one.ec;
-  } else if (one.el < other.el) {
-    el = other.el;
-    ec = other.ec;
-  } else {
-    el = one.el;
-    ec = Math.max(one.ec, other.ec);
-  }
-  return { sl: sl, sc: sc, el: el, ec: ec };
-}
-
-function spansOverlap(span1, span2): boolean {
-  const [left, right] = [span1, span2].sort(compareSpan);
-  if (left.el < right.sl) {
-    return false;
-  } else if (left.el === right.sl) {
-    return right.sc < left.ec;
-  } else {
-    return true;
-  }
-}
-
-function mergeOverlappingSpans(
-  matches: SimilarityResult["matches"]
-): SimilarityResult["matches"] {
-  // Helper function to merge spans in a list
-  function mergeSpansList(spans) {
-    // Sort spans by sl and sc
-    spans.sort(compareSpan);
-
-    const mergedSpans = [];
-    let currentSpan = spans[0]; // Start with the first span
-
-    for (let i = 1; i < spans.length; i++) {
-      const nextSpan = spans[i];
-      // If the current span overlaps with the next one, merge them
-      if (spansOverlap(currentSpan, nextSpan)) {
-        currentSpan = mergeSpans(currentSpan, nextSpan);
-      } else {
-        // No overlap, push the current span and move to the next one
-        mergedSpans.push(currentSpan);
-        currentSpan = nextSpan;
-      }
-    }
-
-    // Push the last span after the loop
-    mergedSpans.push(currentSpan);
-    return mergedSpans;
-  }
-
-  // Function to check if two matches overlap
-  function matchesOverlap(match1, match2) {
-    // Check if there is any overlap in sourceSpans
-    const sourceOverlap = match1.ss.some((span1) =>
-      match2.ss.some((span2) => spansOverlap(span1, span2))
-    );
-    // Check if there is any overlap in targetSpans
-    const targetOverlap = match1.ts.some((span1) =>
-      match2.ts.some((span2) => spansOverlap(span1, span2))
-    );
-    return sourceOverlap || targetOverlap;
-  }
-
-  // Start with an empty list for merged matches
-  let mergedMatches = [];
-
-  // Loop through all matches and attempt to merge them
-  for (let i = 0; i < matches.length; i++) {
-    let currentMatch = matches[i];
-    let merged = false;
-
-    // Try to merge the current match with any match in the mergedMatches list
-    for (let j = 0; j < mergedMatches.length; j++) {
-      const existingMatch = mergedMatches[j];
-
-      // If the current match overlaps with an existing match, merge them
-      if (matchesOverlap(currentMatch, existingMatch)) {
-        existingMatch.ss = mergeSpansList([
-          ...existingMatch.ss,
-          ...currentMatch.ss,
-        ]);
-        existingMatch.ts = mergeSpansList([
-          ...existingMatch.ts,
-          ...currentMatch.ts,
-        ]);
-        merged = true;
-        break;
-      }
-    }
-
-    // If no merge occurred, add the current match as a new match
-    if (!merged) {
-      mergedMatches.push({ ...currentMatch });
-    }
-  }
-  console.log(matches, mergedMatches);
-  return mergedMatches;
-}
 
 const Results = () => {
   const navigate = useNavigate();
@@ -241,20 +95,6 @@ const Results = () => {
   const [selectedFiles, setSelectedFiles] = useState<{
     file1: string;
     file2: string;
-    matches: {
-      ss: {
-        sl: number;
-        sc: number;
-        el: number;
-        ec: number;
-      }[];
-      ts: {
-        sl: number;
-        sc: number;
-        el: number;
-        ec: number;
-      }[];
-    };
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
@@ -332,10 +172,7 @@ const Results = () => {
         const jsonData = response.resultData;
 
         // Process the results
-        const results = JSON.parse(jsonData.similarity_results);
-        results.forEach((result) => {
-          result.matches = mergeOverlappingSpans(result.matches);
-        });
+        const results = jsonData.similarity_results;
         setSimilarityData(results);
         console.log("results:", results);
 
@@ -404,8 +241,8 @@ const Results = () => {
   }, [filteredResults, currentPage]);
 
   // Handle opening the comparison modal
-  const handleCompareClick = (file1: string, file2: string, matches) => {
-    setSelectedFiles({ file1, file2, matches });
+  const handleCompareClick = (file1: string, file2) => {
+    setSelectedFiles({ file1, file2 });
     setIsCompareModalOpen(true);
   };
 
@@ -557,8 +394,7 @@ const Results = () => {
                             onClick={() =>
                               handleCompareClick(
                                 result.file1,
-                                result.file2,
-                                result.matches
+                                result.file2
                               )
                             }
                             size="small"
@@ -579,41 +415,6 @@ const Results = () => {
                 />
               </div>
             </Card>
-
-            {/* Full-Screen Modal */}
-            {/* <Dialog open={!!selectedFiles} onOpenChange={isCompareModalOpen}>
-              <DialogContent className="max-w-full h-full bg-white p-6">
-                <DialogHeader>
-                  <DialogTitle>Similarity result</DialogTitle>
-                </DialogHeader>
-                <div>
-                  {selectedFiles && (
-                    <>
-                      <CodeSimilarityViewer
-                        fileA={selectedFiles.file1}
-                        fileB={selectedFiles.file2}
-                        spanClusters={selectedSubmission.matches}
-                      />
-                      <div>
-                        <p>
-                          <strong>File 1:</strong> {selectedSubmission.file1}
-                        </p>
-                        <p>
-                          <strong>File 2:</strong> {selectedSubmission.file2}
-                        </p>
-                        <p>
-                          <strong>Similarity:</strong>{" "}
-                          {(selectedSubmission.similarity_score * 100).toFixed(
-                            3
-                          )}
-                          %
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog> */}
           </>
         )}
       </div>
@@ -631,9 +432,10 @@ const Results = () => {
           {similarityData && (
             <>
               <CodeSimilarityViewer
+                file1Name={selectedFiles.file1}
+                file2Name={selectedFiles.file2}
                 file1Content={fileContent[selectedFiles.file1] || ""}
                 file2Content={fileContent[selectedFiles.file2] || ""}
-                spanClusters={selectedFiles.matches}
               />
             </>
           )}

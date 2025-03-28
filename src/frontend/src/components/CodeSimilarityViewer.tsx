@@ -12,14 +12,8 @@ interface Span {
   endColumn: number;
 }
 
-// Interface for the matches structure expected by this component's highlighting logic
-interface ViewerMatchCluster {
-  sourceSpans: Span[];
-  targetSpans: Span[];
-}
-
 // Interface for the matches structure coming from the API (assuming ss/ts)
-interface ApiMatchCluster {
+interface ViewerMatchCluster {
   ss: Span[];
   ts: Span[];
 }
@@ -29,7 +23,7 @@ interface DetailedComparisonResult {
   file1: string; // Should match file1Name prop
   file2: string; // Should match file2Name prop
   similarity_score: number;
-  matches: ApiMatchCluster[]; // Matches from the API (ss, ts)
+  matches: ViewerMatchCluster[]; // Matches from the API (ss, ts)
 }
 
 // --- Helper Functions for Span Merging (Keep these or import them) ---
@@ -124,13 +118,13 @@ function mergeOverlappingSpans(
 
   // Function to check if two matches overlap
   function matchesOverlap(match1, match2) {
-    // Check if there is any overlap in sourceSpans
-    const sourceOverlap = match1.sourceSpans.some((span1) =>
-      match2.sourceSpans.some((span2) => spansOverlap(span1, span2))
+    // Check if there is any overlap in ss
+    const sourceOverlap = match1.ss.some((span1) =>
+      match2.ss.some((span2) => spansOverlap(span1, span2))
     );
-    // Check if there is any overlap in targetSpans
-    const targetOverlap = match1.targetSpans.some((span1) =>
-      match2.targetSpans.some((span2) => spansOverlap(span1, span2))
+    // Check if there is any overlap in ts
+    const targetOverlap = match1.ts.some((span1) =>
+      match2.ts.some((span2) => spansOverlap(span1, span2))
     );
     return sourceOverlap || targetOverlap;
   }
@@ -149,13 +143,13 @@ function mergeOverlappingSpans(
 
       // If the current match overlaps with an existing match, merge them
       if (matchesOverlap(currentMatch, existingMatch)) {
-        existingMatch.sourceSpans = mergeSpansList([
-          ...existingMatch.sourceSpans,
-          ...currentMatch.sourceSpans,
+        existingMatch.ss = mergeSpansList([
+          ...existingMatch.ss,
+          ...currentMatch.ss,
         ]);
-        existingMatch.targetSpans = mergeSpansList([
-          ...existingMatch.targetSpans,
-          ...currentMatch.targetSpans,
+        existingMatch.ts = mergeSpansList([
+          ...existingMatch.ts,
+          ...currentMatch.ts,
         ]);
         merged = true;
         break;
@@ -173,16 +167,17 @@ function mergeOverlappingSpans(
 
 // --- Define Props for the Component ---
 interface CodeSimilarityViewerProps {
-  jobId: string | null;
-  file1Name: string | null;
-  file2Name: string | null;
-  // Remove fileA, fileB, spanClusters from props
+  file1Name: string,
+  file2Name: string,
+  file1Content: string,
+  file2Content: string,
 }
 
 export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
-  jobId,
   file1Name,
   file2Name,
+  file1Content,
+  file2Content,
 }) => {
   const editorARef = useRef<HTMLDivElement>(null);
   const editorBRef = useRef<HTMLDivElement>(null);
@@ -193,78 +188,63 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
     null
   );
   const highlightManagerRef = useRef<any>(null); // To store highlight manager instance
+  const currentHighlightedCluster = useRef(null);
 
   // --- Internal State ---
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [fileAContent, setFileAContent] = useState<string>("");
-  const [fileBContent, setFileBContent] = useState<string>("");
-  const [clusters, setClusters] = useState<ViewerMatchCluster[]>([]);
+  const [spanClusters, setSpanClusters] = useState<ViewerMatchCluster[]>([]);
 
   // --- Effect to Fetch Data and Compare ---
   useEffect(() => {
     const fetchAndCompareData = async () => {
-      console.log(jobId, file1Name, file2Name); // Debugging log
-      if (!jobId || !file1Name || !file2Name) {
-        setError(
-          "Missing required information (jobId, file names) to load comparison."
-        );
-        setIsLoading(false);
-        return;
-      }
+      // if (!jobId || !file1Name || !file2Name) {
+      //   setError(
+      //     "Missing required information (jobId, file names) to load comparison."
+      //   );
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       setIsLoading(true);
       setError(null);
-      setFileAContent(""); // Clear previous
-      setFileBContent("");
-      setClusters([]);
+      setSpanClusters([]);
 
       try {
-        // 1. Fetch content from IndexedDB
-        const allJobContents = await getFileContentsFromDB(jobId);
-        if (!allJobContents)
-          throw new Error(`File contents not found locally for job ${jobId}.`);
-
-        const fetchedFileAContent = allJobContents[file1Name];
-        const fetchedFileBContent = allJobContents[file2Name];
-        if (
-          fetchedFileAContent === undefined ||
-          fetchedFileBContent === undefined
-        ) {
-          throw new Error(`Content missing for ${file1Name} or ${file2Name}.`);
-        }
-
-        // Store content immediately for potential editor update
-        setFileAContent(fetchedFileAContent);
-        setFileBContent(fetchedFileBContent);
-
         // 2. Call comparison API
         // Provide default k/w or make them optional in API definition (using Option 2 from previous fix here)
         const detailedResult: DetailedComparisonResult = await compareFilesApi({
-          file1Content: fetchedFileAContent,
-          file2Content: fetchedFileBContent,
-          file1Name,
-          file2Name,
+          file1Content: file1Content,
+          file2Content: file2Content,
+          file1Name: file1Name,
+          file2Name: file1Name,
           k: 7, // Example default
           w: 4, // Example default
         });
-
-        // 3. Map API response (ss/ts) to viewer format (sourceSpans/targetSpans)
+        console.log(detailedResult);
+        // 3. Map API response (ss/ts) to viewer format (ss/ts)
         const apiMatches = detailedResult.matches || [];
-        const mappedMatchesForViewer: ViewerMatchCluster[] = apiMatches.map(
+        let mappedMatchesForViewer: ViewerMatchCluster[] = apiMatches.map(
           (match) => ({
-            sourceSpans: match.ss || [],
-            targetSpans: match.ts || [],
+            ss: match.ss || [],
+            ts: match.ts || [],
           })
         );
 
         // 4. Merge overlapping spans
-        const mergedMatchesForViewer = mergeOverlappingSpans(
-          mappedMatchesForViewer
-        );
+        let keepGoing = true;
+        while (keepGoing) {
+          keepGoing = false;
+          const oldSize = Object.keys(mappedMatchesForViewer).length;
+          mappedMatchesForViewer = mergeOverlappingSpans(mappedMatchesForViewer);
+          const newSize = Object.keys(mappedMatchesForViewer).length;
+          if (oldSize != newSize) {
+            keepGoing = true;
+          }
+        }
 
         // 5. Set the final cluster data
-        setClusters(mergedMatchesForViewer);
+        setSpanClusters(mappedMatchesForViewer);
       } catch (err: any) {
         console.error("Error loading comparison data:", err);
         const errorMsg = err.message || "Failed to load comparison details.";
@@ -276,270 +256,162 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
     };
 
     fetchAndCompareData();
-  }, [jobId, file1Name, file2Name]); // Re-run if these props change
+  }, [file1Name, file2Name, file1Content, file2Content]);
 
-  // --- Effect to Setup/Update Monaco Editors and Highlighting ---
   useEffect(() => {
-    // Ensure refs are available
+    if (!file1Content || !file2Content || !spanClusters) return;
     if (!editorARef.current || !editorBRef.current) return;
 
-    // --- Initialize or Update Editor A ---
     if (!editorAInstance.current) {
       editorAInstance.current = monaco.editor.create(editorARef.current, {
-        value: fileAContent, // Use state variable
+        value: file1Content,
         language: "python",
         readOnly: true,
         minimap: { enabled: false },
-        // renderLineHighlight: 'none', // Keep if desired
-        scrollBeyondLastLine: false, // Optional preference
-        automaticLayout: true, // Adjust layout on container resize
+        renderLineHighlight: "none",
       });
     } else {
-      // If instance exists, update content if it changed
-      if (editorAInstance.current.getValue() !== fileAContent) {
-        editorAInstance.current.setValue(fileAContent);
-      }
+      editorAInstance.current.setValue(file1Content);
     }
 
-    // --- Initialize or Update Editor B ---
     if (!editorBInstance.current) {
       editorBInstance.current = monaco.editor.create(editorBRef.current, {
-        value: fileBContent, // Use state variable
+        value: file2Content,
         language: "python",
         readOnly: true,
         minimap: { enabled: false },
-        // renderLineHighlight: 'none',
-        scrollBeyondLastLine: false,
-        automaticLayout: true,
+        renderLineHighlight: "none",
       });
     } else {
-      // If instance exists, update content if it changed
-      if (editorBInstance.current.getValue() !== fileBContent) {
-        editorBInstance.current.setValue(fileBContent);
-      }
+      editorBInstance.current.setValue(file2Content);
     }
 
-    // --- Setup Highlighting ---
-    // Ensure editors are fully initialized before setting up highlights
-    if (!editorAInstance.current || !editorBInstance.current) return;
+    const highlightManager = {
+      decorationsA: [],
+      decorationsB: [],
+      clusterStyles: new Map(),
 
-    // Clear previous highlights and styles before applying new ones
-    if (highlightManagerRef.current) {
-      highlightManagerRef.current.dispose();
-    }
+      generateGrayShade(index) {
+        const lightness = 85 - (index % 10) * 5;
+        return `hsla(0, 0%, ${lightness}%, 0.5)`;
+      },
 
-    // Define Highlight Manager (nested to capture current editor instances and clusters)
-    const HighlightManager = class {
-      editorA: monaco.editor.IStandaloneCodeEditor;
-      editorB: monaco.editor.IStandaloneCodeEditor;
-      spanClusters: ViewerMatchCluster[];
-      decorationsAIds: string[] = [];
-      decorationsBIds: string[] = [];
-      clusterStyles = new Map<
-        ViewerMatchCluster,
-        { baseColor: string; hoverColor: string }
-      >();
-      styleElements: HTMLStyleElement[] = [];
-      currentHighlightedCluster: ViewerMatchCluster | null = null;
-      mouseMoveListeners: monaco.IDisposable[] = [];
-
-      constructor(
-        editorA: monaco.editor.IStandaloneCodeEditor,
-        editorB: monaco.editor.IStandaloneCodeEditor,
-        clusters: ViewerMatchCluster[]
-      ) {
-        this.editorA = editorA;
-        this.editorB = editorB;
-        this.spanClusters = clusters;
-      }
-
-      // --- Methods for generating colors, applying/clearing highlights (same as before) ---
-      generateGrayShade(index: number) {
-        /* ... */
-      }
-      generateHoverColor(index: number) {
-        /* ... */
-      }
+      generateHoverColor(index) {
+        const colorIndex = (index * 137) % 360;
+        return `hsla(${colorIndex}, 80%, 60%, 0.4)`;
+      },
 
       applyDefaultHighlight() {
-        const newDecorationsA: monaco.editor.IModelDeltaDecoration[] = [];
-        const newDecorationsB: monaco.editor.IModelDeltaDecoration[] = [];
-
-        this.spanClusters.forEach((cluster, index) => {
+        spanClusters.forEach((cluster, index) => {
+          console.log(cluster);
           const baseColor = this.generateGrayShade(index);
           const hoverColor = this.generateHoverColor(index);
           this.clusterStyles.set(cluster, { baseColor, hoverColor });
 
-          const createDecoration = (
-            span: Span
-          ): monaco.editor.IModelDeltaDecoration => ({
-            range: new monaco.Range(
-              span.startLine,
-              span.startColumn,
-              span.endLine,
-              span.endColumn
-            ),
-            options: {
-              inlineClassName: `highlight-${index}`, // Apply base style class
-              stickiness:
-                monaco.editor.TrackedRangeStickiness
-                  .NeverGrowsWhenTypingAtEdges,
-            },
+          const createDecoration = (span) => ({
+            range: new monaco.Range(span.sl, span.sc, span.el, span.ec),
+            options: { inlineClassName: `highlight-${index}` },
           });
 
-          cluster.sourceSpans.forEach((span) =>
-            newDecorationsA.push(createDecoration(span))
-          );
-          cluster.targetSpans.forEach((span) =>
-            newDecorationsB.push(createDecoration(span))
+          this.decorationsA.push(
+            ...editorAInstance.current.deltaDecorations(
+              [],
+              cluster.ss.map(createDecoration)
+            )
           );
 
-          // --- Inject CSS for base and hover states ---
-          const styleId = `style-highlight-${index}`;
-          if (!document.getElementById(styleId)) {
+          this.decorationsB.push(
+            ...editorBInstance.current.deltaDecorations(
+              [],
+              cluster.ts.map(createDecoration)
+            )
+          );
+
+          if (!document.getElementById(`style-highlight-${index}`)) {
             const style = document.createElement("style");
-            style.id = styleId;
+            style.id = `style-highlight-${index}`;
             style.textContent = `
-                      .highlight-${index} { background-color: ${baseColor}; border-radius: 2px; cursor: pointer; transition: background-color 0.1s ease-in-out; }
-                      .highlight-hover-${index} { background-color: ${hoverColor} !important; }
-                    `;
+              .highlight-${index} { background-color: ${baseColor}; border-radius: 3px; }
+              .highlight-hover-${index} { background-color: ${hoverColor} !important; }
+            `;
             document.head.appendChild(style);
-            this.styleElements.push(style); // Keep track to remove later
           }
         });
-
-        // Apply decorations (replace old ones)
-        this.decorationsAIds = this.editorA.deltaDecorations(
-          this.decorationsAIds,
-          newDecorationsA
-        );
-        this.decorationsBIds = this.editorB.deltaDecorations(
-          this.decorationsBIds,
-          newDecorationsB
-        );
-      }
+      },
 
       clearHoverHighlight() {
-        if (!this.currentHighlightedCluster) return;
-        const index = this.spanClusters.indexOf(this.currentHighlightedCluster);
-        if (index === -1) return;
-        // Find all elements (across both editors if needed, though usually specific)
-        document.querySelectorAll(`.highlight-${index}`).forEach((el) => {
-          el.classList.remove(`highlight-hover-${index}`);
-        });
-        this.currentHighlightedCluster = null;
-      }
+        if (!currentHighlightedCluster.current) return;
 
-      applyHoverHighlight(cluster: ViewerMatchCluster) {
-        if (this.currentHighlightedCluster === cluster) return;
-        this.clearHoverHighlight(); // Clear previous hover
+        const index = spanClusters.indexOf(currentHighlightedCluster.current);
+        if (index !== -1) {
+          document.querySelectorAll(`.highlight-${index}`).forEach((el) => {
+            el.classList.remove(`highlight-hover-${index}`);
+          });
+        }
+        currentHighlightedCluster.current = null;
+      },
 
-        this.currentHighlightedCluster = cluster;
-        const index = this.spanClusters.indexOf(cluster);
-        if (index === -1) return;
-        // Find all elements with the base class and add the hover class
-        document.querySelectorAll(`.highlight-${index}`).forEach((el) => {
-          el.classList.add(`highlight-hover-${index}`);
-        });
-      }
+      applyHoverHighlight(cluster) {
+        if (currentHighlightedCluster.current === cluster) return;
+        this.clearHoverHighlight();
 
-      // --- Setup mouse move listeners ---
-      setupMouseListeners() {
-        const handleMouseMove =
-          (isSource: boolean) => (e: monaco.editor.IEditorMouseEvent) => {
-            if (
-              !e ||
-              !e.target ||
-              e.target.type !== monaco.editor.MouseTargetType.CONTENT_TEXT
-            ) {
-              this.clearHoverHighlight(); // Clear if mouse is not over text
-              return;
-            }
-            const position = e.target.position;
-            if (!position) return;
-
-            const matchingCluster = this.spanClusters.find((cluster) => {
-              const spans = isSource
-                ? cluster.sourceSpans
-                : cluster.targetSpans;
-              return spans.some(
-                (span) =>
-                  position.lineNumber >= span.startLine &&
-                  position.lineNumber <= span.endLine &&
-                  (position.lineNumber !== span.endLine ||
-                    position.column <= span.endColumn) &&
-                  (position.lineNumber !== span.startLine ||
-                    position.column >= span.startColumn)
-              );
-            });
-
-            if (matchingCluster) {
-              this.applyHoverHighlight(matchingCluster);
-            } else {
-              this.clearHoverHighlight();
-            }
-          };
-
-        // Clear previous listeners before adding new ones
-        this.mouseMoveListeners.forEach((listener) => listener.dispose());
-        this.mouseMoveListeners = [];
-
-        this.mouseMoveListeners.push(
-          this.editorA.onMouseMove(handleMouseMove(true))
-        );
-        this.mouseMoveListeners.push(
-          this.editorB.onMouseMove(handleMouseMove(false))
-        );
-        // Add listener to clear hover when mouse leaves editor area
-        this.mouseMoveListeners.push(
-          this.editorA.onMouseLeave(() => this.clearHoverHighlight())
-        );
-        this.mouseMoveListeners.push(
-          this.editorB.onMouseLeave(() => this.clearHoverHighlight())
-        );
-      }
-
-      // --- Cleanup method ---
-      dispose() {
-        // Remove decorations
-        if (this.editorA)
-          this.editorA.deltaDecorations(this.decorationsAIds, []);
-        if (this.editorB)
-          this.editorB.deltaDecorations(this.decorationsBIds, []);
-        this.decorationsAIds = [];
-        this.decorationsBIds = [];
-        // Remove listeners
-        this.mouseMoveListeners.forEach((listener) => listener.dispose());
-        this.mouseMoveListeners = [];
-        // Remove injected styles
-        this.styleElements.forEach((style) => style.remove());
-        this.styleElements = [];
-        this.clusterStyles.clear();
-        this.currentHighlightedCluster = null;
-      }
-    }; // End HighlightManager class definition
-
-    // Create and setup the manager
-    const manager = new HighlightManager(
-      editorAInstance.current,
-      editorBInstance.current,
-      clusters
-    );
-    manager.applyDefaultHighlight();
-    manager.setupMouseListeners();
-    highlightManagerRef.current = manager; // Store the instance
-
-    // --- Cleanup on unmount or when dependencies change ---
-    return () => {
-      manager.dispose(); // Use manager's cleanup method
-      highlightManagerRef.current = null;
-
-      // Only dispose editors if the component *itself* is unmounting
-      // If just props change, we reuse the editor instances
-      // This cleanup needs refinement if props changing should fully recreate editors.
-      // For now, let's assume we update content and highlights.
+        currentHighlightedCluster.current = cluster;
+        const index = spanClusters.indexOf(cluster);
+        if (index !== -1) {
+          document.querySelectorAll(`.highlight-${index}`).forEach((el) => {
+            el.classList.add(`highlight-hover-${index}`);
+          });
+        }
+      },
     };
-  }, [fileAContent, fileBContent, clusters]); // Rerun setup if content or clusters change
+
+    highlightManager.applyDefaultHighlight();
+
+    const handleMouseMove = (editor, isSource) => (e) => {
+      if (!e || !e.target) return;
+      const { lineNumber, column } = e.target.position || {};
+      if (!lineNumber || !column) return;
+
+      const matchingCluster = spanClusters.find((cluster) => {
+        const spans = isSource ? cluster.ss : cluster.ts;
+        return spans.some(
+          (span) =>
+            lineNumber >= span.sl &&
+            lineNumber <= span.el &&
+            (lineNumber !== span.el || column <= span.ec) &&
+            (lineNumber !== span.sl || column >= span.sc)
+        );
+      });
+
+      if (matchingCluster) {
+        highlightManager.applyHoverHighlight(matchingCluster);
+      } else {
+        highlightManager.clearHoverHighlight();
+      }
+    };
+
+    const mouseHandlerA = editorAInstance.current.onMouseMove(
+      handleMouseMove(editorAInstance.current, true)
+    );
+    const mouseHandlerB = editorBInstance.current.onMouseMove(
+      handleMouseMove(editorBInstance.current, false)
+    );
+
+    return () => {
+      mouseHandlerA.dispose();
+      mouseHandlerB.dispose();
+      highlightManager.clearHoverHighlight();
+
+      if (editorAInstance.current) {
+        editorAInstance.current.dispose();
+        editorAInstance.current = null;
+      }
+      if (editorBInstance.current) {
+        editorBInstance.current.dispose();
+        editorBInstance.current = null;
+      }
+    };
+  }, [file1Content, file2Content, spanClusters]);
 
   // --- Effect for Full Editor Disposal on Unmount ---
   useEffect(() => {
