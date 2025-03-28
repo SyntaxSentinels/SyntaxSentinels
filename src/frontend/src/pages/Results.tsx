@@ -36,7 +36,7 @@ interface SimilarityResult {
       el: number;
       ec: number;
     }[];
-  }
+  };
 }
 
 interface SimilarityData {
@@ -79,22 +79,29 @@ const generateDistribution = (results: SimilarityResult[]) => {
   }));
 };
 
-
 function compareSpan(left, right) {
   let diff = left.sl - right.sl;
-  if (diff !== 0) { return diff; }
+  if (diff !== 0) {
+    return diff;
+  }
   diff = left.sc - right.sc;
-  if (diff !== 0) { return diff; }
+  if (diff !== 0) {
+    return diff;
+  }
   diff = left.el - right.el;
-  if (diff !== 0) { return diff; }
+  if (diff !== 0) {
+    return diff;
+  }
   diff = left.ec - right.ec;
-  if (diff !== 0) { return diff; }
+  if (diff !== 0) {
+    return diff;
+  }
   return 0;
 }
 
 function mergeSpans(one, other) {
   let sl, sc, el, ec;
-  if(one.sl < other.sl) {
+  if (one.sl < other.sl) {
     sl = one.sl;
     sc = one.sc;
   } else if (one.sl > other.sl) {
@@ -104,7 +111,7 @@ function mergeSpans(one, other) {
     sl = one.sl;
     sc = Math.min(one.sc, other.sc);
   }
-  if(one.el > other.el) {
+  if (one.el > other.el) {
     el = one.el;
     ec = one.ec;
   } else if (one.el < other.el) {
@@ -114,7 +121,7 @@ function mergeSpans(one, other) {
     el = one.el;
     ec = Math.max(one.ec, other.ec);
   }
-  return {"sl": sl, "sc": sc, "el": el, "ec": ec};
+  return { sl: sl, sc: sc, el: el, ec: ec };
 }
 
 function spansOverlap(span1, span2): boolean {
@@ -128,8 +135,9 @@ function spansOverlap(span1, span2): boolean {
   }
 }
 
-
-function mergeOverlappingSpans(matches: SimilarityResult['matches']): SimilarityResult['matches'] {
+function mergeOverlappingSpans(
+  matches: SimilarityResult["matches"]
+): SimilarityResult["matches"] {
   // Helper function to merge spans in a list
   function mergeSpansList(spans) {
     // Sort spans by sl and sc
@@ -158,12 +166,12 @@ function mergeOverlappingSpans(matches: SimilarityResult['matches']): Similarity
   // Function to check if two matches overlap
   function matchesOverlap(match1, match2) {
     // Check if there is any overlap in sourceSpans
-    const sourceOverlap = match1.ss.some(span1 =>
-      match2.ss.some(span2 => spansOverlap(span1, span2))
+    const sourceOverlap = match1.ss.some((span1) =>
+      match2.ss.some((span2) => spansOverlap(span1, span2))
     );
     // Check if there is any overlap in targetSpans
-    const targetOverlap = match1.ts.some(span1 =>
-      match2.ts.some(span2 => spansOverlap(span1, span2))
+    const targetOverlap = match1.ts.some((span1) =>
+      match2.ts.some((span2) => spansOverlap(span1, span2))
     );
     return sourceOverlap || targetOverlap;
   }
@@ -182,8 +190,14 @@ function mergeOverlappingSpans(matches: SimilarityResult['matches']): Similarity
 
       // If the current match overlaps with an existing match, merge them
       if (matchesOverlap(currentMatch, existingMatch)) {
-        existingMatch.ss = mergeSpansList([...existingMatch.ss, ...currentMatch.ss]);
-        existingMatch.ts = mergeSpansList([...existingMatch.ts, ...currentMatch.ts]);
+        existingMatch.ss = mergeSpansList([
+          ...existingMatch.ss,
+          ...currentMatch.ss,
+        ]);
+        existingMatch.ts = mergeSpansList([
+          ...existingMatch.ts,
+          ...currentMatch.ts,
+        ]);
         merged = true;
         break;
       }
@@ -197,7 +211,6 @@ function mergeOverlappingSpans(matches: SimilarityResult['matches']): Similarity
   console.log(matches, mergedMatches);
   return mergedMatches;
 }
-
 
 const Results = () => {
   const navigate = useNavigate();
@@ -234,7 +247,7 @@ const Results = () => {
         el: number;
         ec: number;
       }[];
-    }
+    };
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
@@ -280,25 +293,25 @@ const Results = () => {
     try {
       const request = indexedDB.open("AnalysisDB");
 
-      request.onsuccess = function(event) {
+      request.onsuccess = function (event) {
         const db = event.target.result; // Get database instance
-        
+
         // Start a transaction for 'jobs' store (read-only)
         const transaction = db.transaction("jobs", "readonly");
         const jobsStore = transaction.objectStore("jobs");
-    
+
         // Replace 'yourJobId' with the actual job ID
         const jobRequest = jobsStore.get(jobId);
-    
-        jobRequest.onsuccess = function() {
+
+        jobRequest.onsuccess = function () {
           if (jobRequest.result) {
             setFileContent(jobRequest.result);
           } else {
             console.log("Job not found");
           }
         };
-    
-        jobRequest.onerror = function() {
+
+        jobRequest.onerror = function () {
           console.error("Error retrieving job");
         };
       };
@@ -313,7 +326,7 @@ const Results = () => {
 
         // Process the results
         const results = JSON.parse(jsonData.similarity_results);
-        results.forEach(result => {
+        results.forEach((result) => {
           result.matches = mergeOverlappingSpans(result.matches);
         });
         setSimilarityData(results);
@@ -408,7 +421,7 @@ const Results = () => {
             Back
           </Button>
 
-          <Button
+          {/* <Button
             type="primary"
             icon={<ReloadOutlined />}
             onClick={fetchResults}
@@ -416,7 +429,7 @@ const Results = () => {
             disabled={loading}
           >
             Refresh Results
-          </Button>
+          </Button> */}
         </div>
 
         <div className="mb-8">
@@ -523,26 +536,30 @@ const Results = () => {
                   <TableBody>
                     {displayedResults.map((result, index) => (
                       <TableRow key={index}>
-                      <TableCell className="font-medium">
-                        {result.file1}
-                      </TableCell>
-                      <TableCell>{result.file2}</TableCell>
-                      <TableCell className="text-right">
-                        {(result.similarity_score * 100).toFixed(3)}%
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          type="primary"
-                          icon={<EyeOutlined />}
-                          onClick={() =>
-                            handleCompareClick(result.file1, result.file2, result.matches)
-                          }
-                          size="small"
-                        >
-                          Compare
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                        <TableCell className="font-medium">
+                          {result.file1}
+                        </TableCell>
+                        <TableCell>{result.file2}</TableCell>
+                        <TableCell className="text-right">
+                          {(result.similarity_score * 100).toFixed(3)}%
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={() =>
+                              handleCompareClick(
+                                result.file1,
+                                result.file2,
+                                result.matches
+                              )
+                            }
+                            size="small"
+                          >
+                            Compare
+                          </Button>
+                        </TableCell>
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -571,7 +588,7 @@ const Results = () => {
         >
           {similarityData && (
             <>
-              <CodeSimilarityViewer 
+              <CodeSimilarityViewer
                 file1Content={fileContent[selectedFiles.file1] || ""}
                 file2Content={fileContent[selectedFiles.file1] || ""}
                 spanClusters={selectedFiles.matches}

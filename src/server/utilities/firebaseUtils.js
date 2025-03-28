@@ -238,8 +238,12 @@ export const getUserJobs = async (auth0Id) => {
       return jobs;
     }
 
-    // Fallback to querying the results collection directly
-    // This is for backward compatibility with existing data
+    // Fallback if no job history is found
+    logger.warn(
+      `No job history found for user: ${auth0Id}. Attempting to retrieve jobs directly from 'results' collection.`
+    );
+
+    // Fallback to querying the results collection directly for older records or users without job_history
     const snapshot = await db
       .collection("results")
       .where("auth0Id", "==", auth0Id)
@@ -247,7 +251,9 @@ export const getUserJobs = async (auth0Id) => {
       .get();
 
     if (snapshot.empty) {
-      logger.info(`No jobs found for user: ${auth0Id}`);
+      logger.info(
+        `No jobs found for user: ${auth0Id} in 'results' collection.`
+      );
       return [];
     }
 
@@ -269,7 +275,7 @@ export const getUserJobs = async (auth0Id) => {
     return jobs;
   } catch (error) {
     logger.error(`Error retrieving jobs for user: ${auth0Id}:`, error);
-    throw error;
+    return [];
   }
 };
 
