@@ -96,6 +96,20 @@ const Results = () => {
   const [selectedFiles, setSelectedFiles] = useState<{
     file1: string;
     file2: string;
+    matches: {
+      ss: {
+        sl: number;
+        sc: number;
+        el: number;
+        ec: number;
+      }[];
+      ts: {
+        sl: number;
+        sc: number;
+        el: number;
+        ec: number;
+      }[];
+    };
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
@@ -400,7 +414,11 @@ const Results = () => {
                             type="primary"
                             icon={<EyeOutlined />}
                             onClick={() =>
-                              handleCompareClick(result.file1, result.file2)
+                              handleCompareClick(
+                                result.file1,
+                                result.file2,
+                                result.matches
+                              )
                             }
                             size="small"
                           >

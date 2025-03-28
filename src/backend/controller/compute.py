@@ -274,7 +274,7 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
 
     # Store all file contents
     for fname, content in python_files:
-        file_contents[fname] = content.splitlines()
+        file_contents[os.path.basename(fname)] = content
 
     def process_pair(pair):
         (fname1, code1), (fname2, code2) = pair
