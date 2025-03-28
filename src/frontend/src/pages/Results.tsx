@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { pollResults } from "@/services/ssApi";
 import { ReloadOutlined } from "@ant-design/icons";
+import pako from 'pako';  // Import pako library
 import "./Results.css";
 import {
   Table,
@@ -169,7 +170,14 @@ const Results = () => {
       const response = await pollResults(jobId);
 
       if (response.status === "completed" && response.resultData) {
-        const jsonData = response.resultData;
+        async function decompressData(compressedData) {
+          const base64Decoded = Uint8Array.from(atob(compressedData), c => c.charCodeAt(0)); // Base64 decode
+          const decompressed = await new Response(base64Decoded).arrayBuffer(); // Convert to ArrayBuffer
+          const decompressedText = new TextDecoder().decode(pako.ungzip(new Uint8Array(decompressed))); // Gunzip and decode
+          return JSON.parse(decompressedText); // Parse JSON
+        }
+
+        const jsonData = await decompressData(response.resultData);
 
         // Process the results
         const results = jsonData.similarity_results;
@@ -392,10 +400,7 @@ const Results = () => {
                             type="primary"
                             icon={<EyeOutlined />}
                             onClick={() =>
-                              handleCompareClick(
-                                result.file1,
-                                result.file2
-                              )
+                              handleCompareClick(result.file1, result.file2)
                             }
                             size="small"
                           >
