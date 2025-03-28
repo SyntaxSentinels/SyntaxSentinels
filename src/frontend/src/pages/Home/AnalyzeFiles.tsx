@@ -17,7 +17,6 @@ import UploadBox from "@/components/UploadBox";
 import JobsTable from "@/components/JobsTable";
 import { uploadFiles, getUserJobs, JobInfo } from "@/services/ssApi";
 import { Spin } from "antd";
-import { openDB } from "idb";
 
 const { Title, Paragraph } = Typography;
 
