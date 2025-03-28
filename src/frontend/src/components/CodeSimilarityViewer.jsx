@@ -2,11 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import * as monaco from "monaco-editor";
 import { message } from "antd";
 
-const CodeSimilarityViewer = ({
-  file1Content,
-  file2Content,
-  spanClusters,
-}) => {
+const CodeSimilarityViewer = ({ file1Content, file2Content, spanClusters }) => {
   const editorARef = useRef(null);
   const editorBRef = useRef(null);
   const editorAInstance = useRef(null);
@@ -58,7 +54,7 @@ const CodeSimilarityViewer = ({
 
       applyDefaultHighlight() {
         spanClusters.forEach((cluster, index) => {
-          console.log(cluster)
+          console.log(cluster);
           const baseColor = this.generateGrayShade(index);
           const hoverColor = this.generateHoverColor(index);
           this.clusterStyles.set(cluster, { baseColor, hoverColor });
@@ -69,11 +65,17 @@ const CodeSimilarityViewer = ({
           });
 
           this.decorationsA.push(
-            ...editorAInstance.current.deltaDecorations([], cluster.ss.map(createDecoration))
+            ...editorAInstance.current.deltaDecorations(
+              [],
+              cluster.ss.map(createDecoration)
+            )
           );
 
           this.decorationsB.push(
-            ...editorBInstance.current.deltaDecorations([], cluster.ts.map(createDecoration))
+            ...editorBInstance.current.deltaDecorations(
+              [],
+              cluster.ts.map(createDecoration)
+            )
           );
 
           if (!document.getElementById(`style-highlight-${index}`)) {
@@ -139,8 +141,12 @@ const CodeSimilarityViewer = ({
       }
     };
 
-    const mouseHandlerA = editorAInstance.current.onMouseMove(handleMouseMove(editorAInstance.current, true));
-    const mouseHandlerB = editorBInstance.current.onMouseMove(handleMouseMove(editorBInstance.current, false));
+    const mouseHandlerA = editorAInstance.current.onMouseMove(
+      handleMouseMove(editorAInstance.current, true)
+    );
+    const mouseHandlerB = editorBInstance.current.onMouseMove(
+      handleMouseMove(editorBInstance.current, false)
+    );
 
     return () => {
       mouseHandlerA.dispose();
@@ -160,8 +166,22 @@ const CodeSimilarityViewer = ({
 
   return (
     <div style={{ display: "flex", width: "100%", height: "600px" }}>
-      <div ref={editorARef} style={{ width: "50%", height: "100%", borderRight: "1px solid #e0e0e0" }} />
-      <div ref={editorBRef} style={{ width: "50%", height: "100%", borderLeft: "1px solid #e0e0e0" }} />
+      <div
+        ref={editorARef}
+        style={{
+          width: "50%",
+          height: "100%",
+          borderRight: "1px solid #e0e0e0",
+        }}
+      />
+      <div
+        ref={editorBRef}
+        style={{
+          width: "50%",
+          height: "100%",
+          borderLeft: "1px solid #e0e0e0",
+        }}
+      />
     </div>
   );
 };
