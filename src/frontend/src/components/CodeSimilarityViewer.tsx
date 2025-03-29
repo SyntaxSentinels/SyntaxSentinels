@@ -292,6 +292,10 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
       decorationsA: [],
       decorationsB: [],
       clusterStyles: new Map(),
+      
+      // Track visible ranges for both editors
+      visibleRangeA: null,
+      visibleRangeB: null,
 
       generateGrayShade(index) {
         const lightness = 85 - (index % 10) * 5;
@@ -365,7 +369,92 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
           });
         }
       },
+      
+      // Check for highlights in visible range
+      checkVisibleHighlights() {
+        if (!editorAInstance.current || !editorBInstance.current) return;
+        
+        // Get current visible ranges
+        const visibleRangeA = editorAInstance.current.getVisibleRanges()[0];
+        const visibleRangeB = editorBInstance.current.getVisibleRanges()[0];
+        
+        if (!visibleRangeA || !visibleRangeB) return;
+        
+        // Check if mouse is over any span in the visible ranges
+        let foundMatch = false;
+        
+        // First check editor A (source)
+        for (const cluster of spanClusters) {
+          for (const span of cluster.ss) {
+            // Check if span overlaps with visible range
+            if (
+              span.sl <= visibleRangeA.endLineNumber &&
+              span.el >= visibleRangeA.startLineNumber
+            ) {
+              // Check if mouse cursor is within this span's position
+              const position = editorAInstance.current.getPosition();
+              if (position) {
+                const { lineNumber, column } = position;
+                if (
+                  lineNumber >= span.sl &&
+                  lineNumber <= span.el &&
+                  (lineNumber !== span.el || column <= span.ec) &&
+                  (lineNumber !== span.sl || column >= span.sc)
+                ) {
+                  this.applyHoverHighlight(cluster);
+                  foundMatch = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (foundMatch) break;
+        }
+        
+        // If no match found in editor A, check editor B (target)
+        if (!foundMatch) {
+          for (const cluster of spanClusters) {
+            for (const span of cluster.ts) {
+              // Check if span overlaps with visible range
+              if (
+                span.sl <= visibleRangeB.endLineNumber &&
+                span.el >= visibleRangeB.startLineNumber
+              ) {
+                // Check if mouse cursor is within this span's position
+                const position = editorBInstance.current.getPosition();
+                if (position) {
+                  const { lineNumber, column } = position;
+                  if (
+                    lineNumber >= span.sl &&
+                    lineNumber <= span.el &&
+                    (lineNumber !== span.el || column <= span.ec) &&
+                    (lineNumber !== span.sl || column >= span.sc)
+                  ) {
+                    this.applyHoverHighlight(cluster);
+                    foundMatch = true;
+                    break;
+                  }
+                }
+              }
+            }
+            if (foundMatch) break;
+          }
+        }
+        
+        // If no match found in either editor, clear highlight
+        if (!foundMatch) {
+          this.clearHoverHighlight();
+        }
+      },
+      
+      dispose() {
+        this.clearHoverHighlight();
+        // Clear any additional resources if needed
+      }
     };
+    
+    // Store the highlight manager reference
+    highlightManagerRef.current = highlightManager;
 
     highlightManager.applyDefaultHighlight();
 
@@ -392,16 +481,35 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
       }
     };
 
+    // Add scroll event handlers for both editors
+    const handleScroll = () => {
+      highlightManager.checkVisibleHighlights();
+    };
+
+    // Set up mouse and scroll events
     const mouseHandlerA = editorAInstance.current.onMouseMove(
       handleMouseMove(editorAInstance.current, true)
     );
     const mouseHandlerB = editorBInstance.current.onMouseMove(
       handleMouseMove(editorBInstance.current, false)
     );
+    
+    const scrollHandlerA = editorAInstance.current.onDidScrollChange(handleScroll);
+    const scrollHandlerB = editorBInstance.current.onDidScrollChange(handleScroll);
+
+    // Also handle cursor position changes to update highlights when navigating with keyboard
+    const cursorHandlerA = editorAInstance.current.onDidChangeCursorPosition(handleScroll);
+    const cursorHandlerB = editorBInstance.current.onDidChangeCursorPosition(handleScroll);
 
     return () => {
+      // Clean up all event handlers
       mouseHandlerA.dispose();
       mouseHandlerB.dispose();
+      scrollHandlerA.dispose();
+      scrollHandlerB.dispose();
+      cursorHandlerA.dispose();
+      cursorHandlerB.dispose();
+      
       highlightManager.clearHoverHighlight();
 
       if (editorAInstance.current) {
