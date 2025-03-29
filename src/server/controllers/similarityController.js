@@ -15,9 +15,6 @@ router.post("/compare", async (req, res, next) => {
       file2Content,
       file1Name, // Optional name
       file2Name, // Optional name
-      k, // Optional k-gram size
-      w, // Optional window size
-      // m // Threshold 'm' is not needed here, comparison always happens
     } = req.body;
 
     // --- Basic Input Validation ---
@@ -42,16 +39,6 @@ router.post("/compare", async (req, res, next) => {
       );
     }
 
-    // --- Parse Optional Parameters ---
-    // Provide defaults matching the original script if not supplied
-    const kValue =
-      k !== undefined && Number.isInteger(Number(k)) && Number(k) > 0
-        ? Number(k)
-        : 7;
-    const wValue =
-      w !== undefined && Number.isInteger(Number(w)) && Number(w) > 0
-        ? Number(w)
-        : 4; // Default w=4 from python
 
     // --- Perform Comparison ---
     logger.info(
@@ -62,10 +49,8 @@ router.post("/compare", async (req, res, next) => {
     const result = compareTwoFiles(
       file1Content,
       file2Content,
-      file1Name, // Pass optional names
-      file2Name,
-      kValue,
-      wValue
+      file1Name,
+      file2Name
     );
     logger.info(`Comparison finished. Score: ${result.similarity_score}`);
 

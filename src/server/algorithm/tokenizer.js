@@ -5,14 +5,52 @@ import path from "path";
 
 // --- Constants and Enums (Copied from previous script) ---
 const NormalizedTokenType = {
-  IDENTIFIER: 0,
-  NUMERIC_LITERAL: 1,
-  STRING_LITERAL: 2,
+  IDENTIFIER: 1,
+  NUMERIC_LITERAL: 2,
+  STRING_LITERAL: 3,
 };
 const BASE = 747287;
 const MOD = 33554393;
 const ROLLING_BASE = 4194301;
 const ROLLING_MOD = 33554393;
+
+const kwlist = [
+  'False',
+  'None',
+  'True',
+  'and',
+  'as',
+  'assert',
+  'async',
+  'await',
+  'break',
+  'class',
+  'continue',
+  'def',
+  'del',
+  'elif',
+  'else',
+  'except',
+  'finally',
+  'for',
+  'from',
+  'global',
+  'if',
+  'import',
+  'in',
+  'is',
+  'lambda',
+  'nonlocal',
+  'not',
+  'or',
+  'pass',
+  'raise',
+  'return',
+  'try',
+  'while',
+  'with',
+  'yield'
+]
 
 // --- Helper Functions (Copied from previous script) ---
 function mod(n, m) {
@@ -21,26 +59,6 @@ function mod(n, m) {
 
 // --- Tokenizer Class (Mostly unchanged, slightly adapted) ---
 class Tokenizer {
-  significantNodeTypes = new Set([
-    /* ... keep as before ... */ "Identifier",
-    "VariableName",
-    "PropertyName",
-    "Number",
-    "Integer",
-    "Float",
-    "String",
-    "FormatString",
-    "Text",
-    "Keyword",
-    "Operator",
-    "ArithOp",
-    "AssignOp",
-    "CompareOp",
-    "LogicOp",
-    "Punctuation",
-    "Comment",
-  ]);
-  ignoreNodeTypes = new Set(["Script", "⚠"]);
 
   _getLineInfo(text, pos) {
     let line = 1;
@@ -57,21 +75,22 @@ class Tokenizer {
   }
 
   _normalizeToken(nodeType, nodeText) {
-    // ... keep as before ...
-    if (nodeType.includes("Keyword")) return nodeText;
+    // console.log(nodeType, nodeText);
+    if (kwlist.includes(nodeText)) {
+      return nodeText;
+    }
     if (
       nodeType === "Identifier" ||
       nodeType === "VariableName" ||
-      nodeType === "PropertyName"
+      nodeType === "PropertyName" ||
+      nodeType === "AssignStatement"
     )
       return NormalizedTokenType.IDENTIFIER;
     if (nodeType === "Number" || nodeType === "Integer" || nodeType === "Float")
       return NormalizedTokenType.NUMERIC_LITERAL;
     if (nodeType === "String" || nodeType === "FormatString")
       return NormalizedTokenType.STRING_LITERAL;
-    if (nodeType.includes("Op") || nodeType === "Punctuation")
-      return nodeText.trim();
-    return "";
+    return nodeText.trim();
   }
 
   _hashToken(token) {
@@ -104,42 +123,37 @@ class Tokenizer {
       return { tokens: [], comments: new Set() };
     }
 
+    let maxPos = 0;
     const cursor = tree.cursor();
     do {
       // ... (rest of the traversal logic is identical to _tokenizeFile) ...
-      const node = cursor.node;
+      let node = cursor.node;
       const nodeName = node.type.name;
-      if (this.ignoreNodeTypes.has(nodeName)) continue;
-
-      if (cursor.firstChild()) {
-        if (
-          nodeName !== "String" &&
-          nodeName !== "FormatString" &&
-          nodeName !== "Comment"
-        ) {
-          continue;
-        }
+      if (nodeName == "Script") continue;
+      
+      while (node.firstChild) {
+        node = node.firstChild;
       }
 
-      if (this.significantNodeTypes.has(nodeName)) {
-        const startPos = this._getLineInfo(fileContents, node.from);
-        const endPos = this._getLineInfo(fileContents, node.to);
-        const nodeText = fileContents.substring(node.from, node.to);
+      if (node.to <= maxPos) continue;
+      maxPos = node.to;
+      const startPos = this._getLineInfo(fileContents, node.from);
+      const endPos = this._getLineInfo(fileContents, node.to);
+      const nodeText = fileContents.substring(node.from, node.to);
 
-        if (nodeName === "Comment") {
-          comments.add(nodeText);
-          continue;
-        }
+      if (nodeName === "Comment") {
+        comments.add(nodeText);
+        continue;
+      }
 
-        const normalized = this._normalizeToken(nodeName, nodeText);
+      const normalized = this._normalizeToken(nodeName, nodeText);
 
-        if (normalized !== "") {
-          tokens.push({
-            startPos: [startPos.line, startPos.col],
-            endPos: [endPos.line, endPos.col],
-            value: normalized,
-          });
-        }
+      if (normalized !== "") {
+        tokens.push({
+          startPos: [startPos.line, startPos.col],
+          endPos: [endPos.line, endPos.col],
+          value: normalized,
+        });
       }
     } while (cursor.next());
 
@@ -201,6 +215,7 @@ class Tokenizer {
       if (minFp) fingerprints.set(minFp.position, minFp);
     } else {
       for (let i = 0; i <= n - w; i++) {
+      // for (let i = n - w; i >= 0; i--) {
         const window = kgramHashes.slice(i, i + w);
         let minFp = window[0];
         for (let j = 1; j < window.length; j++) {
@@ -263,11 +278,12 @@ class Tokenizer {
 function compareTwoFiles(
   content1,
   content2,
-  name1 = "file1",
-  name2 = "file2",
-  k = 7,
+  name1,
+  name2,
+  k = 10,
   w = 4
 ) {
+  console.log("COMPARING WITH", k, w);
   const tokenizer = new Tokenizer();
 
   // Tokenize and Fingerprint File 1
@@ -286,8 +302,8 @@ function compareTwoFiles(
 
   // Find common fingerprints by hash value
   const commonFingerprints = new Map(); // Map<hashVal, {fp1, fp2}>
-  for (const fp1 of fingerprints1.values()) {
-    for (const fp2 of fingerprints2.values()) {
+  for (const fp1 of hashes1.values()) {
+    for (const fp2 of hashes2.values()) {
       // Using find to get the *first* match in fp2 for a given hash in fp1.
       // Adjust if multiple matches per hash are important.
       if (fp1.hashVal === fp2.hashVal) {
@@ -342,6 +358,10 @@ function compareTwoFiles(
           ts: lcs2.map((hsh2) => hsh2.span), // Target spans
         });
       }
+      // matches.push({
+      //   ss: [fp1.span],
+      //   ts: [fp2.span],
+      // });
     }
   }
 
