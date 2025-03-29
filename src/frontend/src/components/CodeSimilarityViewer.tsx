@@ -28,19 +28,19 @@ interface DetailedComparisonResult {
 
 // --- Helper Functions for Span Merging (Keep these or import them) ---
 function compareSpan(left, right) {
-  let diff = left.startLine - right.startLine;
+  let diff = left.sl - right.sl;
   if (diff !== 0) {
     return diff;
   }
-  diff = left.startColumn - right.startColumn;
+  diff = left.sc - right.sc;
   if (diff !== 0) {
     return diff;
   }
-  diff = left.endLine - right.endLine;
+  diff = left.el - right.el;
   if (diff !== 0) {
     return diff;
   }
-  diff = left.endColumn - right.endColumn;
+  diff = left.ec - right.ec;
   if (diff !== 0) {
     return diff;
   }
@@ -48,41 +48,41 @@ function compareSpan(left, right) {
 }
 
 function mergeSpans(one, other) {
-  let startLine, startColumn, endLine, endColumn;
-  if (one.startLine < other.startLine) {
-    startLine = one.startLine;
-    startColumn = one.startColumn;
-  } else if (one.startLine > other.startLine) {
-    startLine = other.startLine;
-    startColumn = other.startColumn;
+  let sl, sc, el, ec;
+  if (one.sl < other.sl) {
+    sl = one.sl;
+    sc = one.sc;
+  } else if (one.sl > other.sl) {
+    sl = other.sl;
+    sc = other.sc;
   } else {
-    startLine = one.startLine;
-    startColumn = Math.min(one.startColumn, other.startColumn);
+    sl = one.sl;
+    sc = Math.min(one.sc, other.sc);
   }
-  if (one.endLine > other.endLine) {
-    endLine = one.endLine;
-    endColumn = one.endColumn;
-  } else if (one.endLine < other.endLine) {
-    endLine = other.endLine;
-    endColumn = other.endColumn;
+  if (one.el > other.el) {
+    el = one.el;
+    ec = one.ec;
+  } else if (one.el < other.el) {
+    el = other.el;
+    ec = other.ec;
   } else {
-    endLine = one.endLine;
-    endColumn = Math.max(one.endColumn, other.endColumn);
+    el = one.el;
+    ec = Math.max(one.ec, other.ec);
   }
   return {
-    startLine: startLine,
-    startColumn: startColumn,
-    endLine: endLine,
-    endColumn: endColumn,
+    sl: sl,
+    sc: sc,
+    el: el,
+    ec: ec,
   };
 }
 
 function spansOverlap(span1, span2): boolean {
   const [left, right] = [span1, span2].sort(compareSpan);
-  if (left.endLine < right.startLine) {
+  if (left.el < right.sl) {
     return false;
-  } else if (left.endLine === right.startLine) {
-    return right.startColumn < left.endColumn;
+  } else if (left.el === right.sl) {
+    return right.sc < left.ec;
   } else {
     return true;
   }
@@ -93,7 +93,7 @@ function mergeOverlappingSpans(
 ): MatchCluster[] {
   // Helper function to merge spans in a list
   function mergeSpansList(spans) {
-    // Sort spans by startLine and startColumn
+    // Sort spans by sl and sc
     spans.sort(compareSpan);
 
     const mergedSpans = [];
@@ -234,6 +234,7 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
         // 4. Merge overlapping spans
         let keepGoing = true;
         while (keepGoing) {
+          console.log("merging spans", mappedMatchesForViewer);
           keepGoing = false;
           const oldSize = Object.keys(mappedMatchesForViewer).length;
           mappedMatchesForViewer = mergeOverlappingSpans(mappedMatchesForViewer);
@@ -242,6 +243,7 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
             keepGoing = true;
           }
         }
+        console.log("done ", mappedMatchesForViewer);
 
         // 5. Set the final cluster data
         setSpanClusters(mappedMatchesForViewer);
