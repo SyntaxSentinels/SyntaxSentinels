@@ -12,13 +12,6 @@ import {
   TableRow,
 } from "@/components/common/table";
 import { Card } from "@/components/common/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "@/components/common/dialog";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
@@ -96,20 +89,6 @@ const Results = () => {
   const [selectedFiles, setSelectedFiles] = useState<{
     file1: string;
     file2: string;
-    matches: {
-      ss: {
-        sl: number;
-        sc: number;
-        el: number;
-        ec: number;
-      }[];
-      ts: {
-        sl: number;
-        sc: number;
-        el: number;
-        ec: number;
-      }[];
-    };
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
@@ -416,8 +395,7 @@ const Results = () => {
                             onClick={() =>
                               handleCompareClick(
                                 result.file1,
-                                result.file2,
-                                result.matches
+                                result.file2
                               )
                             }
                             size="small"

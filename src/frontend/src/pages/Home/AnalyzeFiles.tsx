@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { openDB } from "idb";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -17,6 +16,7 @@ import UploadBox from "@/components/UploadBox";
 import JobsTable from "@/components/JobsTable";
 import { uploadFiles, getUserJobs, JobInfo } from "@/services/ssApi";
 import { Spin } from "antd";
+import { openDB } from "idb";
 
 const { Title, Paragraph } = Typography;
 

@@ -6,14 +6,14 @@ import { compareFilesApi } from "@/services/ssApi"; // Adjust path
 
 // --- Interfaces ---
 interface Span {
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
+  sl: number;
+  sc: number;
+  el: number;
+  ec: number;
 }
 
 // Interface for the matches structure coming from the API (assuming ss/ts)
-interface ViewerMatchCluster {
+interface MatchCluster {
   ss: Span[];
   ts: Span[];
 }
@@ -23,7 +23,7 @@ interface DetailedComparisonResult {
   file1: string; // Should match file1Name prop
   file2: string; // Should match file2Name prop
   similarity_score: number;
-  matches: ViewerMatchCluster[]; // Matches from the API (ss, ts)
+  matches: MatchCluster[]; // Matches from the API (ss, ts)
 }
 
 // --- Helper Functions for Span Merging (Keep these or import them) ---
@@ -89,8 +89,8 @@ function spansOverlap(span1, span2): boolean {
 }
 
 function mergeOverlappingSpans(
-  matches: ViewerMatchCluster[]
-): ViewerMatchCluster[] {
+  matches: MatchCluster[]
+): MatchCluster[] {
   // Helper function to merge spans in a list
   function mergeSpansList(spans) {
     // Sort spans by startLine and startColumn
@@ -193,7 +193,7 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
   // --- Internal State ---
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [spanClusters, setSpanClusters] = useState<ViewerMatchCluster[]>([]);
+  const [spanClusters, setSpanClusters] = useState<MatchCluster[]>([]);
 
   // --- Effect to Fetch Data and Compare ---
   useEffect(() => {
@@ -224,7 +224,7 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
         console.log(detailedResult);
         // 3. Map API response (ss/ts) to viewer format (ss/ts)
         const apiMatches = detailedResult.matches || [];
-        let mappedMatchesForViewer: ViewerMatchCluster[] = apiMatches.map(
+        let mappedMatchesForViewer: MatchCluster[] = apiMatches.map(
           (match) => ({
             ss: match.ss || [],
             ts: match.ts || [],

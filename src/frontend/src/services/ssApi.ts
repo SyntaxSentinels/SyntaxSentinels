@@ -145,17 +145,17 @@ interface DetailedComparisonResult {
   file1: string;
   file2: string;
   similarity_score: number;
-  matches: ApiMatchCluster[]; // Matches from the API (ss, ts)
+  matches: MatchCluster[]; // Matches from the API (ss, ts)
 }
 interface Span {
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
+  sl: number;
+  sc: number;
+  el: number;
+  ec: number;
 }
 
 // Interface for the matches structure coming from the API (assuming ss/ts)
-interface ApiMatchCluster {
+interface MatchCluster {
   ss: Span[];
   ts: Span[];
 }
