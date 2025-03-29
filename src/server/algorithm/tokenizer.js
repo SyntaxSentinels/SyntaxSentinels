@@ -280,7 +280,7 @@ function compareTwoFiles(
   content2,
   name1,
   name2,
-  k = 10,
+  k = 5,
   w = 4
 ) {
   console.log("COMPARING WITH", k, w);
