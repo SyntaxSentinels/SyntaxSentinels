@@ -15,7 +15,7 @@ import { Card } from "@/components/common/card";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
-import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
+import { Button, Pagination, Spin, Slider, message, Modal, Input } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
 import { CodeSimilarityViewer } from "@/components/CodeSimilarityViewer";
 
@@ -96,6 +96,7 @@ const Results = () => {
   const [jobId, setJobId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [fileContent, setFileContent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Extract job ID from URL query parameters or localStorage
   useEffect(() => {
@@ -228,12 +229,20 @@ const Results = () => {
     }
   };
 
-  // Filter results based on threshold
+  // Filter results based on threshold and search query
   useEffect(() => {
-    setFilteredResults(
-      results.filter((r) => r.similarity_score * 100 >= threshold)
-    );
-  }, [results, threshold]);
+    let tempResults = results.filter((r) => r.similarity_score * 100 >= threshold);
+
+    if (searchQuery) {
+      tempResults = tempResults.filter(
+        (r) =>
+          r.file1.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.file2.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredResults(tempResults);
+  }, [results, threshold, searchQuery]);
 
   // Paginate table data
   const displayedResults = useMemo(() => {
@@ -265,16 +274,6 @@ const Results = () => {
           >
             Back
           </Button>
-
-          {/* <Button
-            type="primary"
-            icon={<ReloadOutlined />}
-            onClick={fetchResults}
-            loading={refreshing}
-            disabled={loading}
-          >
-            Refresh Results
-          </Button> */}
         </div>
 
         <div className="mb-8">
@@ -369,6 +368,12 @@ const Results = () => {
                 <h2 className="text-xl font-semibold mb-4">
                   Similar Submissions
                 </h2>
+                <Input
+                  placeholder="Search files"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="mb-4"
+                />
                 <Table>
                   <TableHeader>
                     <TableRow>
