@@ -17,6 +17,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
 import CodeSimilarityViewer from "@/components/CodeSimilarityViewer";
+import { saveAs } from "file-saver"; // Install via npm install file-saver
 
 // Interfaces for our data structures
 interface SimilarityResult {
@@ -211,6 +212,26 @@ function mergeOverlappingSpans(
   console.log(matches, mergedMatches);
   return mergedMatches;
 }
+
+const downloadReport = () => {
+  if (!results.length) {
+    message.error("No results available to download.");
+    return;
+  }
+
+  // Format data into CSV
+  const csvHeader = "File 1,File 2,Similarity Score (%)\n";
+  const csvBody = results
+    .map(
+      (result) =>
+        `${result.file1},${result.file2},${(result.similarity_score * 100).toFixed(2)}`
+    )
+    .join("\n");
+
+  const csvData = csvHeader + csvBody;
+  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, "similarity_results.csv");
+};
 
 const Results = () => {
   const navigate = useNavigate();
@@ -419,6 +440,10 @@ const Results = () => {
             onClick={() => navigate("/")}
           >
             Back
+          </Button>
+
+          <Button type="primary" onClick={downloadReport}>
+            Download Report
           </Button>
 
           {/* <Button
