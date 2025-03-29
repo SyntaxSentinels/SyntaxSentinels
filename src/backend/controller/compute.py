@@ -194,10 +194,10 @@ class CodeSimilarityPipeline:
         self.embed_sim = EmbeddingSimilarity(model_name)
 
     def compute_all(self, code1, code2):
-        token_sim = self.token_sim.compute(code1, code2)
-        ast_sim = self.ast_sim.compute(code1, code2)
+        # token_sim = self.token_sim.compute(code1, code2)
+        # ast_sim = self.ast_sim.compute(code1, code2)
         embed_sim = self.embed_sim.compute(code1, code2)
-        return token_sim, ast_sim, embed_sim
+        return 0, 0, embed_sim
 
 
 # ===========================
@@ -268,15 +268,35 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
     for i in range(n):
         for j in range(i + 1, n):
             file_pairs.append((python_files[i], python_files[j]))
+    pipeline = CodeSimilarityPipeline(model_name)
+    results = []
     file_contents = {}  # Store file contents for later use
 
     # Store all file contents
     for fname, content in python_files:
         file_contents[os.path.basename(fname)] = content
 
-    similarity_results_json, _ = tokenize_all_files(file_contents)
+    def process_pair(pair):
+        (fname1, code1), (fname2, code2) = pair
+        token_sim, ast_sim, embed_sim = pipeline.compute_all(code1, code2)
+        
+        # Compute line-by-line comparisons
+        # code1_lines = code1.splitlines()
+        # code2_lines = code2.splitlines()
+        # line_comparisons = compare_code_lines(code1_lines, code2_lines)
+        
+        return {
+            "file1": fname1,
+            "file2": fname2,
+            "similarity_score": embed_sim,
+            # "line_comparisons": line_comparisons
+        }
+
+    with ThreadPoolExecutor() as executor:
+        for result in executor.map(process_pair, file_pairs):
+            results.append(result)
 
     # Add file contents to the results
     return {
-        "similarity_results": similarity_results_json
+        "similarity_results": results
     }

@@ -83,16 +83,16 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading }) => {
         </Tooltip>
       ),
     },
-    {
-      title: "Last Updated",
-      dataIndex: "updatedAt",
-      key: "updatedAt",
-      render: (date: Date) => (
-        <Tooltip title={formatDate(date)}>
-          {date ? new Date(date).toLocaleDateString() : "N/A"}
-        </Tooltip>
-      ),
-    },
+    // {
+    //   title: "Last Updated",
+    //   dataIndex: "updatedAt",
+    //   key: "updatedAt",
+    //   render: (date: Date) => (s
+    //     <Tooltip title={formatDate(date)}>
+    //       {date ? new Date(date).toLocaleDateString() : "N/A"}
+    //     </Tooltip>
+    //   ),
+    // },
     {
       title: "",
       key: "actions",

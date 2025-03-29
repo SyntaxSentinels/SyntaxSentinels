@@ -95,7 +95,7 @@ const Index = () => {
                 { step: "1", text: "Upload student or contestant submissions" },
                 {
                   step: "2",
-                  text: "Our AI analyzes content against extensive databases",
+                  text: "Our AI analyzes content against other submissions",
                 },
                 { step: "3", text: "Review detailed originality reports" },
               ].map((item) => (

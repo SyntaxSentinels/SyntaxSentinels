@@ -9,6 +9,7 @@ import uploadApi from "./controllers/uploadController.js";
 import resultsApi from "./controllers/resultsController.js";
 import logger from "./utilities/loggerUtils.js";
 import firebaseUtils from "./utilities/firebaseUtils.js";
+import similarityApi from "./controllers/similarityController.js";
 
 import {
   UnauthorizedException,
@@ -65,20 +66,6 @@ updateRouter.post("/update", async (req, res, next) => {
       );
     }
 
-    function decompressData(compressedData) {
-      return new Promise((resolve, reject) => {
-        const buffer = Buffer.from(compressedData, "base64");
-        zlib.gunzip(buffer, (err, result) => {
-          if (err) reject(err);
-          resolve(JSON.parse(result.toString()));
-        });
-      });
-    }
-
-    if (resultData) {
-      resultData = await decompressData(resultData);
-    }
-
     // Get the current job data
     const jobData = await firebaseUtils.getResults(jobId);
 
@@ -121,6 +108,7 @@ app.use(jwtErrorHandler);
 
 app.use(apiUrlFor("upload"), uploadApi);
 app.use(apiUrlFor("results"), resultsApi);
+app.use(apiUrlFor("similarity"), similarityApi);
 
 app.use((err, req, res, next) => {
   const errorContent = ErrorContent.convertFromException(err);

@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { pollResults } from "@/services/ssApi";
 import { ReloadOutlined } from "@ant-design/icons";
+import pako from 'pako';  // Import pako library
 import "./Results.css";
 import {
   Table,
@@ -14,9 +15,9 @@ import { Card } from "@/components/common/card";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
-import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
+import { Button, Pagination, Spin, Slider, message, Modal, Input } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
-import CodeSimilarityViewer from "@/components/CodeSimilarityViewer";
+import { CodeSimilarityViewer } from "@/components/CodeSimilarityViewer";
 import { saveAs } from "file-saver"; // Install via npm install file-saver
 
 // Interfaces for our data structures
@@ -24,20 +25,6 @@ interface SimilarityResult {
   file1: string;
   file2: string;
   similarity_score: number;
-  matches: {
-    ss: {
-      sl: number;
-      sc: number;
-      el: number;
-      ec: number;
-    }[];
-    ts: {
-      sl: number;
-      sc: number;
-      el: number;
-      ec: number;
-    }[];
-  };
 }
 
 interface SimilarityData {
@@ -80,158 +67,6 @@ const generateDistribution = (results: SimilarityResult[]) => {
   }));
 };
 
-function compareSpan(left, right) {
-  let diff = left.sl - right.sl;
-  if (diff !== 0) {
-    return diff;
-  }
-  diff = left.sc - right.sc;
-  if (diff !== 0) {
-    return diff;
-  }
-  diff = left.el - right.el;
-  if (diff !== 0) {
-    return diff;
-  }
-  diff = left.ec - right.ec;
-  if (diff !== 0) {
-    return diff;
-  }
-  return 0;
-}
-
-function mergeSpans(one, other) {
-  let sl, sc, el, ec;
-  if (one.sl < other.sl) {
-    sl = one.sl;
-    sc = one.sc;
-  } else if (one.sl > other.sl) {
-    sl = other.sl;
-    sc = other.sc;
-  } else {
-    sl = one.sl;
-    sc = Math.min(one.sc, other.sc);
-  }
-  if (one.el > other.el) {
-    el = one.el;
-    ec = one.ec;
-  } else if (one.el < other.el) {
-    el = other.el;
-    ec = other.ec;
-  } else {
-    el = one.el;
-    ec = Math.max(one.ec, other.ec);
-  }
-  return { sl: sl, sc: sc, el: el, ec: ec };
-}
-
-function spansOverlap(span1, span2): boolean {
-  const [left, right] = [span1, span2].sort(compareSpan);
-  if (left.el < right.sl) {
-    return false;
-  } else if (left.el === right.sl) {
-    return right.sc < left.ec;
-  } else {
-    return true;
-  }
-}
-
-function mergeOverlappingSpans(
-  matches: SimilarityResult["matches"]
-): SimilarityResult["matches"] {
-  // Helper function to merge spans in a list
-  function mergeSpansList(spans) {
-    // Sort spans by sl and sc
-    spans.sort(compareSpan);
-
-    const mergedSpans = [];
-    let currentSpan = spans[0]; // Start with the first span
-
-    for (let i = 1; i < spans.length; i++) {
-      const nextSpan = spans[i];
-      // If the current span overlaps with the next one, merge them
-      if (spansOverlap(currentSpan, nextSpan)) {
-        currentSpan = mergeSpans(currentSpan, nextSpan);
-      } else {
-        // No overlap, push the current span and move to the next one
-        mergedSpans.push(currentSpan);
-        currentSpan = nextSpan;
-      }
-    }
-
-    // Push the last span after the loop
-    mergedSpans.push(currentSpan);
-    return mergedSpans;
-  }
-
-  // Function to check if two matches overlap
-  function matchesOverlap(match1, match2) {
-    // Check if there is any overlap in sourceSpans
-    const sourceOverlap = match1.ss.some((span1) =>
-      match2.ss.some((span2) => spansOverlap(span1, span2))
-    );
-    // Check if there is any overlap in targetSpans
-    const targetOverlap = match1.ts.some((span1) =>
-      match2.ts.some((span2) => spansOverlap(span1, span2))
-    );
-    return sourceOverlap || targetOverlap;
-  }
-
-  // Start with an empty list for merged matches
-  let mergedMatches = [];
-
-  // Loop through all matches and attempt to merge them
-  for (let i = 0; i < matches.length; i++) {
-    let currentMatch = matches[i];
-    let merged = false;
-
-    // Try to merge the current match with any match in the mergedMatches list
-    for (let j = 0; j < mergedMatches.length; j++) {
-      const existingMatch = mergedMatches[j];
-
-      // If the current match overlaps with an existing match, merge them
-      if (matchesOverlap(currentMatch, existingMatch)) {
-        existingMatch.ss = mergeSpansList([
-          ...existingMatch.ss,
-          ...currentMatch.ss,
-        ]);
-        existingMatch.ts = mergeSpansList([
-          ...existingMatch.ts,
-          ...currentMatch.ts,
-        ]);
-        merged = true;
-        break;
-      }
-    }
-
-    // If no merge occurred, add the current match as a new match
-    if (!merged) {
-      mergedMatches.push({ ...currentMatch });
-    }
-  }
-  console.log(matches, mergedMatches);
-  return mergedMatches;
-}
-
-const downloadReport = () => {
-  if (!results.length) {
-    message.error("No results available to download.");
-    return;
-  }
-
-  // Format data into CSV
-  const csvHeader = "File 1,File 2,Similarity Score (%)\n";
-  const csvBody = results
-    .map(
-      (result) =>
-        `${result.file1},${result.file2},${(result.similarity_score * 100).toFixed(2)}`
-    )
-    .join("\n");
-
-  const csvData = csvHeader + csvBody;
-  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-  saveAs(blob, "similarity_results.csv");
-};
 
 const Results = () => {
   const navigate = useNavigate();
@@ -255,20 +90,6 @@ const Results = () => {
   const [selectedFiles, setSelectedFiles] = useState<{
     file1: string;
     file2: string;
-    matches: {
-      ss: {
-        sl: number;
-        sc: number;
-        el: number;
-        ec: number;
-      }[];
-      ts: {
-        sl: number;
-        sc: number;
-        el: number;
-        ec: number;
-      }[];
-    };
   } | null>(null);
   const itemsPerPage = 20; // Show only 20 items per page
 
@@ -276,6 +97,27 @@ const Results = () => {
   const [jobId, setJobId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [fileContent, setFileContent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const downloadReport = () => {
+    if (!results.length) {
+      message.error("No results available to download.");
+      return;
+    }
+  
+    // Format data into CSV
+    const csvHeader = "File 1,File 2,Similarity Score (%)\n";
+    const csvBody = results
+      .map(
+        (result) =>
+          `${result.file1},${result.file2},${(result.similarity_score * 100).toFixed(2)}`
+      )
+      .join("\n");
+  
+    const csvData = csvHeader + csvBody;
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "similarity_results.csv");
+  };
 
   // Extract job ID from URL query parameters or localStorage
   useEffect(() => {
@@ -343,13 +185,17 @@ const Results = () => {
       const response = await pollResults(jobId);
 
       if (response.status === "completed" && response.resultData) {
-        const jsonData = response.resultData;
+        async function decompressData(compressedData) {
+          const base64Decoded = Uint8Array.from(atob(compressedData), c => c.charCodeAt(0)); // Base64 decode
+          const decompressed = await new Response(base64Decoded).arrayBuffer(); // Convert to ArrayBuffer
+          const decompressedText = new TextDecoder().decode(pako.ungzip(new Uint8Array(decompressed))); // Gunzip and decode
+          return JSON.parse(decompressedText); // Parse JSON
+        }
+
+        const jsonData = await decompressData(response.resultData);
 
         // Process the results
-        const results = JSON.parse(jsonData.similarity_results);
-        results.forEach((result) => {
-          result.matches = mergeOverlappingSpans(result.matches);
-        });
+        const results = jsonData.similarity_results;
         setSimilarityData(results);
         console.log("results:", results);
 
@@ -404,12 +250,20 @@ const Results = () => {
     }
   };
 
-  // Filter results based on threshold
+  // Filter results based on threshold and search query
   useEffect(() => {
-    setFilteredResults(
-      results.filter((r) => r.similarity_score * 100 >= threshold)
-    );
-  }, [results, threshold]);
+    let tempResults = results.filter((r) => r.similarity_score * 100 >= threshold);
+
+    if (searchQuery) {
+      tempResults = tempResults.filter(
+        (r) =>
+          r.file1.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.file2.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredResults(tempResults);
+  }, [results, threshold, searchQuery]);
 
   // Paginate table data
   const displayedResults = useMemo(() => {
@@ -418,8 +272,8 @@ const Results = () => {
   }, [filteredResults, currentPage]);
 
   // Handle opening the comparison modal
-  const handleCompareClick = (file1: string, file2: string, matches) => {
-    setSelectedFiles({ file1, file2, matches });
+  const handleCompareClick = (file1: string, file2) => {
+    setSelectedFiles({ file1, file2 });
     setIsCompareModalOpen(true);
   };
 
@@ -549,6 +403,12 @@ const Results = () => {
                 <h2 className="text-xl font-semibold mb-4">
                   Similar Submissions
                 </h2>
+                <Input
+                  placeholder="Search files"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="mb-4"
+                />
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -575,8 +435,7 @@ const Results = () => {
                             onClick={() =>
                               handleCompareClick(
                                 result.file1,
-                                result.file2,
-                                result.matches
+                                result.file2
                               )
                             }
                             size="small"
@@ -614,9 +473,10 @@ const Results = () => {
           {similarityData && (
             <>
               <CodeSimilarityViewer
+                file1Name={selectedFiles.file1}
+                file2Name={selectedFiles.file2}
                 file1Content={fileContent[selectedFiles.file1] || ""}
                 file2Content={fileContent[selectedFiles.file2] || ""}
-                spanClusters={selectedFiles.matches}
               />
             </>
           )}

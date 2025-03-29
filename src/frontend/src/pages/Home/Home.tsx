@@ -56,9 +56,9 @@ const Home: React.FC = () => {
           <Menu.Item key="analyze" icon={<FolderOpen size={18} />}>
             Analyze Files
           </Menu.Item>
-          <Menu.Item key="results" icon={<Upload size={18} />}>
+          {/* <Menu.Item key="results" icon={<Upload size={18} />}>
             Upload Results
-          </Menu.Item>
+          </Menu.Item> */}
         </Menu>
       </Sider>
 
@@ -67,7 +67,7 @@ const Home: React.FC = () => {
         <Navbar />
         <Content style={{ padding: "2rem" }}>
           {activeKey === "analyze" && <AnalyzeFiles />}
-          {activeKey === "results" && <UploadResults />}
+          {/* {activeKey === "results" && <UploadResults />} */}
         </Content>
       </Layout>
     </Layout>
