@@ -66,20 +66,6 @@ updateRouter.post("/update", async (req, res, next) => {
       );
     }
 
-    function decompressData(compressedData) {
-      return new Promise((resolve, reject) => {
-        const buffer = Buffer.from(compressedData, "base64");
-        zlib.gunzip(buffer, (err, result) => {
-          if (err) reject(err);
-          resolve(JSON.parse(result.toString()));
-        });
-      });
-    }
-
-    if (resultData) {
-      resultData = await decompressData(resultData);
-    }
-
     // Get the current job data
     const jobData = await firebaseUtils.getResults(jobId);
 
