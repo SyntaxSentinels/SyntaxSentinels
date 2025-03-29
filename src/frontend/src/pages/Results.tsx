@@ -68,26 +68,6 @@ const generateDistribution = (results: SimilarityResult[]) => {
 };
 
 
-const downloadReport = () => {
-  if (!results.length) {
-    message.error("No results available to download.");
-    return;
-  }
-
-  // Format data into CSV
-  const csvHeader = "File 1,File 2,Similarity Score (%)\n";
-  const csvBody = results
-    .map(
-      (result) =>
-        `${result.file1},${result.file2},${(result.similarity_score * 100).toFixed(2)}`
-    )
-    .join("\n");
-
-  const csvData = csvHeader + csvBody;
-  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-  saveAs(blob, "similarity_results.csv");
-};
-
 const Results = () => {
   const navigate = useNavigate();
   const [results, setResults] = useState<SimilarityResult[]>([]);
@@ -118,6 +98,26 @@ const Results = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [fileContent, setFileContent] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const downloadReport = () => {
+    if (!results.length) {
+      message.error("No results available to download.");
+      return;
+    }
+  
+    // Format data into CSV
+    const csvHeader = "File 1,File 2,Similarity Score (%)\n";
+    const csvBody = results
+      .map(
+        (result) =>
+          `${result.file1},${result.file2},${(result.similarity_score * 100).toFixed(2)}`
+      )
+      .join("\n");
+  
+    const csvData = csvHeader + csvBody;
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "similarity_results.csv");
+  };
 
   // Extract job ID from URL query parameters or localStorage
   useEffect(() => {
