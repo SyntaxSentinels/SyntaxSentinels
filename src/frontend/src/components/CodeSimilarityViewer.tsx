@@ -483,6 +483,11 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
 
     // Add scroll event handlers for both editors
     const handleScroll = () => {
+      setTimeout(() => {
+        highlightManager.clearHoverHighlight();
+        highlightManager.checkVisibleHighlights();
+      }, 20);
+      highlightManager.clearHoverHighlight();
       highlightManager.checkVisibleHighlights();
     };
 
