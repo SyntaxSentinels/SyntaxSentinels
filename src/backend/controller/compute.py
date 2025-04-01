@@ -116,7 +116,6 @@ class TokenSimilarity:
 class ASTSimilarity:
     def __init__(self):
         # Create a dictionary mapping AST node type names to integers
-        self.count = 0
         self.nodetypedict = {node: i for i, node in enumerate(ast.__dict__.keys())}
 
     def create_adjacency_matrix(self, ast_tree):
@@ -149,7 +148,6 @@ class ASTSimilarity:
         return similarity
 
     def compute(self, matrix1, matrix2):
-        self.count += 1
         """Compute AST similarity between two code snippets."""
         return float(self.compute_similarity(matrix1, matrix2))
 
@@ -172,40 +170,21 @@ class EmbeddingSimilarity:
         """Generate a hash for the code snippet."""
         return hashlib.sha256(code.encode('utf-8')).hexdigest()
 
-    def get_embedding(self, code_snippets):
-        """Batch embedding generation with caching."""
-        to_process = []
-        embeddings = []
+    def get_embeddings_batch(self, code_snippets):
+        """Generate embeddings for a batch of code snippets."""
+        inputs = self.tokenizer(
+            code_snippets,
+            return_tensors="pt",
+            max_length=512,
+            truncation=True,
+            padding="max_length"
+        )
+        inputs = {key: val.to(device) for key, val in inputs.items()}
 
-        for code in code_snippets:
-            code_hash = self.hash_code(code)
-            if code_hash in self.embedding_cache:
-                embeddings.append(self.embedding_cache[code_hash])
-            else:
-                to_process.append(code)
-
-        if to_process:
-            for i in range(0, len(to_process), self.batch_size):
-                batch = to_process[i: i + self.batch_size]
-                inputs = self.tokenizer(
-                    batch,
-                    return_tensors="pt",
-                    max_length=512,
-                    truncation=True,
-                    padding="max_length"
-                )
-                inputs = {key: val.to(device) for key, val in inputs.items()}
-
-                with torch.no_grad():
-                    outputs = self.model(**inputs)
-                    batch_embeddings = outputs.last_hidden_state[:, 0, :]
-
-                for j, embedding in enumerate(batch_embeddings):
-                    code_hash = self.hash_code(batch[j])
-                    self.embedding_cache[code_hash] = embedding
-                    embeddings.append(embedding)
-
-        return torch.stack(embeddings)
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            batch_embeddings = outputs.last_hidden_state[:, 0, :]
+        return batch_embeddings
 
     def compute(self, embedding1, embedding2):
         """Compute cosine similarity between embeddings of two code snippets."""
@@ -266,42 +245,33 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
     ast_sim = ASTSimilarity()
     nlp_sim = EmbeddingSimilarity()
 
-    file_pairs = []
+    # Generate embeddings for all files upfront
+    batch = [file[1] for file in python_files]
+    embeddings = nlp_sim.get_embeddings_batch(batch)
+
+    # Process AST and tokens for all files
     matrices = []
     tokens = []
-    embeddings = []
-    count = 0
-    batch = [file[1] for file in python_files]
-    inputs = nlp_sim.tokenizer(
-        batch,
-        return_tensors="pt",
-        max_length=512,
-        truncation=True,
-        padding="max_length"
-    )
-    inputs = {key: val.to(device) for key, val in inputs.items()}
-
-    with torch.no_grad():
-        outputs = nlp_sim.model(**inputs)
-        batch_embeddings = outputs.last_hidden_state[:, 0, :]
-
-    for j, embedding in enumerate(batch_embeddings):
-        embeddings.append(embedding)
-
     for i in range(len(python_files)):
-        count += 1
         try:
             tree = ast.parse(python_files[i][1])
         except Exception as e:
             tree = ast.parse(autopep8.fix_code(fix_python2_to_python3(python_files[i][1])))
-
         matrices.append(ast_sim.create_adjacency_matrix(tree))
         tokens.append(token_sim.preprocess(python_files[i][1]))
-    n = len(python_files)
     # Create all unique pairs (i < j)
+    n = len(python_files)
+    file_pairs = []
     for i in range(n):
         for j in range(i + 1, n):
-            file_pairs.append((python_files[i][0], python_files[j][0], [matrices[i], matrices[j]], [tokens[i], tokens[j]], [embeddings[i], embeddings[j]]))
+            file_pairs.append((
+                python_files[i][0], 
+                python_files[j][0], 
+                [matrices[i], matrices[j]], 
+                [tokens[i], tokens[j]], 
+                [embeddings[i], embeddings[j]]
+            ))
+
     pipeline = CodeSimilarityPipeline(model_name)
     results = []
 
@@ -318,7 +288,6 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
         for result in executor.map(process_pair, file_pairs):
             results.append(result)
 
-    # Add file contents to the results
     return {
         "similarity_results": results
     }
