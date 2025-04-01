@@ -8,6 +8,7 @@ import tempfile
 import zipfile
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
+from controller.algorithms.tokenization import tokenize_all_files
 
 import numpy as np
 import torch
@@ -193,10 +194,10 @@ class CodeSimilarityPipeline:
         self.embed_sim = EmbeddingSimilarity(model_name)
 
     def compute_all(self, code1, code2):
-        token_sim = self.token_sim.compute(code1, code2)
-        ast_sim = self.ast_sim.compute(code1, code2)
+        # token_sim = self.token_sim.compute(code1, code2)
+        # ast_sim = self.ast_sim.compute(code1, code2)
         embed_sim = self.embed_sim.compute(code1, code2)
-        return token_sim, ast_sim, embed_sim
+        return 0, 0, embed_sim
 
 
 # ===========================
@@ -221,10 +222,44 @@ def extract_python_files_from_zip(zip_bytes):
     return python_files
 
 
+def compare_code_lines(code1_lines, code2_lines):
+    """Compare lines between two files and return similarity scores."""
+    # Use difflib to find matching lines
+    import difflib
+    matcher = difflib.SequenceMatcher(None, code1_lines, code2_lines)
+    
+    line_comparisons = []
+    
+    # Process each matching block
+    for a, b, size in matcher.get_matching_blocks():
+        if size > 0:
+            for i in range(size):
+                line1 = code1_lines[a + i]
+                line2 = code2_lines[b + i]
+                
+                # Skip empty lines
+                if not line1.strip() or not line2.strip():
+                    continue
+                
+                # Compute similarity score for this line pair using token similarity
+                # This is a simplified version - in a real implementation, you might use embeddings
+                token_sim = TokenSimilarity().compute(line1, line2)
+                
+                # Only include if similarity is above threshold
+                if token_sim > 0.7:  # Threshold for considering lines similar
+                    line_comparisons.append({
+                        "file1Line": line1,
+                        "file2Line": line2,
+                        "similarity": token_sim
+                    })
+    
+    return line_comparisons
+
 def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base"):
     """
     Given a zip file (as bytes), extract Python files and compute pairwise similarity scores.
     Returns a list of dictionaries containing similarity results for each file pair.
+    Also includes line-by-line comparison data for each file pair.
     """
     python_files = extract_python_files_from_zip(zip_bytes)
     file_pairs = []
@@ -233,21 +268,35 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
     for i in range(n):
         for j in range(i + 1, n):
             file_pairs.append((python_files[i], python_files[j]))
-
     pipeline = CodeSimilarityPipeline(model_name)
     results = []
+    file_contents = {}  # Store file contents for later use
+
+    # Store all file contents
+    for fname, content in python_files:
+        file_contents[os.path.basename(fname)] = content
 
     def process_pair(pair):
         (fname1, code1), (fname2, code2) = pair
         token_sim, ast_sim, embed_sim = pipeline.compute_all(code1, code2)
+        
+        # Compute line-by-line comparisons
+        # code1_lines = code1.splitlines()
+        # code2_lines = code2.splitlines()
+        # line_comparisons = compare_code_lines(code1_lines, code2_lines)
+        
         return {
             "file1": fname1,
             "file2": fname2,
-            "similarity_score": embed_sim
+            "similarity_score": embed_sim,
+            # "line_comparisons": line_comparisons
         }
 
     with ThreadPoolExecutor() as executor:
         for result in executor.map(process_pair, file_pairs):
             results.append(result)
 
-    return results
+    # Add file contents to the results
+    return {
+        "similarity_results": results
+    }

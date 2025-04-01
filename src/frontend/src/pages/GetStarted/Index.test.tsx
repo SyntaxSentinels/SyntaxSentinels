@@ -79,7 +79,7 @@ describe("Index", () => {
     renderWithRouter(<Index />);
     expect(screen.getByText("How It Works")).toBeInTheDocument();
     expect(screen.getByText("Upload student or contestant submissions")).toBeInTheDocument();
-    expect(screen.getByText("Our AI analyzes content against extensive databases")).toBeInTheDocument();
+    expect(screen.getByText("Our AI analyzes content against other submissions")).toBeInTheDocument();
     expect(screen.getByText("Review detailed originality reports")).toBeInTheDocument();
   });
 
