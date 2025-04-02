@@ -178,12 +178,19 @@ def compute_similarities_from_zip(zip_bytes):
     {
         "file1": fname1,
         "file2": fname2,
-        "token_sim": token_sim,
-        "ast_sim": ast_sim,
-        "embed_sim": embed_sim,
+        "raw_scores": [token_sim, ast_sim, embed_sim],
         "similarity_score": 0.5 * embed_sim + 0.1 * ast_sim + 0.4 * token_sim
     }
     for fname1, fname2, token_sim, ast_sim, embed_sim in file_pairs]
+
+    return {
+        "similarity_results": results
+    }
+
+
+def compute_plagiarism_scores(zip_bytes, results):
+    # FIXME: Don't need to extract python files from zip again
+    python_files = extract_python_files_from_zip(zip_bytes)
 
     # Prepare data for model prediction
     data = {}
@@ -256,6 +263,4 @@ def compute_similarities_from_zip(zip_bytes):
             "plagiarism_score": predicted_plagiarism[i].item()
         })
 
-    return {
-        "similarity_results": results
-    }
+    return final_results
