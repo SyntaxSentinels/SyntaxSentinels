@@ -265,20 +265,17 @@ class Tokenizer:
         return report
 
 
-def tokenize_all_files(file_dict, k=7, w=5, m=0.0):
+def tokenize_all_files(file_dict: dict[str, str], k=5, w=4, m=0.0) -> list[dict]:
     tokenizer = Tokenizer()
     file_fingerprints, file_comments = tokenizer.index_files(file_dict, k=k, w=w)
-    
     similarities = tokenizer.report_similarity(w, file_fingerprints, file_comments, min_common_percent=m)
-    similarities_json = json.dumps(similarities, separators=(',', ':'))
-    file_contents_json = json.dumps(file_dict, separators=(',', ':'))
-    return similarities_json, file_contents_json
+    return similarities
 
 
 def main():
     parser = argparse.ArgumentParser(description="Tokenization-based similarity scoring with span tracking.")
     parser.add_argument('files', metavar='FILE', nargs='+', help='Python source files to process')
-    parser.add_argument('--k', type=int, default=7, help='k-gram size for fingerprinting (default: 7)')
+    parser.add_argument('--k', type=int, default=5, help='k-gram size for fingerprinting (default: 5)')
     parser.add_argument('--w', type=int, default=4, help='Window size for winnowing (default: 4)')
     parser.add_argument('--m', type=float, default=0.5, help='Minimum percentage of common fingerprints to report similarity (default: 0.5)')
     
@@ -287,12 +284,12 @@ def main():
     for filename in args.files:
         with open(filename, "r") as f:
             file_dict[filename] = f.read()
-    similarity_scores, file_contents = tokenize_all_files(file_dict, k=args.k, w=args.w, m=args.m)
+    similarity_scores = tokenize_all_files(file_dict, k=args.k, w=args.w, m=args.m)
 
     with open("similarity_scores.json", "w") as f:
-        print(similarity_scores, file=f)
+        print(json.dumps(similarity_scores, separators=(',', ':')), file=f)
     with open("file_contents.json", "w") as f:
-        print(file_contents, file=f)
+        print(json.dumps(file_dict, separators=(',', ':')), file=f)
 
 
 if __name__ == '__main__':

@@ -11,6 +11,9 @@ import zipfile
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import autopep8
+from controller.model_test import PlagiarismDetectionModel
+from controller.algorithms.tokenization import tokenize_all_files
+from controller.algorithms.syntax_tree import parse_ast_all_files
 
 import numpy as np
 import torch
@@ -61,102 +64,12 @@ def fix_python2_to_python3(code):
     # code = "\n".join(line.strip().rstrip(' ') for line in code.splitlines())
     return code
 
-# ===========================
-#  Token-Based Similarity
-# ===========================
-class TokenSimilarity:
-    def __init__(self):
-        self.vectorizer = CountVectorizer()
-
-    def preprocess(self, code):
-        """Preprocess code to normalize and replace variables for better token-based similarity."""
-        # Remove comments and docstrings
-        code = re.sub(
-            r'(""".*?"""|\'\'\'.*?\'\'\'|#.*?$)', '',
-            code,
-            flags=re.MULTILINE | re.DOTALL
-        )
-        # Normalize whitespace
-        code = re.sub(r'\s+', ' ', code).strip()
-        # Replace variable and function names with generic placeholders
-        tokens = re.findall(r'\b[a-zA-Z_]\w*\b', code)
-        counts = Counter(tokens)
-        replacements = {
-            var: f"var_{i}"
-            for i, (var, _) in enumerate(counts.items())
-            if not self.is_keyword(var)
-        }
-        for var, replacement in replacements.items():
-            code = re.sub(rf'\b{var}\b', replacement, code)
-        return code
-
-    def is_keyword(self, token):
-        import keyword
-        return token in keyword.kwlist
-
-    def compute(self, code1, code2):
-        """Compute token-based similarity after preprocessing."""
-        vectors = self.vectorizer.fit_transform([code1, code2]).toarray()
-        tensor1 = torch.tensor(vectors[0], dtype=torch.float32)
-        tensor2 = torch.tensor(vectors[1], dtype=torch.float32)
-        if torch.norm(tensor1) == 0 or torch.norm(tensor2) == 0:
-            return 0.0
-        cosine_sim = (tensor1 @ tensor2) / (torch.norm(tensor1) * torch.norm(tensor2))
-        if torch.isnan(cosine_sim):
-            return 0.0
-        cosine_sim = torch.clamp(cosine_sim, 0.0, 1.0)
-        if torch.isclose(cosine_sim, torch.tensor(1.0), atol=1e-6):
-            return 1.0
-        return cosine_sim.item()
-
-
-# ===========================
-#  AST-Based Similarity
-# ===========================
-class ASTSimilarity:
-    def __init__(self):
-        # Create a dictionary mapping AST node type names to integers
-        self.nodetypedict = {node: i for i, node in enumerate(ast.__dict__.keys())}
-
-    def create_adjacency_matrix(self, ast_tree):
-        """Generate an adjacency matrix from an AST tree."""
-        matrix_size = len(self.nodetypedict)
-        matrix = np.zeros((matrix_size, matrix_size))
-
-        def traverse(node, parent=None):
-            if not isinstance(node, ast.AST):
-                return
-            current_type = self.nodetypedict.get(type(node).__name__, -1)
-            parent_type = self.nodetypedict.get(type(parent).__name__, -1) if parent else -1
-            if parent is not None and current_type >= 0 and parent_type >= 0:
-                matrix[parent_type][current_type] += 1
-            for child in ast.iter_child_nodes(node):
-                traverse(child, parent=node)
-
-        traverse(ast_tree)
-        for row in range(matrix.shape[0]):
-            total = matrix[row].sum()
-            if total > 0:
-                matrix[row] /= total
-        return matrix
-
-    def compute_similarity(self, matrix1, matrix2):
-        """Compute cosine similarity between two matrices."""
-        vec1 = matrix1.flatten().reshape(1, -1)
-        vec2 = matrix2.flatten().reshape(1, -1)
-        similarity = cosine_similarity(vec1, vec2)[0][0]
-        return similarity
-
-    def compute(self, matrix1, matrix2):
-        """Compute AST similarity between two code snippets."""
-        return float(self.compute_similarity(matrix1, matrix2))
-
 
 # ===========================
 #  Model-Based Similarity (RoBERTa or CodeBERT)
 # ===========================
 class EmbeddingSimilarity:
-    def __init__(self, model_name="FacebookAI/roberta-base", batch_size=8):
+    def __init__(self, model_name="microsoft/codebert-base", batch_size=8):
         if "roberta" in model_name.lower():
             self.tokenizer = RobertaTokenizer.from_pretrained(model_name)
             self.model = RobertaModel.from_pretrained(model_name)
@@ -197,22 +110,6 @@ class EmbeddingSimilarity:
 
 
 # ===========================
-#  Code Similarity Pipeline
-# ===========================
-class CodeSimilarityPipeline:
-    def __init__(self, model_name="microsoft/codebert-base"):
-        self.token_sim = TokenSimilarity()
-        self.ast_sim = ASTSimilarity()
-        self.embed_sim = EmbeddingSimilarity(model_name)
-
-    def compute_all(self, matrix_pair, token_pair, embedding_pair):
-        token_sim = self.token_sim.compute(token_pair[0], token_pair[1])
-        ast_sim = self.ast_sim.compute_similarity(matrix_pair[0], matrix_pair[1])
-        embed_sim = self.embed_sim.compute(embedding_pair[0], embedding_pair[1])
-        return token_sim, ast_sim, embed_sim
-
-
-# ===========================
 #  Helper Functions
 # ===========================
 def extract_python_files_from_zip(zip_bytes):
@@ -234,31 +131,36 @@ def extract_python_files_from_zip(zip_bytes):
     return python_files
 
 
-def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base"):
+def compute_similarities_from_zip(zip_bytes):
     """
     Given a zip file (as bytes), extract Python files and compute pairwise similarity scores.
     Returns a list of dictionaries containing similarity results for each file pair.
     """
     python_files = extract_python_files_from_zip(zip_bytes)
 
-    token_sim = TokenSimilarity()
-    ast_sim = ASTSimilarity()
-    nlp_sim = EmbeddingSimilarity()
-
     # Generate embeddings for all files upfront
     batch = [file[1] for file in python_files]
-    embeddings = nlp_sim.get_embeddings_batch(batch)
+    map_file_name_to_idx = {file[0]: i for i, file in enumerate(python_files)}
+    batch_mapping = {file_name: file_content for file_name, file_content in python_files}
 
-    # Process AST and tokens for all files
-    matrices = []
-    tokens = []
-    for i in range(len(python_files)):
-        try:
-            tree = ast.parse(python_files[i][1])
-        except Exception as e:
-            tree = ast.parse(autopep8.fix_code(fix_python2_to_python3(python_files[i][1])))
-        matrices.append(ast_sim.create_adjacency_matrix(tree))
-        tokens.append(token_sim.preprocess(python_files[i][1]))
+    nlp_sim = EmbeddingSimilarity()
+    nlp_embeddings = nlp_sim.get_embeddings_batch(batch)
+
+    token_similarities_list = tokenize_all_files(batch_mapping)
+    token_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
+    for similarity in token_similarities_list:
+        file1, file2 = similarity['file1'], similarity['file2']
+        idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
+        token_similarities_map[idx1][idx2] = similarity['similarity_score']
+        token_similarities_map[idx2][idx1] = similarity['similarity_score']
+
+    ast_similarities_list = parse_ast_all_files(batch_mapping)
+    ast_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
+    for (file1, file2, similarity_score) in ast_similarities_list:
+        idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
+        ast_similarities_map[idx1][idx2] = similarity_score
+        ast_similarities_map[idx2][idx1] = similarity_score
+
     # Create all unique pairs (i < j)
     n = len(python_files)
     file_pairs = []
@@ -267,26 +169,92 @@ def compute_similarities_from_zip(zip_bytes, model_name="microsoft/codebert-base
             file_pairs.append((
                 python_files[i][0], 
                 python_files[j][0], 
-                [matrices[i], matrices[j]], 
-                [tokens[i], tokens[j]], 
-                [embeddings[i], embeddings[j]]
+                token_similarities_map[i][j],
+                ast_similarities_map[i][j],
+                nlp_sim.compute(nlp_embeddings[i], nlp_embeddings[j])
             ))
 
-    pipeline = CodeSimilarityPipeline(model_name)
-    results = []
+    results = [
+    {
+        "file1": fname1,
+        "file2": fname2,
+        "token_sim": token_sim,
+        "ast_sim": ast_sim,
+        "embed_sim": embed_sim,
+        "similarity_score": 0.5 * embed_sim + 0.1 * ast_sim + 0.4 * token_sim
+    }
+    for fname1, fname2, token_sim, ast_sim, embed_sim in file_pairs]
 
-    def process_pair(pair):
-        fname1, fname2, matrix_pair, token_pair, embedding_pair = pair
-        token_sim, ast_sim, embed_sim = pipeline.compute_all(matrix_pair, token_pair, embedding_pair)
-        return {
-            "file1": fname1,
-            "file2": fname2,
-            "similarity_score": 1.0 * embed_sim + 0.0 * ast_sim + 0.0 * token_sim
-        }
+    # Prepare data for model prediction
+    data = {}
+    batch_mean = 0
+    size = 0
 
-    with ThreadPoolExecutor() as executor:
-        for result in executor.map(process_pair, file_pairs):
-            results.append(result)
+    for file in python_files:
+        data[file[0]] = {'token_sim':[], 'ast_sim':[], 'embed_sim':[], 'snippet_mean_sim': 0}
+
+    # Calculate similarities and means
+    for pair in results:
+        file1 = pair['file1']
+        file2 = pair['file2']
+        
+        data[file1]['token_sim'].append(pair['token_sim'])
+        data[file1]['ast_sim'].append(pair['ast_sim'])
+        data[file1]['embed_sim'].append(pair['embed_sim'])
+        
+        data[file2]['token_sim'].append(pair['token_sim'])
+        data[file2]['ast_sim'].append(pair['ast_sim'])
+        data[file2]['embed_sim'].append(pair['embed_sim'])
+        
+        data[file1]['snippet_mean_sim'] += pair['embed_sim']
+        data[file2]['snippet_mean_sim'] += pair['embed_sim']
+        batch_mean += 2 * pair['embed_sim']
+        size += 2
+
+    # Calculate final means
+    for file in python_files:
+        name = file[0]
+        data[name]['snippet_mean_sim'] = data[name]['snippet_mean_sim'] / (len(python_files) - 1)
+        data[name]['batch_mean_sim'] = batch_mean / size
+
+    # Prepare batch for model
+    batch = {
+        'token_sim': torch.tensor([v['token_sim'] for _, v in data.items()]),
+        'ast_sim': torch.tensor([v['ast_sim'] for _, v in data.items()]),
+        'embed_sim': torch.tensor([v['embed_sim'] for _, v in data.items()]),
+        'batch_mean_sim': torch.tensor([v['batch_mean_sim'] for _, v in data.items()]),
+        'snippet_mean_sim': torch.tensor([v['snippet_mean_sim'] for _, v in data.items()])
+    }
+
+    # Load and run model
+    model = PlagiarismDetectionModel()
+    model = model.to(torch.float64)
+    
+    # Load checkpoint
+    cpk_path = os.path.join(os.path.dirname(__file__), "checkpoints/checkpoint_epoch_120.pth")
+    checkpoint = torch.load(cpk_path)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    
+    # Get predictions
+    model.eval()
+    with torch.no_grad():
+        predicted_similarity, predicted_plagiarism = model(
+            batch['token_sim'],
+            batch['ast_sim'],
+            batch['embed_sim'],
+            batch['batch_mean_sim'],
+            batch['snippet_mean_sim']
+        )
+
+    # Update results with model predictions
+    final_results = []
+    for i, file in enumerate(python_files):
+        file_name = file[0]
+        final_results.append({
+            "file": file_name,
+            "similarity_score": predicted_similarity[i].item(),
+            "plagiarism_score": predicted_plagiarism[i].item()
+        })
 
     return {
         "similarity_results": results
