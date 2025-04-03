@@ -1,5 +1,4 @@
 import express from "express";
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import nodemailer from "nodemailer";
@@ -8,18 +7,12 @@ import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import firebaseUtils from "../utilities/firebaseUtils.js";
 import awsUtils from "../utilities/awsUtils.js";
+import { getAuth0UserId } from "../middleware/authMiddleware.js";
 
 // Import your environment, logger, and custom exceptions
-import {
-  EmailVariables,
-  AuthVariables,
-  SystemVariables,
-} from "../constants/envConstants.js";
+import { EmailVariables } from "../constants/envConstants.js";
 import logger from "../utilities/loggerUtils.js";
-import {
-  BadRequestException,
-  HttpRequestException,
-} from "../types/exceptions.js";
+import { BadRequestException } from "../types/exceptions.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,18 +51,7 @@ function streamToBuffer(stream) {
 
 router.post("/", multer().any(), async (req, res, next) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    const response = await fetch(
-      `https://${AuthVariables.AUTH0_DOMAIN}/userinfo`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    const data = await response.json();
-    const auth0Id = data.sub; // Auth0 ID is in the 'sub' claim
-    const userEmail = data.email;
+    const auth0Id = await getAuth0UserId(req);
 
     if (!auth0Id) {
       logger.warn("No sub claim found in the Auth0 token payload");
