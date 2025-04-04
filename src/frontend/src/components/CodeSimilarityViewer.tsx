@@ -221,7 +221,6 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
           k: 7, // Example default
           w: 4, // Example default
         });
-        console.log(detailedResult);
         // 3. Map API response (ss/ts) to viewer format (ss/ts)
         const apiMatches = detailedResult.matches || [];
         let mappedMatchesForViewer: MatchCluster[] = apiMatches.map(
@@ -234,7 +233,6 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
         // 4. Merge overlapping spans
         let keepGoing = true;
         while (keepGoing) {
-          console.log("merging spans", mappedMatchesForViewer);
           keepGoing = false;
           const oldSize = Object.keys(mappedMatchesForViewer).length;
           mappedMatchesForViewer = mergeOverlappingSpans(mappedMatchesForViewer);
@@ -243,7 +241,6 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
             keepGoing = true;
           }
         }
-        console.log("done ", mappedMatchesForViewer);
 
         // 5. Set the final cluster data
         setSpanClusters(mappedMatchesForViewer);
@@ -309,7 +306,6 @@ export const CodeSimilarityViewer: React.FC<CodeSimilarityViewerProps> = ({
 
       applyDefaultHighlight() {
         spanClusters.forEach((cluster, index) => {
-          console.log(cluster);
           const baseColor = this.generateGrayShade(index);
           const hoverColor = this.generateHoverColor(index);
           this.clusterStyles.set(cluster, { baseColor, hoverColor });

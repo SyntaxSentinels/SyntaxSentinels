@@ -172,7 +172,6 @@ const Results = () => {
         // Process the results
         const results = jsonData.similarity_results;
         setSimilarityData(results);
-        console.log("results:", results);
 
         if (!Array.isArray(results) || results.length === 0) {
           message.error("No data found in the results.");
