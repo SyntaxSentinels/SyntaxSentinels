@@ -1,6 +1,6 @@
 # SyntaxSentinels Source Code
 
-This folder contains the **source code** for the SyntaxSentinels backend, built with Python and Flask.
+This folder contains the **source code** for the SyntaxSentinels backend, built with Python and SQS.
 
 ## Table of Contents
 
@@ -12,21 +12,16 @@ This folder contains the **source code** for the SyntaxSentinels backend, built 
 4. [Installing Dependencies](#installing-dependencies)
 5. [Environment Variables](#environment-variables)
 6. [Running the Server](#running-the-server)
-7. [Docker Setup](#docker-setup)
-   - [Prerequisites for Docker](#prerequisites-for-docker)
-   - [Building and Running with Docker](#building-and-running-with-docker)
-   - [Docker Compose](#docker-compose)
 
 ---
 
 ## Project Overview
 
-- The backend runs on **Flask**.
 - Auth0 is used for authentication (`AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, etc. in your environment variables).
 - Common tasks include:
   - Activating a virtual environment.
   - Installing Python packages from `requirements.txt`.
-  - Starting the Flask development server.
+  - Starting the SQS polling worker.
 
 ---
 
@@ -89,7 +84,6 @@ Create a `.env` file or otherwise set these variables in your environment. Below
 
 | **Variable**            | **Description**                                                           | **Example/Default**                                         |
 | ----------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `FLASK_ENV`             | Sets the Flask environment mode. Typically `development` or `production`. | `development`                                               |
 | `PORT`                  | The port on which the Flask app listens.                                  | `5000`                                                      |
 | `AUTH0_DOMAIN`          | Your Auth0 tenant domain, e.g. `your-tenant.us.auth0.com`.                | _(none)_                                                    |
 | `AUTH0_AUDIENCE`        | The Auth0 audience for your API.                                          | _(none)_                                                    |
@@ -105,7 +99,6 @@ Create a `.env` file or otherwise set these variables in your environment. Below
 Example `.env`:
 
 ```
-FLASK_ENV=development
 PORT=5000
 AUTH0_DOMAIN=your-tenant.us.auth0.com
 AUTH0_AUDIENCE=my-api
@@ -138,82 +131,6 @@ The worker process handles background jobs by polling an SQS queue, processing f
 
 ---
 
-## Docker Setup
-
-This project includes Docker configuration for easy deployment and development. Docker allows you to run the application in isolated containers without worrying about dependencies or environment setup.
-
-### Prerequisites for Docker
-
-- [Docker](https://docs.docker.com/get-docker/) installed on your system
-- [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop for Windows and Mac)
-
-### Building and Running with Docker
-
-1. **Build the Docker image**:
-
-   ```bash
-   cd src/backend
-   docker build -t syntax-sentinels-backend .
-   ```
-
-2. **Run the container**:
-
-   ```bash
-   # To run the worker process (default behavior after Dockerfile update)
-   docker run --env-file .env syntax-sentinels-backend
-
-   # To run the Flask web server instead
-   docker run -p 5000:5000 --env-file .env syntax-sentinels-backend python worker.py
-   ```
-
-   Note that the worker process doesn't need port mapping since it doesn't expose any HTTP endpoints.
-
-### Docker Compose
-
-For a more complete setup that includes both the web server and worker process:
-
-1. **Create a `.env` file** based on the provided `.env.example`:
-
-   ```bash
-   cp .env.example .env
-   # Edit .env with your actual values
-   ```
-
-2. **Start the services**:
-
-   ```bash
-   docker-compose up
-   ```
-
-   This will start both the web server and the worker process.
-
-3. **Run in background** (optional):
-
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **View logs**:
-
-   ```bash
-   docker-compose logs -f
-   ```
-
-5. **Stop the services**:
-
-   ```bash
-   docker-compose down
-   ```
-
-The Docker setup includes:
-
-- A web service running the Flask application
-- A worker service for background processing
-- Environment variable configuration
-- Volume mapping for code changes
-
-**Note**: When using Docker, you don't need to set up a virtual environment or install dependencies locally, as everything is contained within the Docker containers.
-
 ---
 
-**That's it!** Your Flask backend for SyntaxSentinels should now be up and running. Adjust the commands or details above as needed for your specific setup.
+**That's it!** Your SQS worker for SyntaxSentinels should now be up and running. Adjust the commands or details above as needed for your specific setup.
