@@ -83,6 +83,7 @@ async function validateUploadedFiles(files) {
     throw new BadRequestException("Please upload either a zip file or python files, not both.", "MIXED_FILE_TYPES");
   }
   let fileCount = files.length;
+  let fileNames = files.map(file => file.originalname);
   if (hasZipFiles) {
     // Check that there is only one zip file
     if (files.length !== 1) {
@@ -102,6 +103,13 @@ async function validateUploadedFiles(files) {
       throw new BadRequestException("Please upload a zip file containing only python files.", "INVALID_ZIP_FILE");
     }
     fileCount = pythonFilesinZip.length;
+    fileNames = pythonFilesinZip;
+  }
+
+  // Disallow duplicate file names
+  const uniqueFileNames = new Set(fileNames);
+  if (uniqueFileNames.size !== fileNames.length) {
+    throw new BadRequestException("Please upload unique file names.", "DUPLICATE_FILE_NAMES");
   }
 
   if (fileCount > MAX_FILES) {
