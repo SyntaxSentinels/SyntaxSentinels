@@ -9,8 +9,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { JobInfo } from "@/services/ssApi";
-import { deleteJob } from "@/services/ssApi";
+import { JobInfo, deleteJob } from "@/services/ssApi";
 import "./JobsTable.css";
 
 interface JobsTableProps {

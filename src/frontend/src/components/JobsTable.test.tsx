@@ -11,6 +11,12 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock the apiService module
+jest.mock("@/services/service/apiService", () => ({
+  api: jest.fn()
+}));
+
+
 // Mock window.matchMedia
 beforeAll(() => {
   Object.defineProperty(window, "matchMedia", {
