@@ -1,4 +1,6 @@
 import { AuthVariables } from "../constants/envConstants.js";
+import logger from "../utilities/loggerUtils.js";
+import { HttpRequestException } from "../types/exceptions.js";
 
 export async function fetchUserDataFromAuth0(token) {
   const response = await fetch(
