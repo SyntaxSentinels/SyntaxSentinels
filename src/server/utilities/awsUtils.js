@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import logger from './loggerUtils.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -103,8 +103,31 @@ export const getFileFromS3 = async (key) => {
   }
 };
 
+/**
+ * Delete a file from S3
+ * @param {string} key - The S3 key (path) of the file to delete
+ * @returns {Promise<Object>} - The S3 delete result
+ */
+export const deleteFromS3 = async (key) => {
+  try {
+    const params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key
+    };
+    
+    const command = new DeleteObjectCommand(params);
+    const result = await s3Client.send(command);
+    logger.info(`File deleted from S3: ${key}`);
+    return result;
+  } catch (error) {
+    logger.error(`Error deleting file from S3: ${error.message}`);
+    throw error;
+  }
+};
+
 export default {
   uploadToS3,
   sendToSQS,
-  getFileFromS3
+  getFileFromS3,
+  deleteFromS3,
 };

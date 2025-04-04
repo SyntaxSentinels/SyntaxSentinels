@@ -88,6 +88,20 @@ export const getUserJobs = async () => {
   }
 };
 
+/**
+ * Delete a job
+ * @param {string} jobId - The job ID to delete
+ * @returns {Promise<void>}
+ */
+export const deleteJob = async (jobId: string) => {
+  try {
+    await api.delete(`/results/${jobId}`);
+  } catch (error) {
+    console.error("Error deleting job:", error);
+    throw error;
+  }
+};
+
 export const compareFiles = async (file1Path: string, file2Path: string) => {
   try {
     const response = await api.post("/compare-files", {

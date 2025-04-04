@@ -191,7 +191,11 @@ const AnalyzeFiles: React.FC = () => {
               completed job to view results.
             </Paragraph>
 
-            <JobsTable jobs={jobs} loading={jobsLoading} />
+            <JobsTable 
+              jobs={jobs} 
+              loading={jobsLoading} 
+              onJobDeleted={fetchJobs}
+            />
           </Col>
         </Row>
       </div>
