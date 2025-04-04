@@ -216,7 +216,6 @@ actually be implemented. \\
 \begin{description}
   \item [\refstepcounter{mnum} \mthemnum \label{mAuth}:] User Authentication Module
   \item [\refstepcounter{mnum} \mthemnum \label{mCodeUpload}:] Code Upload Module
-  \item [\refstepcounter{mnum} \mthemnum \label{mResultsUpload}:] Results Upload Module
   \item [\refstepcounter{mnum} \mthemnum \label{mThreshold}:] Threshold Adjustment Module
   \item [\refstepcounter{mnum} \mthemnum \label{mFlagging}:] Flagging Module
   \item [\refstepcounter{mnum} \mthemnum \label{mResults}:] Report Results Module
@@ -232,7 +231,6 @@ actually be implemented. \\
   \end{description}
   \item [\refstepcounter{mnum} \mthemnum \label{mScoring}:] Similarity Scoring Module
   \item [\refstepcounter{mnum} \mthemnum \label{mReport}:] Report Generation Module
-  \item [\refstepcounter{mnum} \mthemnum \label{mEmail}:] Email Sending Module
 \end{description}
 
 \begin{table}[h!]
@@ -246,9 +244,7 @@ actually be implemented. \\
   \multirow{2}{*}{Behaviour-Hiding Module} 
   & User Authentication Module \\
   & Code Upload Module \\
-  & Results Upload Module \\
   & Report Results Module \\
-  & Email Sending Module \\
   & Flagging Module \\
   & Threshold Adjustment Module \\
   \midrule
@@ -291,8 +287,7 @@ Note: mathematical notation used in the FRs ignores table of abbreviations and a
   FR-6 & \mref{mReport} \\
   FR-7 & \mref{mAuth} \\
   FR-8 & \mref{mAuth} \\
-  FR-9 & \mref{mEmail} \\
-  FR-10 & \mref{mResultsUpload} \mref{mResults}\\
+  FR-9 & \mref{mResultsUpload} \mref{mResults}\\
   \bottomrule
   \end{tabular}
   \caption{Trace Between Requirements and Modules}
@@ -340,18 +335,9 @@ the existence of the user authentication module (\mref{mAuth}).\\
 FR-8 requires authenticating an account of a user, $u$. This falls into the scope of 
 the user authentication module (\mref{mAuth}).\\
 
-FR-9 requires emailing a set of generated reports, $R$, as a zip file, $z$, to clients.
-This necessitates a module separate from the report module (\mref{mReport}) to handle the 
-business logic of passing around and zipping reports which will be the emailing module
-(\mref{mEmail}). \\
-
-FR-10 requires the user to take a generated report they have received via email as a zip file,
-$z$, and upload it back to the UI where they can observe the report. This will require a module 
-separate from the results module since it will have to re-interprate uploaded reports in a 
-zipped state, which will not necessarily have the same detail as the initial result screen
-from the result module (\mref{mResults}). Therefore, there will be a Results Upload module
-(\mref{mResultsUpload}). \\
-  
+FR-9 requires the ability to visualize a completed job via the UI. This will be
+handled by the results module (\mref{mResults}) which will take the report generated 
+by the backend and display it to the user.\\
 
 % \wss{The intention of this section is to document decisions that are made
 %   ``between'' the requirements and the design.  To satisfy some requirements,
@@ -418,15 +404,6 @@ tranforms it into the data structure suitable for backend.
 \item[Type of Module:] Abstract Object
 \end{description}
 
-\subsubsection{Results Upload Module (\mref{mResultsUpload})}
-
-\begin{description}
-\item[Secrets:] The logic to in-take and parse report files as well as display information contained within them.
-\item[Services:] Handles visualizing report files for user in front end.
-\item[Implemented By:] \progname
-\item[Type of Module:] Abstract Object
-\end{description}
-
 \subsubsection{Threshold Adjustment Module (\mref{mThreshold})}
 
 \begin{description}
@@ -456,15 +433,6 @@ completion, visualizes results to allow user to inspect the findings
 of the analysis.
 \item[Implemented By:] \progname{}
 \item[Type of Module:] Abstract Object
-\end{description}
-
-\subsubsection{Email Sending Module (\mref{mEmail})}
-
-\begin{description}
-\item[Secrets:] The logic and credentials for sending emails through an email API.
-\item[Services:] Handles the sending of emails, including composing the email body and attaching files.
-\item[Implemented By:] OS
-\item[Type of Module:] Library
 \end{description}
 
 \subsection{Software Decision Module}
@@ -617,10 +585,10 @@ at \mref{TblRT}. \\
   MS-A2 & \mref{mNLP} \\
   MS-A3 & \mref{mNLP} \\
   SR-A1 & \mref{mAuth} \\
-  SR-P1 & \mref{mCodeUpload} \mref{mReport} \mref{mEmail}\\
-  SR-P2 & \mref{mCodeUpload} \mref{mEmail}\\
-  CR-L1 & \mref{mCodeUpload} \mref{mReport} \mref{mEmail}\\
-  CR-L2 & \mref{mCodeUpload} \mref{mReport} \mref{mEmail}\\
+  SR-P1 & \mref{mCodeUpload} \mref{mReport}\\
+  SR-P2 & \mref{mCodeUpload}\\
+  CR-L1 & \mref{mCodeUpload} \mref{mReport}\\
+  CR-L2 & \mref{mCodeUpload} \mref{mReport}\\
   CR-SC4 & \mref{mNLP} \\
   CR-SC5 & \mref{mAuth} \mref{mCodeUpload} \mref{mReport} \\
   \bottomrule
@@ -801,15 +769,7 @@ Auth0 will be integrated using its Javascript SDK. Secure communication channels
         \item \textbf{Responsibility:} Mohsin.
     \end{itemize}
     
-    \item \textbf{Jan 26 - Jan 30: Results Upload Module (\ref{mResultsUpload})}
-    \begin{itemize}
-        \item Create UI for uploading processed result files.
-        \item Display confirmation and errors for invalid uploads.
-        \item To finalize this module it requires the completion of \ref{mEmail}
-        \item \textbf{Responsibility:} Lucas.
-    \end{itemize}
-    
-    \item \textbf{Jan 31 - Feb 4: Threshold Adjustment Module (\ref{mThreshold})}
+    \item \textbf{Jan 26 - Feb 4: Threshold Adjustment Module (\ref{mThreshold})}
     \begin{itemize}
         \item Develop an interface for adjusting similarity thresholds.
         \item Provide sliders or input boxes for customization.
@@ -826,7 +786,7 @@ Auth0 will be integrated using its Javascript SDK. Secure communication channels
     \item \textbf{Feb 9 - Feb 14: Report Results Module (\ref{mResults})}
     \begin{itemize}
         \item Implement a results display interface with options for sorting and filtering.
-        \item Add the ability to download or email reports directly from the UI.
+        \item Add the ability to download reports directly from the UI.
         \item \textbf{Responsibility:} Lucas and Mohsin.
     \end{itemize}
 \end{itemize}
@@ -846,18 +806,11 @@ Auth0 will be integrated using its Javascript SDK. Secure communication channels
         \item \textbf{Responsibility:} Dennis, Luigi, and Julian.
     \end{itemize}
 
-    \item \textbf{Jan 30 - Feb 4: Report Generation Module (\ref{mReport})}
+    \item \textbf{Jan 30 - Feb 8: Report Generation Module (\ref{mReport})}
     \begin{itemize}
         \item Generate reports based on processed similarity data.
         \item Ensure compatibility with frontend requirements.
         \item \textbf{Responsibility:} Entire team.
-    \end{itemize}
-
-    \item \textbf{Feb 5 - Feb 8: Email Sending Module (\ref{mEmail})}
-    \begin{itemize}
-        \item Develop functionality for sending results via email.
-        \item Implement error handling for failed deliveries.
-        \item \textbf{Responsibility:} Dennis, Luigi, and Julian.
     \end{itemize}
 \end{itemize}
 
