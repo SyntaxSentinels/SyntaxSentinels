@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { pollResults } from "@/services/ssApi";
 import { ReloadOutlined } from "@ant-design/icons";
+import pako from 'pako';  // Import pako library
 import "./Results.css";
 import {
   Table,
@@ -14,20 +15,16 @@ import { Card } from "@/components/common/card";
 import { ChartContainer, ChartTooltip } from "@/components/common/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useEffect, useState, useMemo } from "react";
-import { Button, Pagination, Spin, Slider, message, Modal } from "antd";
+import { Button, Pagination, Spin, Slider, message, Modal, Input } from "antd";
 import { ArrowLeftOutlined, EyeOutlined } from "@ant-design/icons";
-import PlagiarismCompare from "@/components/PlagiarismCompare";
+import { CodeSimilarityViewer } from "@/components/CodeSimilarityViewer";
+import { saveAs } from "file-saver"; // Install via npm install file-saver
 
 // Interfaces for our data structures
 interface SimilarityResult {
   file1: string;
   file2: string;
   similarity_score: number;
-  line_comparisons?: {
-    file1Line: string;
-    file2Line: string;
-    similarity: number;
-  }[];
 }
 
 interface SimilarityData {
@@ -70,6 +67,7 @@ const generateDistribution = (results: SimilarityResult[]) => {
   }));
 };
 
+
 const Results = () => {
   const navigate = useNavigate();
   const [results, setResults] = useState<SimilarityResult[]>([]);
@@ -98,6 +96,28 @@ const Results = () => {
   const location = useLocation();
   const [jobId, setJobId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [fileContent, setFileContent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const downloadReport = () => {
+    if (!results.length) {
+      message.error("No results available to download.");
+      return;
+    }
+  
+    // Format data into CSV
+    const csvHeader = "File 1,File 2,Similarity Score (%)\n";
+    const csvBody = results
+      .map(
+        (result) =>
+          `${result.file1},${result.file2},${(result.similarity_score * 100).toFixed(2)}`
+      )
+      .join("\n");
+  
+    const csvData = csvHeader + csvBody;
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "similarity_results.csv");
+  };
 
   // Extract job ID from URL query parameters or localStorage
   useEffect(() => {
@@ -134,15 +154,50 @@ const Results = () => {
     if (!jobId) return;
 
     try {
+      const request = indexedDB.open("AnalysisDB");
+
+      request.onsuccess = function (event) {
+        const db = event.target.result; // Get database instance
+
+        // Start a transaction for 'jobs' store (read-only)
+        const transaction = db.transaction("jobs", "readonly");
+        const jobsStore = transaction.objectStore("jobs");
+
+        // Replace 'yourJobId' with the actual job ID
+        const jobRequest = jobsStore.get(jobId);
+
+        jobRequest.onsuccess = function () {
+          if (jobRequest.result) {
+            setFileContent(jobRequest.result);
+          } else {
+            console.log("Job not found");
+          }
+        };
+
+        jobRequest.onerror = function () {
+          console.error("Error retrieving job");
+        };
+      };
+
+      // setFileContent
+
       setRefreshing(true);
       const response = await pollResults(jobId);
 
       if (response.status === "completed" && response.resultData) {
-        const jsonData = response.resultData;
+        async function decompressData(compressedData) {
+          const base64Decoded = Uint8Array.from(atob(compressedData), c => c.charCodeAt(0)); // Base64 decode
+          const decompressed = await new Response(base64Decoded).arrayBuffer(); // Convert to ArrayBuffer
+          const decompressedText = new TextDecoder().decode(pako.ungzip(new Uint8Array(decompressed))); // Gunzip and decode
+          return JSON.parse(decompressedText); // Parse JSON
+        }
+
+        const jsonData = await decompressData(response.resultData);
 
         // Process the results
-        setSimilarityData(jsonData);
         const results = jsonData.similarity_results;
+        setSimilarityData(results);
+        console.log("results:", results);
 
         if (!Array.isArray(results) || results.length === 0) {
           message.error("No data found in the results.");
@@ -195,12 +250,20 @@ const Results = () => {
     }
   };
 
-  // Filter results based on threshold
+  // Filter results based on threshold and search query
   useEffect(() => {
-    setFilteredResults(
-      results.filter((r) => r.similarity_score * 100 >= threshold)
-    );
-  }, [results, threshold]);
+    let tempResults = results.filter((r) => r.similarity_score * 100 >= threshold);
+
+    if (searchQuery) {
+      tempResults = tempResults.filter(
+        (r) =>
+          r.file1.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          r.file2.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredResults(tempResults);
+  }, [results, threshold, searchQuery]);
 
   // Paginate table data
   const displayedResults = useMemo(() => {
@@ -209,7 +272,7 @@ const Results = () => {
   }, [filteredResults, currentPage]);
 
   // Handle opening the comparison modal
-  const handleCompareClick = (file1: string, file2: string) => {
+  const handleCompareClick = (file1: string, file2) => {
     setSelectedFiles({ file1, file2 });
     setIsCompareModalOpen(true);
   };
@@ -233,7 +296,11 @@ const Results = () => {
             Back
           </Button>
 
-          <Button
+          <Button type="primary" onClick={downloadReport}>
+            Download Report
+          </Button>
+
+          {/* <Button
             type="primary"
             icon={<ReloadOutlined />}
             onClick={fetchResults}
@@ -241,7 +308,7 @@ const Results = () => {
             disabled={loading}
           >
             Refresh Results
-          </Button>
+          </Button> */}
         </div>
 
         <div className="mb-8">
@@ -336,6 +403,12 @@ const Results = () => {
                 <h2 className="text-xl font-semibold mb-4">
                   Similar Submissions
                 </h2>
+                <Input
+                  placeholder="Search files"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="mb-4"
+                />
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -360,7 +433,10 @@ const Results = () => {
                             type="primary"
                             icon={<EyeOutlined />}
                             onClick={() =>
-                              handleCompareClick(result.file1, result.file2)
+                              handleCompareClick(
+                                result.file1,
+                                result.file2
+                              )
                             }
                             size="small"
                           >
@@ -395,13 +471,14 @@ const Results = () => {
           closeIcon={null}
         >
           {similarityData && (
-            <PlagiarismCompare
-              file1Path={selectedFiles.file1}
-              file2Path={selectedFiles.file2}
-              onClose={handleCloseCompareModal}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              similarityData={similarityData as any}
-            />
+            <>
+              <CodeSimilarityViewer
+                file1Name={selectedFiles.file1}
+                file2Name={selectedFiles.file2}
+                file1Content={fileContent[selectedFiles.file1] || ""}
+                file2Content={fileContent[selectedFiles.file2] || ""}
+              />
+            </>
           )}
         </Modal>
       )}

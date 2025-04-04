@@ -6,6 +6,8 @@ import zipfile
 import logging
 import requests
 import boto3
+import gzip
+import base64
 from dotenv import load_dotenv
 from controller.compute import compute_similarities_from_zip
 
@@ -57,8 +59,13 @@ def update_job_status(job_id, status, result_data=None):
         'status': status
     }
     
+    def compress_data(data):
+        json_data = json.dumps(data)  # Convert to JSON string
+        compressed = gzip.compress(json_data.encode("utf-8"))  # Encode and compress
+        return base64.b64encode(compressed).decode("utf-8")  # Encode to base64 for safe transmission
+
     if result_data:
-        payload['resultData'] = result_data
+        payload['resultData'] = compress_data(result_data)
         
     try:
         response = requests.post(url, json=payload)
@@ -74,6 +81,7 @@ def process_message(message):
     """
     Process a message from the SQS queue
     """
+    job_id = None  # Initialize job_id to None
     try:
         # Parse message body
         body = json.loads(message['Body'])
@@ -117,8 +125,20 @@ def process_message(message):
     except Exception as e:
         logger.error(f"Error processing message: {e}")
         # If we have a job ID, update its status to failed
-        if 'job_id' in locals():
+        if job_id:  # Check if job_id has been assigned a value
             update_job_status(job_id, 'failed')
+
+    finally:
+        # Delete the message from the queue
+        try:
+            sqs.delete_message(
+                QueueUrl=SQS_QUEUE_URL,
+                ReceiptHandle=message['ReceiptHandle']
+            )
+            logger.info(f"Deleted message with ReceiptHandle: {message['ReceiptHandle']}")
+        except Exception as e:
+            logger.error(f"Error deleting message: {e}")
+            # Handle the failure to delete (e.g., log, potentially retry later)
 
 def poll_sqs_queue():
     """
@@ -145,12 +165,6 @@ def poll_sqs_queue():
                     # Process the message
                     process_message(message)
                     
-                    # Delete the message from the queue
-                    sqs.delete_message(
-                        QueueUrl=SQS_QUEUE_URL,
-                        ReceiptHandle=message['ReceiptHandle']
-                    )
-                    logger.info(f"Deleted message: {message['MessageId']}")
             else:
                 logger.debug("No messages received")
                 

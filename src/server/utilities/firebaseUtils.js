@@ -1,18 +1,22 @@
 import admin from "firebase-admin";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import logger from "./loggerUtils.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const serviceAccountPath = path.join(__dirname, "..", "firebase_cred.json");
 
 // Initialize Firebase Admin SDK
 try {
-  const serviceAccount = JSON.parse(
-    fs.readFileSync(serviceAccountPath, "utf8")
-  );
+  const serviceAccount = {
+    type: "service_account",
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID.replace(/\\n/gm, "\n"),
+    private_key: process.env.FIREBASE_PRIVATE_KEY,
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: process.env.FIREBASE_AUTH_URI,
+    token_uri: process.env.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url:
+      process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+  };
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -238,8 +242,12 @@ export const getUserJobs = async (auth0Id) => {
       return jobs;
     }
 
-    // Fallback to querying the results collection directly
-    // This is for backward compatibility with existing data
+    // Fallback if no job history is found
+    logger.warn(
+      `No job history found for user: ${auth0Id}. Attempting to retrieve jobs directly from 'results' collection.`
+    );
+
+    // Fallback to querying the results collection directly for older records or users without job_history
     const snapshot = await db
       .collection("results")
       .where("auth0Id", "==", auth0Id)
@@ -247,7 +255,9 @@ export const getUserJobs = async (auth0Id) => {
       .get();
 
     if (snapshot.empty) {
-      logger.info(`No jobs found for user: ${auth0Id}`);
+      logger.info(
+        `No jobs found for user: ${auth0Id} in 'results' collection.`
+      );
       return [];
     }
 
@@ -269,7 +279,7 @@ export const getUserJobs = async (auth0Id) => {
     return jobs;
   } catch (error) {
     logger.error(`Error retrieving jobs for user: ${auth0Id}:`, error);
-    throw error;
+    return [];
   }
 };
 

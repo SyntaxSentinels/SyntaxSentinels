@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import zlib from "zlib";
 import { auth } from "express-oauth2-jwt-bearer";
 import { loggerMiddleware } from "./middleware/loggerMiddleware.js";
 import { apiUrlFor } from "./utilities/apiUtils.js";
@@ -8,6 +9,7 @@ import uploadApi from "./controllers/uploadController.js";
 import resultsApi from "./controllers/resultsController.js";
 import logger from "./utilities/loggerUtils.js";
 import firebaseUtils from "./utilities/firebaseUtils.js";
+import similarityApi from "./controllers/similarityController.js";
 
 import {
   UnauthorizedException,
@@ -17,6 +19,8 @@ import { ErrorContent } from "./types/errorContent.js";
 
 const app = express();
 app.use(cors());
+app.use(express.json({ limit: "10mb" })); // Increase limit to 10MB
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // JWT Authentication Middleware
 const checkJwt = auth({
@@ -45,7 +49,8 @@ app.use(express.json());
 const updateRouter = express.Router();
 updateRouter.post("/update", async (req, res, next) => {
   try {
-    const { jobId, status, resultData } = req.body;
+    const { jobId, status } = req.body;
+    let { resultData } = req.body; // resultData is optional
 
     if (!jobId) {
       logger.warn("No job ID provided");
@@ -103,6 +108,7 @@ app.use(jwtErrorHandler);
 
 app.use(apiUrlFor("upload"), uploadApi);
 app.use(apiUrlFor("results"), resultsApi);
+app.use(apiUrlFor("similarity"), similarityApi);
 
 app.use((err, req, res, next) => {
   const errorContent = ErrorContent.convertFromException(err);
