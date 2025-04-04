@@ -26,7 +26,7 @@ describe("Navbar", () => {
 
   it("renders the component", () => {
     renderWithRouter(<Navbar />);
-    expect(screen.getByText("SyntaxSentinals")).toBeInTheDocument();
+    expect(screen.getByText("SyntaxSentinels")).toBeInTheDocument();
   });
 
   it("renders Log In button when not authenticated", () => {
