@@ -1,4 +1,4 @@
-# SyntaxSentinels User Guide
+# SyntaxSentinels Setup Guide
 
 This guide covers the setup and management of the SyntaxSentinels system, including the Compute Server, Frontend, and Express Server. It includes installation instructions, environment configuration, common tasks, and debugging tips.
 

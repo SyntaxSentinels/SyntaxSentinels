@@ -1,8 +1,3 @@
 # User Guide
 
-The user guide could also include video introductions and tutorials.
-
-The folders and files for this folder are as follows:
-
-Describe ...
-
+The user guide provides comprehensive documentation for the program. It contains a structured overview of the program's features, usage instructions, and a revision history to track changes made by developers.
