@@ -14,10 +14,10 @@ This project is a code plagiarism detector that uses natural language processing
 
 The folders and files for this project are as follows:
 
-docs - Documentation for the project.
-refs - Reference material used for the project, including papers.
-src - Source code for the project.
-test - Test source code and test cases.
+- docs - Documentation for the project.
+- refs - Reference material used for the project, including papers.
+- src - Source code for the project.
+- test - Test source code and test cases.
 
 ## Background and Motivation
 
