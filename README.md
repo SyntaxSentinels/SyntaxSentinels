@@ -29,7 +29,7 @@ See the [docs/README.md](docs/README.md) file for more information on how the pr
 
 ## Self-Hosting
 
-See the [UserGuide](docs/UserGuide/UserGuide.pdf) for more information on how to host your own instance.
+See [src/README.md](src/README.md) and [UserGuide](docs/UserGuide/UserGuide.pdf) for more information on how to host your own instance.
 
 ## Contributing
 
