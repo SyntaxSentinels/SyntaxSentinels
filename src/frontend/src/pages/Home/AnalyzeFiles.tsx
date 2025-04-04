@@ -112,15 +112,11 @@ const AnalyzeFiles: React.FC = () => {
         // Refresh jobs list
         const jobsData = await getUserJobs();
         setJobs(jobsData);
-      } else {
-        message.error("Failed to start analysis. Please try again.");
       }
       setIsLoading(false);
     } catch (error) {
       console.error("Error uploading files:", error);
-      message.error(
-        "An error occurred while uploading files. Please try again."
-      );
+      message.error(error.message || "An error occurred while uploading files. Please try again.");
       setIsLoading(false);
     }
   };
@@ -195,7 +191,11 @@ const AnalyzeFiles: React.FC = () => {
               completed job to view results.
             </Paragraph>
 
-            <JobsTable jobs={jobs} loading={jobsLoading} />
+            <JobsTable 
+              jobs={jobs} 
+              loading={jobsLoading} 
+              onJobDeleted={fetchJobs}
+            />
           </Col>
         </Row>
       </div>

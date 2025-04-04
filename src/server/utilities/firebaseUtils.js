@@ -215,6 +215,7 @@ export const getUserJobs = async (auth0Id) => {
         const batchSnapshot = await db
           .collection("results")
           .where(admin.firestore.FieldPath.documentId(), "in", batch)
+          .select('status', 'analysisName', 'createdAt', 'updatedAt') // Only select the fields we need
           .get();
 
         batchSnapshot.forEach((doc) => {
@@ -225,8 +226,6 @@ export const getUserJobs = async (auth0Id) => {
             analysisName: data.analysisName || "Unnamed Analysis",
             createdAt: data.createdAt ? data.createdAt.toDate() : null,
             updatedAt: data.updatedAt ? data.updatedAt.toDate() : null,
-            // Don't include the full result data to keep the response size small
-            hasResults: !!data.resultData,
           });
         });
       }
@@ -252,6 +251,7 @@ export const getUserJobs = async (auth0Id) => {
       .collection("results")
       .where("auth0Id", "==", auth0Id)
       .orderBy("createdAt", "desc")
+      .select('status', 'analysisName', 'createdAt', 'updatedAt') // Only select the fields we need
       .get();
 
     if (snapshot.empty) {
@@ -270,8 +270,6 @@ export const getUserJobs = async (auth0Id) => {
         analysisName: data.analysisName || "Unnamed Analysis",
         createdAt: data.createdAt ? data.createdAt.toDate() : null,
         updatedAt: data.updatedAt ? data.updatedAt.toDate() : null,
-        // Don't include the full result data to keep the response size small
-        hasResults: !!data.resultData,
       };
     });
 
@@ -283,10 +281,54 @@ export const getUserJobs = async (auth0Id) => {
   }
 };
 
+/**
+ * Delete a job from Firestore
+ * @param {string} jobId - The unique job ID
+ * @param {string} auth0Id - The user's Auth0 ID
+ * @returns {Promise<void>}
+ */
+export const deleteJob = async (jobId, auth0Id) => {
+  try {
+    // Get the document reference
+    const docRef = db.collection("results").doc(jobId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      logger.warn(`No job found for job ID: ${jobId}`);
+      throw new Error("Job not found");
+    }
+
+    const jobData = doc.data();
+    if (jobData.auth0Id !== auth0Id) {
+      logger.warn(`Unauthorized deletion attempt for job ID: ${jobId} by user: ${auth0Id}`);
+      throw new Error("Unauthorized access");
+    }
+
+    // Delete from results collection
+    await docRef.delete();
+
+    // Remove from job_history
+    const jobHistoryRef = db.collection("job_history").doc(auth0Id);
+    const jobHistoryDoc = await jobHistoryRef.get();
+
+    if (jobHistoryDoc.exists) {
+      const jobHistory = jobHistoryDoc.data();
+      const updatedJobs = jobHistory.jobs.filter(job => job.jobId !== jobId);
+      await jobHistoryRef.update({ jobs: updatedJobs });
+    }
+
+    logger.info(`Deleted job ID: ${jobId} for user: ${auth0Id}`);
+  } catch (error) {
+    logger.error(`Error deleting job ID: ${jobId}:`, error);
+    throw error;
+  }
+};
+
 export default {
   storeResults,
   getResults,
   updateJobStatus,
   getUserJobs,
   addResults,
+  deleteJob,
 };

@@ -11,6 +11,12 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock the apiService module
+jest.mock("@/services/service/apiService", () => ({
+  api: jest.fn()
+}));
+
+
 // Mock window.matchMedia
 beforeAll(() => {
   Object.defineProperty(window, "matchMedia", {
@@ -35,7 +41,6 @@ describe("JobsTable", () => {
       analysisName: "Test Analysis 1",
       createdAt: new Date("2025-03-01T10:00:00Z"),
       updatedAt: new Date("2025-03-02T12:00:00Z"),
-      hasResults: true,
     },
     {
       jobId: "2",
@@ -43,7 +48,6 @@ describe("JobsTable", () => {
       analysisName: "Test Analysis 2",
       createdAt: new Date("2025-03-03T14:00:00Z"),
       updatedAt: new Date("2025-03-04T16:00:00Z"),
-      hasResults: false,
     },
     {
       jobId: "3",
@@ -51,7 +55,6 @@ describe("JobsTable", () => {
       analysisName: "Test Analysis 3",
       createdAt: new Date("2025-03-05T18:00:00Z"),
       updatedAt: new Date("2025-03-06T20:00:00Z"),
-      hasResults: false,
     },
   ];
 
@@ -148,7 +151,6 @@ describe("JobsTable", () => {
         analysisName: "",
         createdAt: new Date("2025-03-07T10:00:00Z"),
         updatedAt: new Date("2025-03-08T12:00:00Z"),
-        hasResults: true,
       },
     ];
 
@@ -163,11 +165,11 @@ describe("JobsTable", () => {
 
   it("renders the correct tag color and icon based on job status", () => {
     const jobsWithStatuses: JobInfo[] = [
-      { jobId: "1", status: "completed", analysisName: "Completed Job", createdAt: new Date(), updatedAt: new Date(), hasResults: true },
-      { jobId: "2", status: "processing", analysisName: "Processing Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
-      { jobId: "3", status: "pending", analysisName: "Pending Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
-      { jobId: "4", status: "failed", analysisName: "Failed Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
-      { jobId: "5", status: "unknown", analysisName: "Unknown Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
+      { jobId: "1", status: "completed", analysisName: "Completed Job", createdAt: new Date(), updatedAt: new Date() },
+      { jobId: "2", status: "processing", analysisName: "Processing Job", createdAt: new Date(), updatedAt: new Date() },
+      { jobId: "3", status: "pending", analysisName: "Pending Job", createdAt: new Date(), updatedAt: new Date() },
+      { jobId: "4", status: "failed", analysisName: "Failed Job", createdAt: new Date(), updatedAt: new Date() },
+      { jobId: "5", status: "unknown", analysisName: "Unknown Job", createdAt: new Date(), updatedAt: new Date() },
     ];
   
     render(
