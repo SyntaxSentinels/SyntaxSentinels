@@ -160,4 +160,45 @@ describe("JobsTable", () => {
 
     expect(screen.getByText("Unnamed Analysis")).toBeInTheDocument();
   });
+
+  it("renders the correct tag color and icon based on job status", () => {
+    const jobsWithStatuses: JobInfo[] = [
+      { jobId: "1", status: "completed", analysisName: "Completed Job", createdAt: new Date(), updatedAt: new Date(), hasResults: true },
+      { jobId: "2", status: "processing", analysisName: "Processing Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
+      { jobId: "3", status: "pending", analysisName: "Pending Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
+      { jobId: "4", status: "failed", analysisName: "Failed Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
+      { jobId: "5", status: "unknown", analysisName: "Unknown Job", createdAt: new Date(), updatedAt: new Date(), hasResults: false },
+    ];
+  
+    render(
+      <Router>
+        <JobsTable jobs={jobsWithStatuses} loading={false} />
+      </Router>
+    );
+  
+    // Check for the "completed" status
+    const completedTag = screen.getByText("COMPLETED");
+    expect(completedTag).toBeInTheDocument();
+    expect(screen.getByTestId("completed-icon")).toBeInTheDocument(); // Check for the icon
+  
+    // Check for the "processing" status
+    const processingTag = screen.getByText("PROCESSING");
+    expect(processingTag).toBeInTheDocument();
+    expect(screen.getByTestId("processing-icon")).toBeInTheDocument(); // Check for the icon
+  
+    // Check for the "pending" status
+    const pendingTag = screen.getByText("PENDING");
+    expect(pendingTag).toBeInTheDocument();
+    expect(screen.getByTestId("pending-icon")).toBeInTheDocument(); // Check for the icon
+  
+    // Check for the "failed" status
+    const failedTag = screen.getByText("FAILED");
+    expect(failedTag).toBeInTheDocument();
+    expect(screen.getByTestId("failed-icon")).toBeInTheDocument(); // Check for the icon
+  
+    // Check for the default status
+    const unknownTag = screen.getByText("UNKNOWN");
+    expect(unknownTag).toBeInTheDocument();
+    expect(screen.queryByTestId("unknown-icon")).not.toBeInTheDocument(); // No icon for default
+  });
 });
