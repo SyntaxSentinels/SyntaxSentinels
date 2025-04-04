@@ -219,6 +219,11 @@ def extract_python_files_from_zip(zip_bytes):
                     with zf.open(info) as file:
                         content = file.read().decode("utf-8")
                         python_files.append((info.filename, content))
+                elif info.filename.endswith(".zip"):
+                    # Call recursively
+                    with zf.open(info) as file:
+                        zip_bytes = file.read()
+                        python_files.extend(extract_python_files_from_zip(zip_bytes))
     return python_files
 
 
