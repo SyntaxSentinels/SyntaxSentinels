@@ -137,7 +137,6 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onJobDeleted }) =>
               disabled={record.status !== "completed" && record.status !== "failed"}
               title={record.status !== "completed" && record.status !== "failed" ? "Can only delete completed or failed jobs" : "Delete job"}
             >
-              Delete
             </Button>
           </Popconfirm>
         </div>
