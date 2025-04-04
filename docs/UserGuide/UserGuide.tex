@@ -6,7 +6,10 @@
 \usepackage{listings}
 \usepackage{fancyvrb}
 \usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
 \geometry{margin=1in}
+\graphicspath{ {./images/}}
 
 \input{../Comments}
 \input{../Common}
@@ -201,6 +204,92 @@ npm start
 \end{Verbatim}
 
 \section{Usage}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{HomePage.png}
+    \caption{Home Page}
+    \label{fig:home}
+  \end{figure}
+
+Above is our home page, users can login via the Log In button or click on Get Started.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\dimexpr\textheight-5cm\relax]{Login.png}
+    \caption{Login Page}
+    \label{fig:Login}
+  \end{figure}
+
+Above is the login page where users can login via their existing account or sign up via the sign up button.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{DashBoard.png}
+    \caption{Dashboard Page}
+    \label{fig:Dashboard}
+  \end{figure}
+
+Above is the dashboard page. On the right users can see a history of their jobs, view the rsults and delete a job and also click on refresh to refresh the analysis list.
+On the top, the user can also press Log Out to Log out of the system.
+On the left, users can upload files, give the analysis a name and then click on analyze dataset to start the analysis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Analyze.png}
+    \caption{example of a dataset}
+    \label{fig:Analyze dataset}
+  \end{figure}
+
+Above is an example of how files can be uploaded, the name of the analysis can be given and the analyze dataset button can be pressed to start the analysis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{JobStatus.png}
+    \caption{Job Pending Status}
+    \label{fig:Job Pending}
+  \end{figure}
+
+Once the analysis is submitted, it will be in the pending state as it is waiting for the compute server to pick it up.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{JobStatusProcessing.png}
+    \caption{Job Pending Status}
+    \label{fig:Job Processing}
+  \end{figure}
+
+Once the compute server picks up the job, it will be in the processing state.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{JobStatusComplete.png}
+    \caption{Job Complete Status}
+    \label{fig:Job Complete}
+  \end{figure}
+
+Once the compute server finishes the job, it will be in the complete state. Users can click on the view results button to see the results of the analysis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=\dimexpr\textheight-1cm\relax]{Results.png}
+    \caption{Results Page}
+    \label{fig:Results}
+  \end{figure}
+
+Above is our results page where users can see the results of their analysis. They can also download the results via the download Report Button.
+The scroll bar can be used to filter the file pairs by similarity score and the search bar can filter the files by name.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{LineByLine.png}
+    \caption{Line by Line Analysis}
+    \label{fig:Line by Line}
+  \end{figure}
+
+Clicking on compare beside the file pair will take the user to the line by line analysis page where they can see the differences between the two files.
+The clusters are differentiated by colour. As can be seen in the example above, the purple cluster on the right hand side is similar to the purple cluster on the left hand side.
 
 \section{Debugging and Troubleshooting}
 
