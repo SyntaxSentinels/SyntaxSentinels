@@ -2,7 +2,26 @@ import { AuthVariables } from "../constants/envConstants.js";
 import logger from "../utilities/loggerUtils.js";
 import { HttpRequestException } from "../types/exceptions.js";
 
+const userDataCache = new Map();
+
+// Time in milliseconds (5 minutes)
+const CACHE_EXPIRATION = 5 * 60 * 1000;
+
+/**
+ * Fetch user data from Auth0 with caching
+ * @param {string} token - The JWT token
+ * @returns {Promise<Object>} - The user data
+ */
 export async function fetchUserDataFromAuth0(token) {
+  // Check if we have cached data for this token
+  const cachedData = userDataCache.get(token);
+  if (cachedData && cachedData.expiresAt > Date.now()) {
+    logger.info("Using cached Auth0 user data");
+    return cachedData.data;
+  }
+
+  // If not in cache or expired, fetch from Auth0
+  logger.info("Fetching user data from Auth0");
   const response = await fetch(
     `https://${AuthVariables.AUTH0_DOMAIN}/userinfo`,
     {
@@ -13,6 +32,7 @@ export async function fetchUserDataFromAuth0(token) {
   );
 
   if (!response.ok) {
+    logger.error(`Auth0 API error: ${response.status} ${response.statusText}`);
     throw new HttpRequestException(
       response.status,
       "Failed to fetch user info",
@@ -20,9 +40,21 @@ export async function fetchUserDataFromAuth0(token) {
     );
   }
 
-  return response.json();
+  const userData = await response.json();
+  
+  userDataCache.set(token, {
+    data: userData,
+    expiresAt: Date.now() + CACHE_EXPIRATION
+  });
+  
+  return userData;
 }
 
+/**
+ * Get the Auth0 user ID from the request
+ * @param {Object} req - The Express request object
+ * @returns {Promise<string>} - The Auth0 user ID
+ */
 export async function getAuth0UserId(req) {
   try {
     const token = req.headers.authorization?.split(" ")[1];
