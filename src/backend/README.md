@@ -163,7 +163,7 @@ This project includes Docker configuration for easy deployment and development. 
    docker run --env-file .env syntax-sentinels-backend
 
    # To run the Flask web server instead
-   docker run -p 5000:5000 --env-file .env syntax-sentinels-backend python app.py
+   docker run -p 5000:5000 --env-file .env syntax-sentinels-backend python worker.py
    ```
 
    Note that the worker process doesn't need port mapping since it doesn't expose any HTTP endpoints.
