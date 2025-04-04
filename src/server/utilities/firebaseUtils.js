@@ -215,6 +215,7 @@ export const getUserJobs = async (auth0Id) => {
         const batchSnapshot = await db
           .collection("results")
           .where(admin.firestore.FieldPath.documentId(), "in", batch)
+          .select('status', 'analysisName', 'createdAt', 'updatedAt') // Only select the fields we need
           .get();
 
         batchSnapshot.forEach((doc) => {
@@ -225,8 +226,6 @@ export const getUserJobs = async (auth0Id) => {
             analysisName: data.analysisName || "Unnamed Analysis",
             createdAt: data.createdAt ? data.createdAt.toDate() : null,
             updatedAt: data.updatedAt ? data.updatedAt.toDate() : null,
-            // Don't include the full result data to keep the response size small
-            hasResults: !!data.resultData,
           });
         });
       }
@@ -252,6 +251,7 @@ export const getUserJobs = async (auth0Id) => {
       .collection("results")
       .where("auth0Id", "==", auth0Id)
       .orderBy("createdAt", "desc")
+      .select('status', 'analysisName', 'createdAt', 'updatedAt') // Only select the fields we need
       .get();
 
     if (snapshot.empty) {
@@ -270,8 +270,6 @@ export const getUserJobs = async (auth0Id) => {
         analysisName: data.analysisName || "Unnamed Analysis",
         createdAt: data.createdAt ? data.createdAt.toDate() : null,
         updatedAt: data.updatedAt ? data.updatedAt.toDate() : null,
-        // Don't include the full result data to keep the response size small
-        hasResults: !!data.resultData,
       };
     });
 

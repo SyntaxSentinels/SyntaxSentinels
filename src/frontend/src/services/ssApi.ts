@@ -25,7 +25,6 @@ export interface JobInfo {
   analysisName: string;
   createdAt: Date | null;
   updatedAt: Date | null;
-  hasResults: boolean;
 }
 
 // Interface for job response
