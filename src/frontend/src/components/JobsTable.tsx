@@ -154,7 +154,6 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onJobDeleted }) =>
       loading={loading}
       pagination={{ 
         pageSize: pageSize,
-        showSizeChanger: true,
         pageSizeOptions: ['5', '10', '20', '50'],
         onShowSizeChange: handlePageSizeChange
       }}
