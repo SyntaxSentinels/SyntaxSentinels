@@ -118,9 +118,8 @@ def process_message(message):
             # Clean up temporary file
             if os.path.exists(temp_file_path):
                 os.unlink(temp_file_path)
-            # Delete the S3 object
-            s3.delete_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
-            logger.info(f"Deleted S3 object: {s3_key}")
+            # Keep the S3 object for future use
+            logger.info(f"Keeping S3 object: {s3_key}")
                 
     except Exception as e:
         logger.error(f"Error processing message: {e}")

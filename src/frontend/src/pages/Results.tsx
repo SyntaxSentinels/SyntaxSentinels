@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { pollResults } from "@/services/ssApi";
+import { pollResults, getFileContentsFromS3 } from "@/services/ssApi";
 import { ReloadOutlined } from "@ant-design/icons";
 import pako from 'pako';  // Import pako library
 import "./Results.css";
@@ -154,34 +154,9 @@ const Results = () => {
     if (!jobId) return;
 
     try {
-      const request = indexedDB.open("AnalysisDB");
-
-      request.onsuccess = function (event) {
-        const db = event.target.result; // Get database instance
-
-        // Start a transaction for 'jobs' store (read-only)
-        const transaction = db.transaction("jobs", "readonly");
-        const jobsStore = transaction.objectStore("jobs");
-
-        // Replace 'yourJobId' with the actual job ID
-        const jobRequest = jobsStore.get(jobId);
-
-        jobRequest.onsuccess = function () {
-          if (jobRequest.result) {
-            setFileContent(jobRequest.result);
-          } else {
-            console.log("Job not found");
-          }
-        };
-
-        jobRequest.onerror = function () {
-          console.error("Error retrieving job");
-        };
-      };
-
-      // setFileContent
-
       setRefreshing(true);
+      const fileContents = await getFileContentsFromS3(jobId);
+      setFileContent(fileContents);
       const response = await pollResults(jobId);
 
       if (response.status === "completed" && response.resultData) {
@@ -197,7 +172,6 @@ const Results = () => {
         // Process the results
         const results = jsonData.similarity_results;
         setSimilarityData(results);
-        console.log("results:", results);
 
         if (!Array.isArray(results) || results.length === 0) {
           message.error("No data found in the results.");

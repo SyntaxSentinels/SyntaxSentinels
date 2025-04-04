@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import logger from './loggerUtils.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -73,7 +73,38 @@ export const sendToSQS = async (jobId, s3Key, auth0Id, analysisName) => {
   }
 };
 
+/**
+ * Get file contents from S3
+ * @param {string} key - The S3 key (path) of the file
+ * @returns {Promise<Buffer>} - The file contents as a buffer
+ */
+export const getFileFromS3 = async (key) => {
+  try {
+    const params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key
+    };
+    
+    const command = new GetObjectCommand(params);
+    const response = await s3Client.send(command);
+    
+    // Convert the readable stream to a buffer
+    const chunks = [];
+    for await (const chunk of response.Body) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+    
+    logger.info(`File retrieved from S3: ${key}`);
+    return buffer;
+  } catch (error) {
+    logger.error(`Error retrieving file from S3: ${error.message}`);
+    throw error;
+  }
+};
+
 export default {
   uploadToS3,
-  sendToSQS
+  sendToSQS,
+  getFileFromS3
 };

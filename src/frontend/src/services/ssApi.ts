@@ -141,6 +141,16 @@ export const compareFilesApi = async ({
   }
 };
 
+export const getFileContentsFromS3 = async (jobId: string): Promise<Record<string, string>> => {
+  try {
+    const response = await api.get(`/files/contents/${jobId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting file contents from S3:", error);
+    throw new Error("Failed to get file contents from S3");
+  }
+};
+
 interface DetailedComparisonResult {
   file1: string;
   file2: string;
