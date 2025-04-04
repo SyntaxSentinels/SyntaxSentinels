@@ -3,6 +3,7 @@ import logger from "../utilities/loggerUtils.js";
 import { HttpRequestException } from "../types/exceptions.js";
 import firebaseUtils from "../utilities/firebaseUtils.js";
 import { getAuth0UserId } from "../middleware/authMiddleware.js";
+import awsUtils from "../utilities/awsUtils.js";
 
 const router = express.Router();
 export default router;
@@ -74,6 +75,39 @@ router.get("/:jobId", async (req, res, next) => {
     });
   } catch (error) {
     logger.error("Error retrieving results:", error);
+    next(error);
+  }
+});
+
+/**
+ * DELETE /results/:jobId
+ * Delete a specific job and its associated data
+ */
+router.delete("/:jobId", async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+    const auth0Id = await getAuth0UserId(req);
+
+    if (!jobId) {
+      logger.warn("No job ID provided");
+      return next(
+        new HttpRequestException(400, "Job ID is required", "MISSING_JOB_ID")
+      );
+    }
+
+    // Delete from Firebase
+    await firebaseUtils.deleteJob(jobId, auth0Id);
+
+    // Delete from S3
+    const s3Key = `uploads/${auth0Id}/${jobId}.zip`;
+    await awsUtils.deleteFromS3(s3Key);
+
+    return res.json({
+      message: "Job deleted successfully",
+      jobId,
+    });
+  } catch (error) {
+    logger.error("Error deleting job:", error);
     next(error);
   }
 });

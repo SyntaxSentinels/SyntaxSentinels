@@ -25,7 +25,6 @@ export interface JobInfo {
   analysisName: string;
   createdAt: Date | null;
   updatedAt: Date | null;
-  hasResults: boolean;
 }
 
 // Interface for job response
@@ -53,7 +52,10 @@ export const uploadFiles = async (files: FileList, analysisName: string) => {
     return response.data;
   } catch (error) {
     console.error("Error uploading files:", error);
-    return null;
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("An error occurred while uploading files. Please try again.");
   }
 };
 
@@ -82,6 +84,20 @@ export const getUserJobs = async () => {
     return response.data.jobs;
   } catch (error) {
     console.error("Error getting user jobs:", error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a job
+ * @param {string} jobId - The job ID to delete
+ * @returns {Promise<void>}
+ */
+export const deleteJob = async (jobId: string) => {
+  try {
+    await api.delete(`/results/${jobId}`);
+  } catch (error) {
+    console.error("Error deleting job:", error);
     throw error;
   }
 };
@@ -138,6 +154,16 @@ export const compareFilesApi = async ({
     throw new Error(
       error.response?.data?.message || "Failed to compare files."
     );
+  }
+};
+
+export const getFileContentsFromS3 = async (jobId: string): Promise<Record<string, string>> => {
+  try {
+    const response = await api.get(`/files/contents/${jobId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error getting file contents from S3:", error);
+    throw new Error("Failed to get file contents from S3");
   }
 };
 

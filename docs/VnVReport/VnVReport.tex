@@ -261,10 +261,11 @@ Evaluation: Pass
     reports and changelogs. & Developer confirmed that historical versions with 
     performance reports and changelogs are accessible on GitHub. & Pass \\
     \hline
-    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify any personally
-     identifiable data & No personally identifiable data or user-generated data should be
-      found in logs or filesystem. & Tester found no PII or user-generated data during 
-      testing. Logs were clean. & Pass \\
+    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify insecurely
+    stored user-data & No user-generated data should be found within databases, filesystem,
+    or logs, to be stored insecurely or not be ready for deletion. & Tester found no
+    instances of insecurely stored user-generated data during testing, all data was securely
+    stored. Logs were clean. & Pass \\
     \hline
     test-PS-2 & SR-P2 & Tester verifies that backend endpoints use HTTPS encryption & All 
     endpoints should use HTTPS with proper security headers. & Tester confirmed all backend 

@@ -75,7 +75,6 @@ class Tokenizer {
   }
 
   _normalizeToken(nodeType, nodeText) {
-    // console.log(nodeType, nodeText);
     if (kwlist.includes(nodeText)) {
       return nodeText;
     }
@@ -283,7 +282,6 @@ function compareTwoFiles(
   k = 5,
   w = 4
 ) {
-  console.log("COMPARING WITH", k, w);
   const tokenizer = new Tokenizer();
 
   // Tokenize and Fingerprint File 1

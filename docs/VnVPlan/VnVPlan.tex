@@ -984,8 +984,11 @@ privacy rights. The tests for these requirements will revolve around doing
 audits to ensure system integrity.
 
 \begin{description}
-  \item[Data Retention Audit:] We will manually check the file system and any
-  logs to look for any user-generated data, or personally identifiable data.
+  \item[Data Storage Audit:] We will manually check the databases, file system
+  and any logs to look for any user-generated data. If found, this data must be
+  determined to be secure and only accessible by the user who uploaded it. It
+  must also be in a state that it is ready to be deleted upon a user request at
+  any time.
   This audit may also be done in a test environment to check live logs of the
   system.
   \item[Endpoint Security Check:] A tester will invoke backend endpoints and
@@ -998,7 +1001,7 @@ audits to ensure system integrity.
 \end{description}
 
 
-\paragraph{Validate Zero Data Retention and data encryption}
+\paragraph{Validate Secure Data Storage and Data Encryption}
 \begin{enumerate}
   \item{test-PS-1}
   
@@ -1010,15 +1013,18 @@ audits to ensure system integrity.
 
   Input/Condition: Tester engagement
 
-  Output/Result: A list of all identified user-generated or personally identifiable data
+  Output/Result: A list of all identified user-generated data that is stored insecurely or not ready for deletion
 
   How test will be performed:
   \begin{enumerate}
     \item A tester will enable logging in the components of the application.
     \item They will do a run through of the different functionalities, including 
     making a submission and analyzing a generated report file.
-    \item With each function, the tester will check logs and filesystem, and then
-    search for any user-generated or personally identifiable data.
+    \item With each function, the tester will check the databases, filesystem,
+    and logs, and then search for any user-generated or personally identifiable data.
+    \item For each instance of identified user-data, the tester must determine
+    if the data is stored securely, is only accessible by the user who uploaded
+    it, and that it is ready to be deleted upon a user request at any time.
   \end{enumerate}
 
 

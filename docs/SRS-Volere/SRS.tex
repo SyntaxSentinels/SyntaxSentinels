@@ -90,7 +90,7 @@ accurately assess the presence of plagiarized work, creating a fairer environmen
 for competition and rewarding coders correctly. Ultimately, the project aims
 to help users achieve an environment that cycles merit instead of cheating, 
 which is believed to be a primary interest of users too.
-
+\newpage
 \subsection{Goals of the Project}
 
 \begin{center}
@@ -229,7 +229,7 @@ updates to the system.
     \hline
     \textbf{Constraint}   & \textbf{Rationale} \\
     \hline
-    Our product shall follow a zero data retention policy. &
+    Our product shall store any user-uploaded data securely and allow users to request its deletion. &
     We should comply with privacy laws regarding storage of sensitive information. \\
     \hline
     \end{tabular}
@@ -342,7 +342,6 @@ involved in the Project}
     \item AI - Artificial Intelligence
     \item UI - User Interface, the interface the user is met with
     \item PIPEDA - Personal Information Protection and Electronic Documents Act
-    \item ZDR - Zero Data Retention
 \end{itemize}
 
 \section{Relevant Facts And Assumptions}
@@ -355,7 +354,7 @@ involved in the Project}
 \end{itemize}
 \subsection{Business Rules}
 \begin{itemize}
-  \item The system must ensure compliance with data protection regulations by following a zero data retention policy.
+  \item The system must ensure compliance with data protection regulations by storing data securely and allowing users to request data deletion.
   \item The similarity threshold for flagging plagiarism should be customizable by the institution or professor, allowing flexibility based on course policies.
   \item False positives (e.g., common code patterns) should be minimized, with options for professors to override flagged instances and manually validate the results.
   \item The system must be scalable to accommodate large datasets and multiple users submitting code for comparison at the same time.
@@ -910,12 +909,11 @@ To release the tool effectively, certain conditions must be met:
 \end{itemize}
 
 \subsection{Integrity Requirements}
-Integrity requirements are outside the scope of this project. The system is designed to avoid storing any user data.
-Since no data is retained, data integrity is not a concern.
+Integrity requirements are outside the scope of this project.
 
 \subsection{Privacy Requirements}
 \begin{itemize}
-    \item \textbf{SR-P1: Zero Data Retention}: The system shall retain no user-uploaded data beyond the immediate need of the task.
+    \item \textbf{SR-P1: Secure Data Storage}: The system shall store user-uploaded data in a secure manner.
     Refer to requirement CR-SC5 for more information.
 
     Justification - This ensures user privacy and protects sensitive academic work from being mishandled.
@@ -930,7 +928,7 @@ Since no data is retained, data integrity is not a concern.
 \begin{itemize}
     \item \textbf{SR-AD1: Auditable Logs}: The system shall log all user interactions and actions (such as authentication events, code uploads, and plagiarism checks) anonymously, without storing user-uploaded code or sensitive data.
 
-    Justification - While no user data is retained, logging system events and user actions provide a transparent way to track system usage and ensure accountability without violating the zero data retention policy.
+    Justification - No sensitive user-generated data should be logged, since the logs are not intended to be opaque or secure. Logging system events and user actions provide a transparent way to track system usage and ensure accountability without violating the secure data storage policy.
 \end{itemize}
 
 \subsection{Immunity Requirements}
@@ -1055,9 +1053,9 @@ development and data security standards.
     \item \textbf{CR-SC5: Data Handling and Retention Policies}: Establishing clear policies for
     how data is managed throughout its lifecycle.
     \begin{itemize}
-        \item \textbf{Zero Data Retention}: No user data will be retained beyond the immediate needs of the task.
-        All user-uploaded data will be immediately loaded into memory and subsequently removed from disk as soon
-        as the task is finished.
+        \item \textbf{Secure Data Storage}: User data will be stored securely and only until it is requested to be deleted by the user.
+        All user-uploaded data will be stored in a way that it is only accessible by the user who uploaded it.
+        The data will be deleted immediately if requested by the user at any time.
         \item \textbf{Secure Disposal}: Implementing procedures for the secure deletion or
         anonymization of data that is no longer needed.
         \item \textbf{Audit and Compliance}: Regularly auditing data handling practices to
@@ -1229,6 +1227,7 @@ There should be no new problems for users of this tool since they don't need to 
     \end{itemize}
 
 \end{enumerate}
+\newpage
 \subsection{Planning of the Development Phases}
 \section*{Phase 1: Proof of Concept (Oct 12 - Nov 11)}
 \begin{itemize}
@@ -1253,7 +1252,7 @@ There should be no new problems for users of this tool since they don't need to 
     \begin{itemize}
         \item Begin designing the user interface. Focus on mockups and user experience workflows based on expected model outputs.
         \item Weekly Check-Ins: Collaborate with the model development team to ensure UI designs align with the model's capabilities and outputs.
-        \item \textbf{Tasks and Duration:}
+
 
         \begin{tabular}{|c|p{4cm}|p{4cm}|p{4cm}|}
             \hline
@@ -1286,7 +1285,6 @@ There should be no new problems for users of this tool since they don't need to 
     \item \textbf{Backend Development:}
     \begin{itemize}
         \item Develop the backend infrastructure, including user account management and result delivery systems.
-        \item \textbf{Tasks and Duration:}
 
         \begin{tabular}{|c|p{4cm}|p{4cm}|p{4cm}|}
             \hline
