@@ -53,7 +53,10 @@ export const uploadFiles = async (files: FileList, analysisName: string) => {
     return response.data;
   } catch (error) {
     console.error("Error uploading files:", error);
-    return null;
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("An error occurred while uploading files. Please try again.");
   }
 };
 

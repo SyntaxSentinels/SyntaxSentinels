@@ -89,8 +89,14 @@ async function validateUploadedFiles(files) {
       throw new BadRequestException("Please upload exactly one zip file.", "INVALID_ZIP_FILE");
     }
     // Check that everything inside the zip is a python file
-    const zip = new JSZip();
-    const result = await zip.loadAsync(files[0].buffer)
+    // Catch unzipping errors and throw it with a message about an invalid zip file
+    let result = null;
+    try {
+      const zip = new JSZip();
+      result = await zip.loadAsync(files[0].buffer)
+    } catch (error) {
+      throw new BadRequestException("Potentially corrupted zip file.", "CORRUPTED_ZIP_FILE");
+    }
     const pythonFilesinZip = Object.keys(result.files).filter(file => isPythonFile(file));
     if (pythonFilesinZip.length !== Object.keys(result.files).length) {
       throw new BadRequestException("Please upload a zip file containing only python files.", "INVALID_ZIP_FILE");
@@ -167,6 +173,12 @@ router.post("/", multer().any(), async (req, res, next) => {
     });
   } catch (error) {
     logger.error("Error processing upload:", error);
+    if (error instanceof BadRequestException) {
+      return res.status(400).json({
+        message: error.message,
+        code: error.code
+      });
+    }
     next(error);
   }
 });
