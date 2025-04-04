@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Table, Tag, Button, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,6 +17,7 @@ interface JobsTableProps {
 
 const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading }) => {
   const navigate = useNavigate();
+  const [pageSize, setPageSize] = useState(5);
 
   // Format date to a readable string
   const formatDate = (date: Date | null) => {
@@ -27,6 +28,11 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading }) => {
   // Handle click on a job row
   const handleViewResults = (jobId: string) => {
     navigate(`/results?jobId=${jobId}`);
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = (current: number, size: number) => {
+    setPageSize(size);
   };
 
   // Define table columns
@@ -114,7 +120,12 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading }) => {
       dataSource={jobs}
       rowKey="jobId"
       loading={loading}
-      pagination={{ pageSize: 5 }}
+      pagination={{ 
+        pageSize: pageSize,
+        showSizeChanger: true,
+        pageSizeOptions: ['5', '10', '20', '50'],
+        onShowSizeChange: handlePageSizeChange
+      }}
       className="jobs-table"
     />
   );
