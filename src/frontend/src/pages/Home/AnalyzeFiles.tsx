@@ -101,26 +101,6 @@ const AnalyzeFiles: React.FC = () => {
       const response = await uploadFiles(analysisFile, analysisName);
 
       if (response && response.jobId) {
-        const jobId = response.jobId;
-        // Store the job ID in localStorage
-
-        // Convert files to JSON and store in IndexedDB
-        const filesData = {};
-        for (const file of analysisFile) {
-          const text = await file.text();
-          filesData[file.name] = text;
-        }
-
-        const db = await openDB("AnalysisDB", 1, {
-          upgrade(db) {
-            if (!db.objectStoreNames.contains("jobs")) {
-              db.createObjectStore("jobs");
-            }
-          },
-        });
-
-        await db.put("jobs", filesData, jobId);
-
         // Reset form
         setAnalysisFile(null);
         setAnalysisName("");
