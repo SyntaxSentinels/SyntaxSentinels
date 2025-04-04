@@ -66,28 +66,28 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, loading, onJobDeleted }) =>
       render: (status: string) => {
         let color = "";
         let icon = null;
-
+      
         switch (status) {
           case "completed":
             color = "success";
-            icon = <CheckCircleOutlined />;
+            icon = <CheckCircleOutlined data-testid="completed-icon" />;
             break;
           case "processing":
             color = "processing";
-            icon = <SyncOutlined spin />;
+            icon = <SyncOutlined spin data-testid="processing-icon" />;
             break;
           case "pending":
             color = "warning";
-            icon = <ClockCircleOutlined />;
+            icon = <ClockCircleOutlined data-testid="pending-icon" />;
             break;
           case "failed":
             color = "error";
-            icon = <CloseCircleOutlined />;
+            icon = <CloseCircleOutlined data-testid="failed-icon" />;
             break;
           default:
             color = "default";
         }
-
+      
         return (
           <Tag color={color} icon={icon}>
             {status.toUpperCase()}
