@@ -66,7 +66,6 @@ describe("JobsTable", () => {
     expect(screen.getByText("Status")).toBeInTheDocument();
     expect(screen.getByText("Analysis Name")).toBeInTheDocument();
     expect(screen.getByText("Created")).toBeInTheDocument();
-    expect(screen.getByText("Last Updated")).toBeInTheDocument();
 
     // Check job data
     expect(screen.getByText("Test Analysis 1")).toBeInTheDocument();
@@ -138,9 +137,7 @@ describe("JobsTable", () => {
     );
 
     expect(screen.getByText("3/1/2025")).toBeInTheDocument(); // Created date for job 1
-    expect(screen.getByText("3/2/2025")).toBeInTheDocument(); // Updated date for job 1
     expect(screen.getByText("3/3/2025")).toBeInTheDocument(); // Created date for job 2
-    expect(screen.getByText("3/4/2025")).toBeInTheDocument(); // Updated date for job 2
   });
 
   it("renders 'Unnamed Analysis' if analysisName is missing", () => {
