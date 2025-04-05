@@ -82,19 +82,46 @@ been approved by the course instructor as included in your problem statement.}
 
 \section{Design Iteration (LO11 (PrototypeIterate))}
 
-\plt{Explain how you arrived at your final design and implementation.  How did
-the design evolve from the first version to the final version?} 
+%\plt{Explain how you arrived at your final design and implementation.  How did
+%the design evolve from the first version to the final version?} 
+%\plt{Don't just say what you changed, say why you changed it.  The needs of the
+%client should be part of the explanation.  For example, if you made changes in
+%response to usability testing, explain what the testing found and what changes
+%it led to.}
 
-\plt{Don't just say what you changed, say why you changed it.  The needs of the
-client should be part of the explanation.  For example, if you made changes in
-response to usability testing, explain what the testing found and what changes
-it led to.}
+The final design and implementation were shaped through iterative feedback and
+testing. Initially, we were primarily focused on the core functionality, but as
+we received feedback from our TA, supervisor, and professor, as well as through
+usability testing among ourselves and our peers, we identified key areas for
+improvement. For instance, user feedback highlighted the need for a more intuitive
+interface, which led us to redesign the UI (this came with changing some requirements)
+for an improved user experience. The most obvious change was that we removed the
+zero-data-retention policy and emailing requirements. These requiements didn't
+need to exist, and they unneccesarily complicated the implementation as well as
+the flow on behalf of the user. Of course the goal of this project was to have
+a product that was easy to use and understand, which is why we made the changes.
 
 \section{Design Decisions (LO12)}
 
-\plt{Reflect and justify your design decisions.  How did limitations,
- assumptions, and constraints influence your decisions?  Discuss each of these
- separately.}
+%\plt{Reflect and justify your design decisions.  How did limitations,
+% assumptions, and constraints influence your decisions?  Discuss each of these
+% separately.}
+The initial design decisions regarding the requirements for zero-data-retention
+and mandatory emailing were made with the intention of simplifying the user
+experience and ensuring data privacy. However, during usability testing, we
+discovered that these requirements were actually limiting and complicated the
+user flow. Users found the emailing process cumbersome, so we decided to remove
+these requirements to enhance usability and streamline the overall experience.
+The deicion made after this to store the user data in S3 (and to allow deletion
+of the data) was a much better compromise, since it allowed us to keep the
+core functionality of the product while complying with data storage laws.
+
+Another significant design decision was the integration of Natural Language
+Processing (NLP) with traditional techniques such as tokenization and syntax tree
+parsing. We stand by this choice, as it allowed us to leverage the strengths of
+both approaches. The combination provided robust results while effectively
+minimizing false positives, thus achieving a "best of both worlds" scenario.
+
 
 \section{Economic Considerations (LO23)}
 
