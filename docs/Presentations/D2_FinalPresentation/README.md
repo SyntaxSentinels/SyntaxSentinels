@@ -1,7 +1,3 @@
 # Final Presentation
 
-The folders and files for this folder are as follows:
-
-Describe ...
-
-This folder will typically contain a slideshow.  The file format for the slideshow is not prescribed.
+Included in this folder is the slideshow for our final presentation. There was also a live demo of the project, but no presentation files were created for that.

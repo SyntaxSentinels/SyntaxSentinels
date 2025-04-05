@@ -17,7 +17,7 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo aligned to the left */}
         <Link to="/" className="text-2xl font-bold text-primary">
-          SyntaxSentinals
+          SyntaxSentinels
         </Link>
 
         {/* Buttons aligned to the right */}

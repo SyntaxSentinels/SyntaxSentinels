@@ -101,26 +101,6 @@ const AnalyzeFiles: React.FC = () => {
       const response = await uploadFiles(analysisFile, analysisName);
 
       if (response && response.jobId) {
-        const jobId = response.jobId;
-        // Store the job ID in localStorage
-
-        // Convert files to JSON and store in IndexedDB
-        const filesData = {};
-        for (const file of analysisFile) {
-          const text = await file.text();
-          filesData[file.name] = text;
-        }
-
-        const db = await openDB("AnalysisDB", 1, {
-          upgrade(db) {
-            if (!db.objectStoreNames.contains("jobs")) {
-              db.createObjectStore("jobs");
-            }
-          },
-        });
-
-        await db.put("jobs", filesData, jobId);
-
         // Reset form
         setAnalysisFile(null);
         setAnalysisName("");
@@ -132,15 +112,11 @@ const AnalyzeFiles: React.FC = () => {
         // Refresh jobs list
         const jobsData = await getUserJobs();
         setJobs(jobsData);
-      } else {
-        message.error("Failed to start analysis. Please try again.");
       }
       setIsLoading(false);
     } catch (error) {
       console.error("Error uploading files:", error);
-      message.error(
-        "An error occurred while uploading files. Please try again."
-      );
+      message.error(error.message || "An error occurred while uploading files. Please try again.");
       setIsLoading(false);
     }
   };
@@ -215,7 +191,11 @@ const AnalyzeFiles: React.FC = () => {
               completed job to view results.
             </Paragraph>
 
-            <JobsTable jobs={jobs} loading={jobsLoading} />
+            <JobsTable 
+              jobs={jobs} 
+              loading={jobsLoading} 
+              onJobDeleted={fetchJobs}
+            />
           </Col>
         </Row>
       </div>

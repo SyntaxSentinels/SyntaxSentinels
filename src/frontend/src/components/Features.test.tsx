@@ -6,7 +6,7 @@ import Features from "./Features";
 describe("Features", () => {
   it("renders the component", () => {
     render(<Features />);
-    expect(screen.getByText("Why Choose SyntaxSentinals?")).toBeInTheDocument();
+    expect(screen.getByText("Why Choose SyntaxSentinels?")).toBeInTheDocument();
   });
 
   it("renders all feature titles", () => {
