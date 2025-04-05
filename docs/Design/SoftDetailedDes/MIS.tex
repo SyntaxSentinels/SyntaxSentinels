@@ -112,6 +112,8 @@ character & char & A single symbol or digit. \\
 integer & $\mathbb{Z}$ & A whole number in the range $(-\infty, \infty)$. \\ 
 natural number & $\mathbb{N}$ & A whole number in the range $[1, \infty)$. \\ 
 real & $\mathbb{R}$ & Any number in the range $(-\infty, \infty)$. \\ 
+list & $X = (x_0, x_1, ... , x_n)$ & A list of some data type. \\
+n-tuple & $(x_1, x_2, ... , x_n)$ & A sequence of size $n$ of some data type. \\
 boolean & bool & A logical value that can either be \texttt{true} or \texttt{false}. \\
 string & str & A sequence of characters. \\ 
 tuple & tuple & An ordered collection of elements, potentially of different types. \\
@@ -126,7 +128,7 @@ The following conventions are also used:
 \begin{itemize}
     \item \textbf{Assignment}: The operator \texttt{:=} denotes assignment.
     \item \textbf{Conditional Rules}: Conditional statements follow the structure $(c_1 \Rightarrow r_1 \mid c_2 \Rightarrow r_2 \mid \ldots \mid c_n \Rightarrow r_n)$, where $c_i$ are conditions and $r_i$ are corresponding results.
-    \item \textbf{Access Programs}: Functions and methods are defined with their inputs, outputs, and exceptions as described in the syntax sections of each module.
+    \item \textbf{Access Programs}: Functions and methods are defined with their inputs, outputs, and exceptions as described in the syntax sections of each module. All exceptions are handled local, and will not propogate to the parent modules.
 \end{itemize}
 
 \section{Module Decomposition}
@@ -259,7 +261,7 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item \texttt{MAX\_FILE\_LENGTH}: $\mathbb{N}$ \\ 
     The maximum allowed code lines in a single file for upload.
-    \item \texttt{ALLOWED\_FILE\_TYPES}: $\mathbb{N}$ \\ 
+    \item \texttt{ALLOWED\_FILE\_TYPES}: $X = (x_0, x_1, ... , x_n$) \\ 
     A list of permissible file extensions (e.g., \texttt{.py, .txt, .zip}).
 \end{itemize}
 
@@ -389,7 +391,7 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item \texttt{MAX\_REPORT\_FILE\_SIZE}: $\mathbb{N}$ \\
      Maximum allowed file size (in bytes) for a report file.
-    \item \texttt{ALLOWED\_REPORT\_TYPES}: $\mathbb{N}$ \\
+    \item \texttt{ALLOWED\_REPORT\_TYPES}: $X = (x_0)$ \\
      Only .zip is allowed.
 \end{itemize}
 
@@ -494,9 +496,9 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Exported Constants}
 
 \begin{itemize}
-    \item \texttt{DEFAULT\_THRESHOLD} :  $\mathbb{N}$ \\
+    \item \texttt{DEFAULT\_THRESHOLD} :  $\mathbb{R}$ \\
     A real number (e.g., 0.75) used if no custom threshold is set.
-    \item \texttt{THRESHOLD\_RANGE} : $2-tuple \in \mathbb{R}^ 2 $ \\
+    \item \texttt{THRESHOLD\_RANGE} : $(x_0, x_1) \in \mathbb{R}^ 2 $ \\
     A 2-tuple of real numbers  (e.g., \texttt{(0, 1)}) defining the permissable bounds for a threshold.
 \end{itemize}
 
@@ -733,7 +735,9 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item \textbf{transition:} None (no internal state change) but renders a visual representation of the 
     report in the UI
-    \item \textbf{input:} The report data JSON of the report to be rendered
+    \item \textbf{input:} The report data JSON of the report to be rendered,
+    with information about the code submissions and the similarities between
+    them.
     \item \textbf{output:} None
     \item \textbf{exception:} None
 \end{itemize}
@@ -993,7 +997,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{parse} & rawSource: Str & tree: AST  & invalidSyntaxException \\
+\texttt{parse} & rawSource: Str & tree: AST object  & invalidSyntaxException \\
 \hline
 \end{tabular}
 \end{center}
@@ -1257,6 +1261,8 @@ No local functions are required for this module.
 
 \section{Appendix} \label{Appendix}
 This section highlights components of the systems that are not modules themselves, but support the other modules in the document.
+
+\section*{Appendix --- JSON Object Structures}
 
 \section*{Appendix --- Networking Considerations}
 \begin{itemize}
