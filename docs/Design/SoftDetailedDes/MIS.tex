@@ -145,7 +145,6 @@ The following table is taken directly from the Module Guide document for this pr
     & User Authentication Module \\
     & Code Upload Module \\
     & Report Results Module \\
-    & Flagging Module \\
     & Threshold Adjustment Module \\
     \midrule
     \multirow{2}{*}{Software Decision Module} 
@@ -241,13 +240,16 @@ The following table is taken directly from the Module Guide document for this pr
 
 \subsection{Module} %MODULE STARTS###
 
-\texttt{CodeUploadModule} 
+\texttt{CodeUploadModule}
 
 \subsection{Uses}
 
 \begin{itemize}
-    \item File system or equivalent I/O library (for reading and writing local files)
-    \item Parser or utility library for code/data formatting, if necessary
+    \item Frontend for uploading files
+    \item Backend for receiving and processing files
+    \item Firebase for storing job information
+    \item AWS S3 for storing uploaded files
+    \item AWS SQS for queuing jobs
 \end{itemize}
 
 \subsection{Syntax}
@@ -255,10 +257,10 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Exported Constants}
 
 \begin{itemize}
-    \item \texttt{MAX\_FILE\_LENGTH}: $\mathbb{N}$ \\ 
-    The maximum allowed code lines in a single file for upload.
-    \item \texttt{ALLOWED\_FILE\_TYPES}: $\mathbb{N}$ \\ 
-    A list of permissible file extensions (e.g., \texttt{.py, .txt, .zip}).
+    \item \texttt{MAX\_FILES}: $\mathbb{N}$ \\
+    Maximum number of files allowed to be uploaded (currently 500).
+    \item \texttt{ALLOWED\_FILE\_TYPES}: \\
+    Allowed file types are either a single zip file or multiple python files.
 \end{itemize}
 
 \subsubsection{Exported Access Programs}
@@ -268,10 +270,7 @@ The following table is taken directly from the Module Guide document for this pr
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{uploadFile} & filePath : Str & success: bool & FileError \\
-\texttt{validateFileFormat} & filePath : Str & valid: bool & FormatError \\
-\texttt{convertFileToData} & filePath : Str & - & ConversionError \\
-\texttt{getParsedData} & - & snippets: JSON & -\\
+\texttt{uploadFiles} & files: FileList, analysisName: string & jobId: string, status: string & BadRequestException \\
 \hline
 \end{tabular}
 \end{center}
@@ -280,90 +279,57 @@ The following table is taken directly from the Module Guide document for this pr
 
 \subsubsection{State Variables}
 
-
 \begin{itemize}
-    \item \texttt{uploadedFile}: Str \\
-     Stores the path (or reference) to the currently uploaded file.
-    \item \texttt{parsedData}: Str \\ 
-    Stores the in-memory data structure resulting from converting the file.
+    \item None
 \end{itemize}
 
 \subsubsection{Environment Variables}
 
 \begin{itemize}
-    \item \texttt{TEMP\_UPLOAD\_PATH}: Str \\
-     Directory path for temporarily storing uploaded files.
+    \item \texttt{BACKEND\_URL}: Str \\
+    URL endpoint for sending processed data to the backend.
 \end{itemize}
 
 \subsubsection{Assumptions}
 
 \begin{itemize}
-    \item The file path provided exists and points to a valid file.
-    \item Sufficient storage space is available in \texttt{TEMP\_UPLOAD\_PATH}.
-    \item Uploaded files comply with any project-specific format or version constraints.
+    \item The backend service is reachable under \texttt{BACKEND\_URL}.
+    \item The user is authenticated with Auth0.
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
 
-\noindent \texttt{uploadFile}(filePath: Str):
+\noindent \texttt{uploadFiles}(files: FileList, analysisName: string):
 \begin{itemize}
-    \item \textbf{transition:}
+    \item \textbf{transition:} None (no internal state change.)
+    \item \textbf{input:}
     \begin{itemize}
-        \item Copy the file from \textit{filePath} to \texttt{TEMP\_UPLOAD\_PATH}.
-        \item Update \texttt{uploadedFile} to reflect the new file location.
+        \item \texttt{files}: FileList - List of files to upload.
+        \item \texttt{analysisName}: string - Name of the analysis.
     \end{itemize}
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} Returns \texttt{true} on success.
-    \item \textbf{exception:} \texttt{FileError} if file I/O fails or \textit{filePath} is invalid.
-\end{itemize}
-
-\noindent \texttt{validateFileFormat}(filePath: Str):
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change).
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} Returns \texttt{true} if the file meets \texttt{MAX\_FILE\_SIZE} and 
-    \texttt{ALLOWED\_FILE\_TYPES} conditions.
-    \item \textbf{exception:} \texttt{FormatError} if the file type or size is invalid.
-\end{itemize}
-
-\noindent \texttt{convertFileToData}(filePath: Str):
-\begin{itemize}
-    \item \textbf{transition:}
+    \item \textbf{output:}
     \begin{itemize}
-        \item Reads raw file content from the \texttt{uploadedFile}.
-        \item Parses and converts the content into JSON for assignment to \texttt{parsedData}.
+        \item \texttt{jobId}: string - ID of the submitted job.
+        \item \texttt{status}: string - Status of the job (pending).
     \end{itemize}
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} None
-    \item \textbf{exception:} \texttt{ConversionError} if file parsing fails or content is malformed.
-\end{itemize}
-
-\noindent \texttt{getParsedData}():
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change).
-    \item \textbf{input:} None
-    \item \textbf{output:} JSON representing files uploaded by user.
-    \item \textbf{exception:} None
+    \item \textbf{exception:} \texttt{BadRequestException} if:
+    \begin{itemize}
+        \item No files are uploaded.
+        \item There is a mix of file extensions (zip and python).
+        \item More than one zip file is uploaded.
+        \item The zip file contains non-python files.
+        \item Duplicate file names are uploaded.
+        \item Too many files are uploaded (more than \texttt{MAX\_FILES}).
+        \item Too few files are uploaded (less than 2 python files).
+        \item No user ID found in token payload.
+	    \item Analysis name is missing or empty.
+    \end{itemize}
 \end{itemize}
 
 \subsubsection{Local Functions}
 
-\noindent \texttt{readLocalFile(path: Str)}: 
 \begin{itemize}
-    \item \textbf{transition:} None (no internal state change.)
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} \textit{list [String]} object holding all info from each
-    file.
-    \item \textbf{exception:} \texttt{FileError} if file I/O fails or \textit{filePath} is invalid.
-\end{itemize}
-
-\noindent \texttt{parseCodeData(rawContent: list[Str])}: Transforms raw file content into a \texttt{JSON}.
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change).
-    \item \textbf{input:}  \textit{list [String]} object holding all info from each
-    file.
-    \item \textbf{output:} JSON representing code snippet contents.
-    \item \textbf{exception:} None
+    \item None
 \end{itemize}
 
 \subsection{Module} %MODULE STARTS ###
@@ -373,9 +339,10 @@ The following table is taken directly from the Module Guide document for this pr
 \subsection{Uses}
 
 \begin{itemize}
-    \item File system or equivalent I/O utilities (to read and load local report files, if applicable)
-    \item Front-end/UI framework (to display the parsed results)
-    \item HTTP or backend connector (if the parsed results need to be sent elsewhere)
+    \item Frontend for displaying results
+    \item Backend for serving results
+    \item Firebase for storing job information
+    \item AWS S3 for storing uploaded files
 \end{itemize}
 
 \subsection{Syntax}
@@ -383,10 +350,7 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Exported Constants}
 
 \begin{itemize}
-    \item \texttt{MAX\_REPORT\_FILE\_SIZE}: $\mathbb{N}$ \\
-     Maximum allowed file size (in bytes) for a report file.
-    \item \texttt{ALLOWED\_REPORT\_TYPES}: $\mathbb{N}$ \\
-     Only .zip is allowed.
+    \item None
 \end{itemize}
 
 \subsubsection{Exported Access Programs}
@@ -396,8 +360,8 @@ The following table is taken directly from the Module Guide document for this pr
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{uploadResultsFile} & filePath: Str & success: bool & FileError \\
-\texttt{parseResultsFile} & filePath: Str & report: JSON & ParseError \\
+\texttt{pollResults} & jobId: string & jobId: string, status: string, resultData: JSON & HttpRequestException \\
+\texttt{getFileContentsFromS3} & jobId: string & fileContents: Record<string, string> & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -407,10 +371,7 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{State Variables}
 
 \begin{itemize}
-    \item \texttt{uploadedReportFile}: Str \\
-    Stores the path (or reference) to the currently uploaded report file.
-    \item \texttt{parsedReportData}: JSON \\
-     Stores the in-memory data structure resulting from parsing the report file.
+    \item None
 \end{itemize}
 
 \subsubsection{Environment Variables}
@@ -422,54 +383,44 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Assumptions}
 
 \begin{itemize}
-    \item The file path provided points to a valid file and does not exceed \texttt{MAX\_REPORT\_FILE\_SIZE}.
-    \item The file type is one of \texttt{ALLOWED\_REPORT\_TYPES}.
-    \item The front-end/UI framework is loaded and available for rendering the report data.
+    \item The user is authenticated with Auth0.
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
 
-\noindent \texttt{uploadResultsFile}(filePath: Str):
+\noindent \texttt{pollResults}(jobId: string):
 \begin{itemize}
-    \item \textbf{transition:}
+    \item \textbf{transition:} None (no internal state change.)
+    \item \textbf{input:}
     \begin{itemize}
-        \item Copies file from \textit{filePath} to \texttt{TEMP\_REPORT\_PATH} (if needed).
-        \item Updates \texttt{uploadedReportFile} to reflect the new file location.
+        \item \texttt{jobId}: string - ID of the job to retrieve results for.
     \end{itemize}
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} Returns \texttt{true} if upload is successful.
-    \item \textbf{exception:} \texttt{FileError} if reading or copying the file fails.
-\end{itemize}
-
-\noindent \texttt{parseResultsFile}(filePath: Str):
-\begin{itemize}
-    \item \textbf{transition:}
+    \item \textbf{output:}
     \begin{itemize}
-        \item Opens and reads the specified report file.
-        \item Updates \texttt{parsedReportData} with \texttt{JSON} assembled from the file content.
+        \item \texttt{jobId}: string - ID of the job.
+        \item \texttt{status}: string - Status of the job.
+        \item \texttt{resultData}: JSON - Results of the job.
     \end{itemize}
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} A \texttt{JSON} representing the parsed report data.
-    \item \textbf{exception:} \texttt{ParseError} if the file format is invalid or parsing fails.
+    \item \textbf{exception:} \texttt{HttpRequestException} if:
+    \begin{itemize}
+        \item \texttt{jobId} is missing.
+        \item Results are not found.
+        \item Unauthorized access.
+    \end{itemize}
 \end{itemize}
 
-\subsubsection{Local Functions}
-
-\noindent \texttt{readLocalReportFile(path: Str)}: 
+\noindent \texttt{getFileContentsFromS3}(jobId: string):
 \begin{itemize}
-        \item \textbf{transition:} None (no internal state change.)
-        \item \textbf{input:} Path representing location of snippets on user computer.
-        \item \textbf{output:} \textit{list [String]} object holding all info from each file.
-        \item \textbf{exception:} \texttt{FileError} if file I/O fails or \textit{filePath} is invalid.
-\end{itemize}
-
-\noindent \texttt{parseReportContent(rawContent: list[Str])}: Transforms raw file content into a \texttt{JSON}.
-\begin{itemize}
-        \item \textbf{transition:} None (no internal state change).
-        \item \textbf{input:}  \textit{list [String]} object holding all info from each
-        file.
-        \item \textbf{output:} JSON representing code snippet contents.
-        \item \textbf{exception:} None
+    \item \textbf{transition:} None (no internal state change.)
+    \item \textbf{input:}
+    \begin{itemize}
+        \item \texttt{jobId}: string - ID of the job to retrieve file contents for.
+    \end{itemize}
+    \item \textbf{output:}
+    \begin{itemize}
+        \item \texttt{fileContents}: Record<string, string> - File contents.
+    \end{itemize}
+    \item \textbf{exception:} Error if failed to get file contents from S3.
 \end{itemize}
 
 \section{MIS of Threshold Adjustment Module} \label{mThreshold} %MODULE START ####
@@ -481,8 +432,8 @@ The following table is taken directly from the Module Guide document for this pr
 \subsection{Uses}
 
 \begin{itemize}
-    \item A back-end or configuration service (to store and retrieve the threshold settings)
-    \item A front-end/UI component for user manipulation to achieve their desired threshold
+    \item Frontend for adjusting the threshold
+    \item Backend for storing and retrieving the threshold
 \end{itemize}
 
 \subsection{Syntax}
@@ -490,7 +441,7 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Exported Constants}
 
 \begin{itemize}
-    \item \texttt{DEFAULT\_THRESHOLD} :  $\mathbb{N}$ \\
+    \item \texttt{DEFAULT\_THRESHOLD} :  $\mathbb{R}$ \\
     A real number (e.g., 0.75) used if no custom threshold is set.
     \item \texttt{THRESHOLD\_RANGE} : $2-tuple \in \mathbb{R}^ 2 $ \\
     A 2-tuple of real numbers  (e.g., \texttt{(0, 1)}) defining the permissable bounds for a threshold.
@@ -503,9 +454,9 @@ The following table is taken directly from the Module Guide document for this pr
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{getThreshold} & - & \texttt{value: $\mathbb{R}$} & \texttt{ThresholdError} \\
-\texttt{setThreshold} & \textit{newVal: $\mathbb{R}$} & \texttt{success: bool} & \texttt{ThresholdError} \\
-\texttt{validateThreshold} & \textit{value: $\mathbb{R}$} & \texttt{success: bool} & \texttt{ThresholdError} \\
+\texttt{getThreshold} & - & value: $\mathbb{R}$ & Error \\
+\texttt{setThreshold} & newVal: $\mathbb{R}$ & success: bool & Error \\
+\texttt{validateThreshold} & value: $\mathbb{R}$ & success: bool & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -522,14 +473,13 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Environment Variables}
 
 \begin{itemize}
-    \item \texttt{THRESHOLD\_CONFIG\_ENDPOINT} : \texttt{Str} The network endpoint or file resource where the threshold configuration is stored/persisted.
+    \item None
 \end{itemize}
 
 \subsubsection{Assumptions}
 
 \begin{itemize}
     \item \texttt{currentThreshold} is always within \texttt{THRESHOLD\_RANGE}.
-    \item Any saved or loaded threshold configurations adhere to the same data format as defined here.
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
@@ -539,7 +489,7 @@ The following table is taken directly from the Module Guide document for this pr
     \item \textbf{transition:} None (no change to internal state).
     \item \textbf{input:} None
     \item \textbf{output:} Returns the current threshold, i.e., \texttt{currentThreshold}.
-    \item \textbf{exception:} \texttt{ThresholdError} if the threshold is undefined or fails to load from persistence.
+    \item \textbf{exception:} Error if the threshold is undefined or fails to load from persistence.
 \end{itemize}
 
 \noindent \texttt{setThreshold}(newVal: $\mathbb{R}$):
@@ -548,11 +498,10 @@ The following table is taken directly from the Module Guide document for this pr
     \begin{itemize}
         \item Uses \texttt{validateThreshold} to check if \textit{newVal} falls within \texttt{THRESHOLD\_RANGE}.
         \item Updates \texttt{currentThreshold} to \textit{newVal} if valid.
-        \item Saves the new value to the configuration endpoint or local store.
     \end{itemize}
     \item \textbf{input:} A real number representing user's new desired threshold.
     \item \textbf{output:} \texttt{true} if \textit{newVal} is successfully set; otherwise \texttt{false}.
-    \item \textbf{exception:} \texttt{ThresholdError} if \textit{newVal} is out of range or otherwise invalid.
+    \item \textbf{exception:} Error if \textit{newVal} is out of range or otherwise invalid.
 \end{itemize}
 
 \noindent \texttt{validateThreshold}(val: $\mathbb{R}$):
@@ -560,7 +509,7 @@ The following table is taken directly from the Module Guide document for this pr
     \item \textbf{transition:} None (does not change internal state).
     \item \textbf{input:} A real number representing user's new desired threshold.
     \item \textbf{output:} \texttt{true} if \textit{value} is in \texttt{THRESHOLD\_RANGE}; otherwise \texttt{false}.
-    \item \textbf{exception:} \texttt{ThresholdError} if \textit{value} is malformed (e.g., not a number).
+    \item \textbf{exception:} Error if \textit{value} is malformed (e.g., not a number).
 \end{itemize}
 
 \subsubsection{Local Functions}
@@ -568,100 +517,6 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item None
 \end{itemize}
-
-
-\section{MIS of Flagging Module} \label{mFlagging}
-
-\subsection{Module}
-
-\texttt{FlaggingModule}
-
-\subsection{Uses}
-
-\begin{itemize}
-    \item Front-end/UI framework for displaying flagged items.
-\end{itemize}
-
-\subsection{Syntax}
-
-\subsubsection{Exported Constants}
-
-\begin{itemize}
-    \item None
-\end{itemize}
-
-\subsubsection{Exported Access Programs}
-
-\begin{center}
-\begin{tabular}{p{5cm} p{3.5cm} p{3.5cm} p{2cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-\texttt{getFlaggedStatus} & submissionID: Str & status: bool & - \\
-\texttt{setFlaggedStatus} & submissionID: Str, flag: bool & - & - \\
-\texttt{getAllFlagged} & - & flagged: list[Str] & - \\
-\hline
-\end{tabular}
-\end{center}
-
-\subsection{Semantics}
-
-\subsubsection{State Variables}
-
-\begin{itemize}
-    \item \texttt{flaggedSubmissions}: dict[Str, bool] A dictionary of flagged submissions.
-\end{itemize}
-
-\subsubsection{Environment Variables}
-
-\begin{itemize}
-  \item None
-\end{itemize}
-
-\subsubsection{Assumptions}
-
-\begin{itemize}
-    \item None
-\end{itemize}
-
-\subsubsection{Access Routine Semantics}
-
-\noindent \texttt{getFlaggedStatus(submissionID: str)}:
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change.)
-    \item \textbf{input:} The unique \texttt{submissionID} for which the flagged status is queried
-    \item \textbf{output:} Returns the flagged status (\texttt{true} or \texttt{false}) for the given \texttt{submissionID}
-    \item \textbf{exception:} None
-\end{itemize}
-
-\noindent \texttt{setFlaggedStatus(submissionID: str, flag: bool)}:
-\begin{itemize}
-    \item \textbf{transition:}
-    \begin{itemize}
-        \item Updates the flagged status of the specified \texttt{submissionID} to the provided \texttt{flag} value
-    \end{itemize}
-     \item \textbf{input:} 
-    \begin{itemize}
-        \item \texttt{submissionID}: The unique identifier of the submission to update
-        \item \texttt{flag}: A boolean value indicating the new flagged status (\texttt{true} or \texttt{false})
-    \end{itemize}
-    \item \textbf{output:} None.
-    \item \textbf{exception:} None
-\end{itemize}
-
-\noindent \texttt{getAllFlagged()}:
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change.)
-    \item \textbf{input:} None
-    \item \textbf{output:} Returns a list of all \texttt{submissionID}s that are currently flagged
-    \item \textbf{exception:} None
-\end{itemize}
-
-\subsubsection{Local Functions}
-\begin{itemize}
-    \item None
-\end{itemize}
-% END OF FLAGGING
 
 
 \section{MIS of Report Results Module} \label{mResults}
@@ -673,9 +528,10 @@ The following table is taken directly from the Module Guide document for this pr
 \subsection{Uses}
 
 \begin{itemize}
-    \item Frontend for rendering reports visually for users
-    \item HTTP client or backend connector (for sending data to the backend)
-    \item Code Upload Module to obtain currently parsed code for request
+    \item Frontend for displaying results
+    \item Backend for serving results
+    \item Firebase for storing job information
+    \item AWS S3 for storing uploaded files
 \end{itemize}
 
 \subsection{Syntax}
@@ -687,8 +543,7 @@ The following table is taken directly from the Module Guide document for this pr
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{sendDataToBackend} & data : JSON & report: JSON & BackendError \\
-\texttt{renderReport} & report: JSON & - & - \\
+\texttt{No specific access programs} & - & - & - \\
 \hline
 \end{tabular}
 \end{center}
@@ -698,46 +553,24 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{State Variables}
 
 \begin{itemize}
-    \item \texttt{report}: JSON \\
-    Info for visuals of plagiarism report.
+    \item None
 \end{itemize}
 
 \subsubsection{Environment Variables}
 
 \begin{itemize}
-    \item \texttt{BACKEND\_URL}: Str \\ 
-    URL endpoint for sending processed data to the backend.
+    \item None
 \end{itemize}
 
 \subsubsection{Assumptions}
 
 \begin{itemize}
-    \item The backend service is reachable under \texttt{BACKEND\_URL}.
+    \item The user is authenticated with Auth0.
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
 
-\noindent \texttt{sendDataToBackend}(data: JSON):
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change.)
-    \item \textbf{input:} JSON representing code snippet contents.
-    \item \textbf{output:} JSON representing plagiarism analysis on code snippets.
-    \item \textbf{exception:} \texttt{BackendError} if backend is unreachable or fails to accept data.
-\end{itemize}
-
-\noindent \texttt{renderReport(reports: ReportDataStruct)}:
-\begin{itemize}
-    \item \textbf{transition:} None (no internal state change) but renders a visual representation of the 
-    report in the UI
-    \item \textbf{input:} The report data JSON of the report to be rendered
-    \item \textbf{output:} None
-    \item \textbf{exception:} None
-\end{itemize}
-
-\subsubsection{Local Functions}
-No local functions are required for this module.
-
-%END OF REPORT RESULTS MODULE
+\noindent There are no specific access routines for this module, as it mainly involves displaying the results fetched by the \texttt{ResultsUploadModule}.
 
 \section{NLP Module}  \label{NLPModule} %Module start here ####
 
@@ -768,7 +601,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\ 
 \hline
-\texttt{combinedPredict} & data: JSON & relations: list[dict[Str, $\mathbb{R}$]] & -\\
+\texttt{combinedPredict} & data: JSON & relations: list[dict[Str, $\mathbb{R}$]] & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -799,7 +632,7 @@ No local functions are required for this module.
     \item \textbf{transition:} None (no internal state change.)
     \item \textbf{input:} Data representing inputted code snippets in a JSON format.
     \item \textbf{output:} A variable denoted as relations of type \texttt{list[dict[Str, $\mathbb{R}$]]} that contains an assembly of results from each of the used modules so the results can be combined to get a more balanced perspective of relations between code snippets.
-    \item \textbf{exception: None}
+    \item \textbf{exception:} Error if any of the underlying modules fail.
 \end{itemize}
 
 \subsubsection{Local Functions}
@@ -835,8 +668,8 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{train} & data: 2-tuple[list[Str], dict[Str, $\mathbb{R}$]], supervised: bool , timeout: $\mathbb{Z}$  & None & TimeOutException \\
-\texttt{predict} & data: list[Str] & result: dict[Str, $\mathbb{R}$] & - \\
+\texttt{train} & data: 2-tuple[list[Str], dict[Str, $\mathbb{R}$]], supervised: bool , timeout: $\mathbb{Z}$  & None & Error \\
+\texttt{predict} & data: list[Str] & result: dict[Str, $\mathbb{R}$] & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -871,7 +704,7 @@ No local functions are required for this module.
     \end{itemize}
     \item \textbf{input:} code snippets received for training purposes coupled with predictions which may or may not be empty depending on if learning is supervised or not (\textit{true or false}).
     \item \textbf{output:} None
-    \item \textbf{exception:} \texttt{TimeOutException} if training time exceeds time limit allotted. 
+    \item \textbf{exception:} Error if training time exceeds time limit allotted. 
 \end{itemize}
 
 \noindent \texttt{predict(data: list[Str])}:
@@ -879,7 +712,7 @@ No local functions are required for this module.
     \item \textbf{transition:} None (no internal state change.)
     \item \textbf{input:} Data representing inputted code snippets parsed into string format.
     \item \textbf{output:} Prediction object containing semantic relations between code snippets contained within the DataStruct data.
-    \item \textbf{exception:} None
+    \item \textbf{exception:} Error if prediction fails.
 \end{itemize}
 % END OF ABSTRACT MODEL MODULE
 
@@ -911,7 +744,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{tokenize} & source: Str & tokens: list[$\mathbb{N}$] & TokenizeError \\
+\texttt{tokenize} & source: Str & tokens: list[$\mathbb{N}$] & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -946,7 +779,7 @@ No local functions are required for this module.
     \end{itemize}
     \item \textbf{input:} A single code snippet.
     \item \textbf{output:} Returns a list of tokens (integers) corresponding to the input source text.
-    \item \textbf{exception:} \texttt{TokenizeError} if the source code is syntactically invalid.
+    \item \textbf{exception:} Error if the source code is syntactically invalid.
 \end{itemize}
 
 \subsubsection{Local Functions}
@@ -989,7 +822,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{parse} & rawSource: Str & tree: AST  & invalidSyntaxException \\
+\texttt{parse} & rawSource: Str & tree: AST  & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -1021,7 +854,7 @@ No local functions are required for this module.
     \item \textbf{transition:} None (no internal state change.)
     \item \textbf{input:} A string representing the input source code
     \item \textbf{output:} Returns the root node of the AST
-    \item \textbf{exception:} invalidSyntaxException
+    \item \textbf{exception:} Error if parsing fails.
 \end{itemize}
 
 \subsubsection{Local Functions}
@@ -1055,7 +888,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{score} & data: JSON & scores: list[2-tuple[str]: $\mathbb{R}$] & - \\ %mathematical notation here, specify n choose 2 scores
+\texttt{compare} & file1Content: string, file2Content: string, file1Name?: string, file2Name?: string & similarity_score: number, matches: array & HttpRequestException \\
 \hline
 \end{tabular}
 \end{center}
@@ -1081,13 +914,26 @@ No local functions are required for this module.
 \end{itemize}
 
 \subsubsection{Access Routine Semantics}
-\noindent \texttt{score}(data: JSON):
+\noindent \texttt{compare}(file1Content: string, file2Content: string, file1Name?: string, file2Name?: string):
 \begin{itemize}
     \item \textbf{transition:} None (no internal state change.)
-    \item \textbf{input:} Data containing code snippets inputted from the user in the front end.
-    \item \textbf{output:} list with associations between code snippet pairings and a score indiciating
-    similarity
-    \item \textbf{exception:} None
+    \item \textbf{input:}
+    \begin{itemize}
+        \item file1Content: string - Content of the first file.
+        \item file2Content: string - Content of the second file.
+	    \item file1Name: string (optional) - Name of the first file.
+	    \item file2Name: string (optional) - Name of the second file.
+    \end{itemize}
+    \item \textbf{output:}
+    \begin{itemize}
+        \item similarity_score: number - Score indicating similarity between the two files.
+	    \item matches: array - Array of match clusters.
+    \end{itemize}
+    \item \textbf{exception:} \texttt{HttpRequestException} if:
+    \begin{itemize}
+        \item file1Content or file2Content is missing.
+        \item file1Content or file2Content is not a string.
+    \end{itemize}
 \end{itemize}
 
 \subsubsection{Local Functions}
@@ -1123,7 +969,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{generate} & data: JSON & report: JSON & -\\
+\texttt{generate} & data: JSON & report: JSON & Error \\
 \hline
 \end{tabular}
 \end{center}
@@ -1155,7 +1001,7 @@ No local functions are required for this module.
     \item \textbf{input:} Data containing code snippets inputted from the user in the front end.
     \item \textbf{output:} JSON object wrapping visuals associated with report and 
     similarity scorings to be received by the front end for displaying analysis to the user.
-    \item \textbf{exception: None}
+    \item \textbf{exception:} Error if report generation fails.
 \end{itemize}
 
 \subsubsection{Local Functions}
@@ -1169,41 +1015,6 @@ No local functions are required for this module.
 
 
 %END OF REPORT GENERATION MODULE
-
-\subsubsection{State Variables}
-
-\begin{itemize}
-    \item None
-\end{itemize}
-
-\subsubsection{Environment Variables}
-
-\begin{itemize}
-    \item \texttt{SMTP\_CONFIG}: Configuration details for connecting to the SMTP server (e.g., host, port, authentication).
-\end{itemize}
-
-\subsubsection{Assumptions}
-
-\begin{itemize}
-    \item A database is configured to store completed reports.
-\end{itemize}
-
-\subsubsection{Access Routine Semantics}
-
-\noindent \texttt{storeReport}(report: JSON):
-\begin{itemize}
-    \item \textbf{transition:}
-    \begin{itemize}
-        \item Stores the report in the database.
-    \end{itemize}
-    \item \textbf{input:} JSON object representing the report data.
-    \item \textbf{output:} None
-    \item \textbf{exception:} None
-\end{itemize}
-
-
-\subsubsection{Local Functions}
-No local functions are required for this module.
 
 \newpage
 
