@@ -32,7 +32,8 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-March 10th, 2025 & 0.0 & First iteration of rough draft complete\\
+March 10th, 2025 & 1.0 & First iteration of rough draft complete\\
+April 4th, 2025 & 2.0 & Final version of report complete\\
 \bottomrule
 \end{tabularx}
 
@@ -244,12 +245,12 @@ Evaluation: Pass
     the onboarding process and provides feedback on usability. & User finds 
     onboarding process intuitive with no major issues; usability rating should 
     be 4/5 or greater. & 5 users tested the onboarding process. All rated ease
-     of use and clarity at 4/5 or greater. & Pass \\
+     of use and clarity at 4/5 or greater. \hyperref[tab:usability-test]{Usability Test Results Table}.  & Pass \\
     \hline
     test-UH-2 & UH-E2 & User navigates through key functions of code submission
      and report upload & User should complete each task with minimal clicks required. 
      & 5 users tested navigation to code submission and report upload, reporting 2-3 
-     clicks each from upload to select to run. & Pass \\
+     clicks each from upload to select to run. \hyperref[tab:navigation-test]{Navigation Test Results Table}. & Pass \\
     \hline
     test-UH-3 & UH-PI2 & Tester verifies that all pages and prompts are in 
     English (US) & No foreign languages should be present on any page or prompt. 
@@ -543,6 +544,35 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \item \textbf{Expected result}: The file is uploaded successfully.
 \end{itemize}
 
+\subsubsection{Handles empty job list}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the component handles an empty job list correctly by showing "No Data".
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Set the job list to an empty array.
+        \item Check for the presence of "No Data" text.
+    \end{enumerate}
+    \item \textbf{Expected result}: The text "No Data" is displayed when the job list is empty.
+\end{itemize}
+
+\subsubsection{Displays an error message if fetching jobs fails}
+\begin{itemize}
+    \item \textbf{Description}: Ensures an error message is displayed if fetching jobs fails.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Mock the API call to return an error.
+    \end{enumerate}
+    \item \textbf{Expected result}: An error message "Failed to load job history" is displayed.
+    
+\end{itemize}
+
+
 \subsection{Index (Landing Page) Component}
 
 \subsubsection{Renders the component}
@@ -737,6 +767,112 @@ Visualization & Basic web interface & Modern, interactive UI \\
         \item Click the "Log In" button.
     \end{enumerate}
     \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
+\end{itemize}
+
+\subsection{JobsTable Component}
+\subsubsection{Renders the component with correct columns and data}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{JobsTable} component renders correctly with the correct columns and data.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \item \begin{enumerate}
+        \item Render the \texttt{JobsTable} component with sample data.
+        \item Check for the presence of specific columns and data and expected text such as "Status", "Created At", etc.
+        \item Check for the presence of specific data in the table rows such as "In Progress", "Completed", etc.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the correct columns and data.
+\end{itemize}
+
+\subsubsection{Displays a loading spinner when loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is displayed when the component is in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is true
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with the loading prop set to True.
+        \item Render the \texttt{JobsTable} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The loading spinner is displayed.
+\end{itemize}
+
+\subsubsection{Does not display loading spinner when not loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is not displayed when the component is not in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is false
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with the loading prop set to False.
+        \item Render the \texttt{JobsTable} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The loading spinner is not displayed.
+\end{itemize}
+
+\subsubsection{Disables the "View Results" button for non-completed jobs}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the "View Results" button is disabled for non-completed jobs.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that is not completed.
+        \item Check the "View Results" button state.
+    \end{enumerate}
+    \item \textbf{Expected result}: The "View Results" button is disabled.
+\end{itemize}
+
+\subsubsection{navigates to the results page when 'View Results' is clicked for a completed job}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the user is navigated to the results page when the "View Results" button is clicked for a completed job.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that is completed.
+        \item Click the "View Results" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The user is navigated to the results page.
+\end{itemize}
+
+\subsubsection{Formats dates correctly}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the dates are formatted correctly in the table.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with sample data containing dates.
+        \item Check the date format in the table rows.
+    \end{enumerate}
+    \item \textbf{Expected result}: The dates are formatted correctly (e.g., "MM/DD/YYYY").
+\end{itemize}
+
+\subsubsection{renders 'Unnamed Analysis' if analysisName is missing}
+\begin{itemize}
+    \item \textbf{Description}: Ensures "Unnamed Analysis" is displayed if the analysis name is missing.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that has no analysis name.
+        \item Check the analysis name in the table row.
+    \end{enumerate}
+    \item \textbf{Expected result}: The text "Unnamed Analysis" is displayed.
+\end{itemize}
+
+\subsubsection{renders the correct tag color and icon based on job status}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the correct tag color and icon are displayed based on the job status.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that has a specific status (e.g., "In Progress", "Completed").
+        \item Check the tag color and icon in the table row.
+    \end{enumerate}
+    \item \textbf{Expected result}: The correct tag color and icon are displayed based on the job status.
 \end{itemize}
 
 \section{Changes Due to Testing}
@@ -1003,11 +1139,11 @@ Note: M7 encapsulates all its submodules.
     \hline
     test-PR-1 &  M7, M8\\
     \hline
-    test-PR-4 &  M2, M7, M9\\
+    test-PR-2 &  M2, M7, M9\\
     \hline
-    test-PR-5 &  M7, M8\\
+    test-PR-3 &  M7, M8\\
     \hline
-    test-PR-6 &  Module Independent\\
+    test-PR-4 &  Module Independent\\
     \hline
     test-OE-1 & Module Independent\\
     \hline
@@ -1045,10 +1181,10 @@ expected request via the frontend testing suite. \\
 The test coverage report provides the following key metrics:
 
 \begin{itemize}
-\item \textbf{Statements}: 94.35\% (234/248)
-\item \textbf{Branches}: 81.03\% (47/58)
-\item \textbf{Functions}: 86.79\% (46/53)
-\item \textbf{Lines}: 96.18\% (227/236)
+\item \textbf{Statements}: 83.52\% (218/261)
+\item \textbf{Branches}: 67.61\% (48/71)
+\item \textbf{Functions}: 82.46\% (47/57)
+\item \textbf{Lines}: 85.14\% (212/249)
 \end{itemize}
 
 \newpage
@@ -1063,13 +1199,12 @@ Below is a breakdown of coverage by individual files:
     \hline
     Features.tsx & 100\% & 100\% & 100\% & 100\% \\
     Navbar.tsx & 100\% & 100\% & 100\% & 100\% \\
-    UploadBox.tsx & 96.42\% & 84.21\% & 93.33\% & 98.14\% \\
+    UploadBox.tsx & 83.92\% & 47.36\% & 93.33\% & 85.18\% \\
     GetStarted.tsx & 100\% & 100\% & 100\% & 100\% \\
-    Home.tsx & 90.32\% & 69.56\% & 73.91\% & 93.16\% \\
     Button.tsx & 100\% & 66.66\% & 100\% & 100\% \\
     utils.ts & 100\% & 100\% & 100\% & 100\% \\
-    AnalyzeFiles.tsx & 91.52\% & 75\% & 75\% & 94.54\% \\
-    UploadResults.tsx & 89.23\% & 63.63\% & 72.72\% & 91.93\% \\
+    AnalyzeFiles.tsx & 91.56\% & 73.68\% & 80\% & 93.58\% \\
+    JobsTable.tsx & 75.92\% & 82.35\% & 66.66\% & 78.84\% \\
     \hline
     \end{tabular}
     \caption{Test Coverage Breakdown by Directory}
@@ -1079,18 +1214,50 @@ Below is a breakdown of coverage by individual files:
 Some uncovered lines include:
 
 \begin{itemize}
-\item \textbf{UploadBox.tsx}: Line 26.
+\item \textbf{UploadBox.tsx}: Line 26, 48-53, 66-73.
 \item \textbf{button.tsx}: Line 44.
 \item \textbf{AnalyzeFiles.tsx}: Lines 22, 25, 76.
-\item \textbf{UploadResults.tsx}: Lines 20, 23, 50-51, 89.
+\item \textbf{JobsTable.tsx}: Lines 39, 44-55, 128.
 \end{itemize}
 
 These uncovered areas indicate potential gaps in test cases that should be addressed to achieve full coverage.
-
+\newpage
 \bibliographystyle{plainnat}
-\bibliography{../../refs/References}
 
-\newpage{}
+\section*{Appendix --- User Data for tests}
+\renewcommand{\arraystretch}{1.2}
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+    \hline
+    \textbf{User ID} & \textbf{Ease of Use Rating (1-5)} & \textbf{Clarity Rating (1-5)} & \textbf{Comments} \\ \hline
+    User1 & 5 & 5 & "The onboarding process was very intuitive and easy to follow." \\ \hline
+    User2 & 4 & 4 & "Clear instructions, but the navigation could be slightly improved." \\ \hline
+    User3 & 5 & 5 & "Everything was straightforward and well-explained." \\ \hline
+    User4 & 4 & 4 & "Good overall, but I had to look twice to find the upload button." \\ \hline
+    User5 & 5 & 5 & "Very user-friendly and clear interface." \\ \hline
+    \end{tabular}
+    \caption{Usability Test Results for Onboarding Process}
+    \label{tab:usability-test}
+\end{table}
+\newpage
+
+\renewcommand{\arraystretch}{1.2}
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3cm}|}
+    \hline
+    \textbf{User ID} & \textbf{Navigation Time (seconds)} & \textbf{Clicks Required} & \textbf{Comments} \\ \hline
+    User1 & 15 & 2 & Navigation was smooth and intuitive. \\ \hline
+    User2 & 20 & 3 & It took me a moment to find the upload button. \\ \hline
+    User3 & 12 & 2 & Very straightforward process. \\ \hline
+    User4 & 18 & 3 & Clear instructions, but the layout could be improved slightly. \\ \hline
+    User5 & 14 & 2 & Quick and easy to navigate. \\ \hline
+    \end{tabular}
+    \caption{User Data Collected for Navigation Test}
+    \label{tab:navigation-test}
+\end{table}
+
 \section*{Appendix --- Reflection}
 
 The information in this section will be used to evaluate the team members on the
