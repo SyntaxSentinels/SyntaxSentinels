@@ -111,7 +111,6 @@ describe("AnalyzeFiles", () => {
     );
   });
 
-  /*
   it("calls uploadFiles and displays success message when form is submitted", async () => {
     (uploadFiles as jest.Mock).mockResolvedValue({ jobId: "12345" });
     (getUserJobs as jest.Mock).mockResolvedValue([]);
@@ -145,7 +144,6 @@ describe("AnalyzeFiles", () => {
       "Analysis started successfully!"
     );
   });
-  */
 
   it("handles file drop event", async () => {
     (getUserJobs as jest.Mock).mockResolvedValue([]);
