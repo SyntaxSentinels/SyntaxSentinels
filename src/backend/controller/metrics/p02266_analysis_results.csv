@@ -1,0 +1,2 @@
+Mean_Similarity,Median_Similarity,Max_Similarity_File,Max_Similarity_Score,Max_Similarity_LOC,Min_Similarity_File,Min_Similarity_Score,Min_Similarity_LOC,Mean_LOC,Median_LOC,Deviation
+0.5044224422442244,0.45,s014484204_renaming.py,0.86,24,s014484204_alternateMerging.py,0.65,23,35.93069306930693,32.0,1.4628607137635767

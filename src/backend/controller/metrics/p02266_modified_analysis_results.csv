@@ -1,0 +1,304 @@
+0,1,2,Category,Adjusted_Max_Similarity_Score,Status
+s450199756.py,1.0,29,Plagiarized,1.0,1
+s654243509.py,1.0,30,Plagiarized,1.0,1
+s725445232.py,1.0,19,Plagiarized,1.0,1
+s758744762.py,1.0,24,Plagiarized,1.0,1
+s762457312.py,1.0,17,Plagiarized,1.0,1
+s939957741.py,1.0,32,Plagiarized,1.0,1
+s230452254.py,0.95,22,Plagiarized,0.95,1
+s362594363.py,0.95,55,Plagiarized,0.95,1
+s934877358.py,0.95,63,Plagiarized,0.95,1
+s385488478.py,0.94,25,Plagiarized,0.94,1
+s399768397.py,0.94,11,Plagiarized,0.94,1
+s340802329.py,0.94,54,Plagiarized,0.94,1
+s376624948.py,0.93,19,Plagiarized,0.93,1
+s014484204.py,0.92,21,Plagiarized,0.92,1
+s531810961.py,0.92,23,Plagiarized,0.92,1
+s132881107.py,0.92,36,Plagiarized,0.92,1
+s265233045.py,0.92,32,Plagiarized,0.92,1
+s305270678.py,0.91,23,Plagiarized,0.91,1
+s534455630.py,0.9,32,Plagiarized,0.9,1
+s668673102.py,0.9,38,Plagiarized,0.9,1
+s370283119.py,0.9,27,Plagiarized,0.9,1
+s661153221.py,0.9,26,Plagiarized,0.9,1
+s115300958.py,0.9,16,Plagiarized,0.9,1
+s602227985.py,0.9,19,Plagiarized,0.9,1
+s003131961.py,0.89,25,Plagiarized,0.89,1
+s460354032.py,0.89,30,Plagiarized,0.89,1
+s243675541.py,0.89,32,Plagiarized,0.89,1
+s088875417.py,0.89,21,Plagiarized,0.89,1
+s167858225.py,0.89,31,Plagiarized,0.89,1
+s272673233.py,0.89,23,Plagiarized,0.89,1
+s983827851.py,0.89,34,Plagiarized,0.89,1
+s349450722.py,0.88,33,Plagiarized,0.88,1
+s865399086.py,0.88,31,Plagiarized,0.88,1
+s498109744.py,0.86,22,Plagiarized,0.86,1
+s569778337.py,0.86,40,Plagiarized,0.86,1
+s797441089.py,0.86,37,Plagiarized,0.86,1
+s014484204_renaming.py,0.86,24,Plagiarized,0.86,1
+s408425370.py,0.85,25,Potentially Plagiarized,0.9633333333333334,1
+s804135201.py,0.85,31,Potentially Plagiarized,0.9633333333333334,1
+s920133133.py,0.84,17,Potentially Plagiarized,0.9533333333333334,1
+s133698127.py,0.84,30,Potentially Plagiarized,0.9533333333333334,1
+s369069530.py,0.84,35,Potentially Plagiarized,0.9533333333333334,1
+s529592543.py,0.84,38,Potentially Plagiarized,0.9533333333333334,1
+s918773311.py,0.84,27,Potentially Plagiarized,0.9533333333333334,1
+s345350936.py,0.83,23,Potentially Plagiarized,0.9433333333333334,1
+s123677970.py,0.83,21,Potentially Plagiarized,0.9433333333333334,1
+s085945925.py,0.82,24,Potentially Plagiarized,0.9333333333333333,1
+s933031757.py,0.81,56,Potentially Plagiarized,0.9233333333333335,1
+s249320452.py,0.8,28,Potentially Plagiarized,0.9133333333333334,1
+s729222539.py,0.8,29,Potentially Plagiarized,0.9133333333333334,1
+s419781054.py,0.8,19,Potentially Plagiarized,0.9133333333333334,1
+s056868194.py,0.8,24,Potentially Plagiarized,0.9133333333333334,1
+s259149993.py,0.8,25,Potentially Plagiarized,0.9133333333333334,1
+s072492800.py,0.77,20,Potentially Plagiarized,0.8833333333333334,1
+s909978046.py,0.77,27,Potentially Plagiarized,0.8833333333333334,1
+s292601071.py,0.77,32,Potentially Plagiarized,0.8833333333333334,1
+s107895679.py,0.77,20,Potentially Plagiarized,0.8833333333333334,1
+s156167049.py,0.77,22,Potentially Plagiarized,0.8833333333333334,1
+s626043678.py,0.76,30,Potentially Plagiarized,0.8733333333333334,1
+s481726295.py,0.76,18,Potentially Plagiarized,0.8733333333333334,1
+s735388045.py,0.76,22,Potentially Plagiarized,0.8733333333333334,1
+s214412907.py,0.75,19,Potentially Plagiarized,0.8633333333333334,1
+s585145229.py,0.75,31,Potentially Plagiarized,0.8633333333333334,1
+s794270298.py,0.75,29,Potentially Plagiarized,0.8633333333333334,1
+s673032738.py,0.74,17,Potentially Plagiarized,0.8533333333333334,0
+s280900277.py,0.74,19,Potentially Plagiarized,0.8533333333333334,0
+s443176224.py,0.74,24,Potentially Plagiarized,0.8533333333333334,0
+s807789436.py,0.73,18,Potentially Plagiarized,0.8433333333333334,0
+s000091438.py,0.73,16,Potentially Plagiarized,0.8433333333333334,0
+s393764726.py,0.73,24,Potentially Plagiarized,0.8433333333333334,0
+s254609261.py,0.71,23,Potentially Plagiarized,0.8233333333333334,0
+s992100557.py,0.71,22,Potentially Plagiarized,0.8233333333333334,0
+s423667681.py,0.71,23,Potentially Plagiarized,0.8233333333333334,0
+s227382047.py,0.7,18,Potentially Plagiarized,0.8133333333333334,0
+s536801271.py,0.7,35,Potentially Plagiarized,0.8133333333333334,0
+s779783036.py,0.7,36,Potentially Plagiarized,0.8133333333333334,0
+s014484204_whileLoop.py,0.69,25,Potentially Plagiarized,0.8033333333333333,0
+s974244239.py,0.69,26,Potentially Plagiarized,0.8033333333333333,0
+s024035152.py,0.69,27,Potentially Plagiarized,0.8033333333333333,0
+s111451490.py,0.69,21,Potentially Plagiarized,0.8033333333333333,0
+s810030429.py,0.69,19,Potentially Plagiarized,0.8033333333333333,0
+s148566834.py,0.69,36,Potentially Plagiarized,0.8033333333333333,0
+s865474257.py,0.69,31,Potentially Plagiarized,0.8033333333333333,0
+s817978727.py,0.69,21,Potentially Plagiarized,0.8033333333333333,0
+s158033692.py,0.68,25,Potentially Suspicious,0.6933333333333334,0
+s511727844.py,0.68,23,Potentially Suspicious,0.6933333333333334,0
+s909915080.py,0.67,35,Potentially Suspicious,0.6833333333333333,0
+s485950586.py,0.67,54,Potentially Suspicious,0.6833333333333333,0
+s004761975.py,0.67,22,Potentially Suspicious,0.6833333333333333,0
+s293932594.py,0.67,20,Potentially Suspicious,0.6833333333333333,0
+s516902329.py,0.66,28,Potentially Suspicious,0.6733333333333333,0
+s957971167.py,0.66,24,Potentially Suspicious,0.6733333333333333,0
+s031032620.py,0.66,28,Potentially Suspicious,0.6733333333333333,0
+s903458102.py,0.66,21,Potentially Suspicious,0.6733333333333333,0
+s014484204_alternateMerging.py,0.65,23,Potentially Suspicious,0.6633333333333333,0
+s048727402.py,0.64,22,Properly Assessed,0.64,0
+s011686446.py,0.63,13,Properly Assessed,0.63,0
+s860649706.py,0.63,24,Properly Assessed,0.63,0
+s316288835.py,0.63,23,Properly Assessed,0.63,0
+s166172922.py,0.63,40,Properly Assessed,0.63,0
+s840224075.py,0.62,24,Properly Assessed,0.62,0
+s852522034.py,0.62,33,Properly Assessed,0.62,0
+s143520113.py,0.61,19,Properly Assessed,0.61,0
+s813292678.py,0.61,22,Properly Assessed,0.61,0
+s020206081.py,0.61,28,Properly Assessed,0.61,0
+s058750208.py,0.6,29,Properly Assessed,0.6,0
+s634303715.py,0.6,23,Properly Assessed,0.6,0
+s368824415.py,0.6,20,Properly Assessed,0.6,0
+s286935703.py,0.59,39,Properly Assessed,0.59,0
+s290581854.py,0.58,27,Properly Assessed,0.58,0
+s476839201.py,0.57,22,Properly Assessed,0.57,0
+s988584155.py,0.57,27,Properly Assessed,0.57,0
+s496387639.py,0.57,20,Properly Assessed,0.57,0
+s135563589.py,0.57,24,Properly Assessed,0.57,0
+s130345070.py,0.56,20,Properly Assessed,0.56,0
+s259537208.py,0.56,27,Properly Assessed,0.56,0
+s706716881.py,0.55,17,Properly Assessed,0.55,0
+s296888513.py,0.55,29,Properly Assessed,0.55,0
+s313829347.py,0.55,17,Properly Assessed,0.55,0
+s879032649.py,0.55,26,Properly Assessed,0.55,0
+s314067002.py,0.54,35,Properly Assessed,0.54,0
+s889240873.py,0.54,31,Properly Assessed,0.54,0
+s020276412.py,0.53,25,Properly Assessed,0.53,0
+s581298922.py,0.53,30,Properly Assessed,0.53,0
+s552721999.py,0.53,24,Properly Assessed,0.53,0
+s696475663.py,0.53,30,Properly Assessed,0.53,0
+s103947742.py,0.52,19,Properly Assessed,0.52,0
+s187798353.py,0.52,29,Properly Assessed,0.52,0
+s969229735.py,0.51,31,Properly Assessed,0.51,0
+s961508291.py,0.51,29,Properly Assessed,0.51,0
+s160060604.py,0.5,22,Properly Assessed,0.5,0
+s810487205.py,0.5,25,Properly Assessed,0.5,0
+s644546743.py,0.49,32,Properly Assessed,0.49,0
+s545030080.py,0.49,38,Properly Assessed,0.49,0
+s265637083.py,0.49,27,Properly Assessed,0.49,0
+s286566733.py,0.49,25,Properly Assessed,0.49,0
+s562014356.py,0.48,26,Properly Assessed,0.48,0
+s461990499.py,0.48,41,Properly Assessed,0.48,0
+s929025910.py,0.48,34,Properly Assessed,0.48,0
+s365122030.py,0.48,38,Properly Assessed,0.48,0
+s352205620.py,0.48,27,Properly Assessed,0.48,0
+s504300042.py,0.47,30,Properly Assessed,0.47,0
+s671384048.py,0.47,30,Properly Assessed,0.47,0
+s775657708.py,0.47,26,Properly Assessed,0.47,0
+s248214336.py,0.46,27,Properly Assessed,0.46,0
+s844779441.py,0.46,36,Properly Assessed,0.46,0
+s683463432.py,0.46,33,Properly Assessed,0.46,0
+s292961732.py,0.46,28,Properly Assessed,0.46,0
+s921017548.py,0.46,20,Properly Assessed,0.46,0
+s635279339.py,0.46,29,Properly Assessed,0.46,0
+s434585309.py,0.46,24,Properly Assessed,0.46,0
+s054366570.py,0.45,34,Properly Assessed,0.45,0
+s059011610.py,0.45,24,Properly Assessed,0.45,0
+s024144529.py,0.44,45,Properly Assessed,0.44,0
+s556951576.py,0.44,29,Properly Assessed,0.44,0
+s570077935.py,0.44,34,Properly Assessed,0.44,0
+s617180828.py,0.43,30,Properly Assessed,0.43,0
+s338149176.py,0.43,32,Properly Assessed,0.43,0
+s353126019.py,0.42,26,Properly Assessed,0.42,0
+s920580737.py,0.42,22,Properly Assessed,0.42,0
+s002141685.py,0.42,30,Properly Assessed,0.42,0
+s413280613.py,0.42,24,Properly Assessed,0.42,0
+s935195057.py,0.42,37,Properly Assessed,0.42,0
+s104345767.py,0.42,33,Properly Assessed,0.42,0
+s869944722.py,0.42,39,Properly Assessed,0.42,0
+s651339706.py,0.42,28,Properly Assessed,0.42,0
+s745981629.py,0.41,21,Properly Assessed,0.41,0
+s928047047.py,0.41,30,Properly Assessed,0.41,0
+s536427501.py,0.41,29,Properly Assessed,0.41,0
+s503555509.py,0.41,32,Properly Assessed,0.41,0
+s568101207.py,0.41,43,Properly Assessed,0.41,0
+s084531784.py,0.41,26,Properly Assessed,0.41,0
+s321050973.py,0.41,24,Properly Assessed,0.41,0
+s877237674.py,0.41,37,Properly Assessed,0.41,0
+s191509514.py,0.41,43,Properly Assessed,0.41,0
+s622907865.py,0.4,24,Properly Assessed,0.4,0
+s027912570.py,0.4,27,Properly Assessed,0.4,0
+s161620983.py,0.4,33,Properly Assessed,0.4,0
+s070173314.py,0.4,35,Properly Assessed,0.4,0
+s819532355.py,0.4,21,Properly Assessed,0.4,0
+s818827352.py,0.4,32,Properly Assessed,0.4,0
+s991984780.py,0.4,25,Properly Assessed,0.4,0
+s728812161.py,0.4,31,Properly Assessed,0.4,0
+s762740327.py,0.4,38,Properly Assessed,0.4,0
+s251353539.py,0.39,39,Properly Assessed,0.39,0
+s574246067.py,0.39,35,Properly Assessed,0.39,0
+s386926231.py,0.39,34,Properly Assessed,0.39,0
+s759589648.py,0.38,31,Properly Assessed,0.38,0
+s587088109.py,0.38,32,Properly Assessed,0.38,0
+s304829746.py,0.38,20,Properly Assessed,0.38,0
+s749352991.py,0.38,22,Properly Assessed,0.38,0
+s081319050.py,0.38,68,Properly Assessed,0.38,0
+s133090429.py,0.38,37,Properly Assessed,0.38,0
+s926673855.py,0.38,33,Properly Assessed,0.38,0
+s892191995.py,0.37,37,Properly Assessed,0.37,0
+s717164241.py,0.37,40,Properly Assessed,0.37,0
+s494187116.py,0.37,31,Properly Assessed,0.37,0
+s331621550.py,0.37,43,Properly Assessed,0.37,0
+s476004489.py,0.36,45,Properly Assessed,0.36,0
+s862616838.py,0.36,42,Properly Assessed,0.36,0
+s420424562.py,0.36,37,Properly Assessed,0.36,0
+s949274100.py,0.36,30,Properly Assessed,0.36,0
+s848911643.py,0.36,31,Properly Assessed,0.36,0
+s073083544.py,0.36,33,Properly Assessed,0.36,0
+s069472808.py,0.36,47,Properly Assessed,0.36,0
+s622699073.py,0.36,56,Properly Assessed,0.36,0
+s561468170.py,0.36,45,Properly Assessed,0.36,0
+s983387965.py,0.36,35,Properly Assessed,0.36,0
+s389985374.py,0.35,45,Properly Assessed,0.35,0
+s519086994.py,0.35,40,Properly Assessed,0.35,0
+s295556938.py,0.35,32,Properly Assessed,0.35,0
+s755971175.py,0.35,54,Properly Assessed,0.35,0
+s444939727.py,0.34,35,Properly Assessed,0.34,0
+s881103878.py,0.34,35,Properly Assessed,0.34,0
+s412830729.py,0.34,34,Properly Assessed,0.34,0
+s430652406.py,0.34,52,Properly Assessed,0.34,0
+s605606125.py,0.34,50,Properly Assessed,0.34,0
+s148710067.py,0.34,37,Properly Assessed,0.34,0
+s879823337.py,0.34,42,Properly Assessed,0.34,0
+s837857867.py,0.33,35,Properly Assessed,0.33,0
+s165522144.py,0.33,58,Properly Assessed,0.33,0
+s820187630.py,0.33,26,Properly Assessed,0.33,0
+s056648532.py,0.33,42,Properly Assessed,0.33,0
+s521442030.py,0.32,48,Properly Assessed,0.32,0
+s160037413.py,0.32,33,Properly Assessed,0.32,0
+s056488251.py,0.32,34,Properly Assessed,0.32,0
+s445496032.py,0.32,29,Properly Assessed,0.32,0
+s037109873.py,0.31,41,Properly Assessed,0.31,0
+s096050154.py,0.31,34,Properly Assessed,0.31,0
+s845229053.py,0.31,62,Properly Assessed,0.31,0
+s712777907.py,0.31,43,Properly Assessed,0.31,0
+s350356609.py,0.31,38,Properly Assessed,0.31,0
+s840947095.py,0.31,45,Properly Assessed,0.31,0
+s020412175.py,0.31,60,Properly Assessed,0.31,0
+s631499849.py,0.3,61,Properly Assessed,0.3,0
+s334459081.py,0.3,31,Properly Assessed,0.3,0
+s927357701.py,0.3,38,Properly Assessed,0.3,0
+s101882739.py,0.29,54,Properly Assessed,0.29,0
+s791208546.py,0.29,39,Properly Assessed,0.29,0
+s194188031.py,0.28,39,Properly Assessed,0.28,0
+s149780747.py,0.28,37,Properly Assessed,0.28,0
+s418978537.py,0.28,51,Properly Assessed,0.28,0
+s977035427.py,0.27,49,Properly Assessed,0.27,0
+s024262510.py,0.27,75,Properly Assessed,0.27,0
+s082159189.py,0.27,64,Properly Assessed,0.27,0
+s575123000.py,0.27,38,Properly Assessed,0.27,0
+s806997393.py,0.27,40,Properly Assessed,0.27,0
+s388109028.py,0.26,48,Properly Assessed,0.26,0
+s969294136.py,0.26,53,Properly Assessed,0.26,0
+s926079805.py,0.26,29,Properly Assessed,0.26,0
+s159792033.py,0.26,50,Properly Assessed,0.26,0
+s702058358.py,0.26,34,Properly Assessed,0.26,0
+s121262760.py,0.26,32,Properly Assessed,0.26,0
+s953139056.py,0.26,46,Properly Assessed,0.26,0
+s284712652.py,0.25,31,Properly Assessed,0.25,0
+s039117841.py,0.24,29,Properly Assessed,0.24,0
+s728577168.py,0.24,26,Properly Assessed,0.24,0
+s895824751.py,0.24,121,Properly Assessed,0.24,0
+s448173986.py,0.24,57,Properly Assessed,0.24,0
+s919028115.py,0.23,40,Properly Assessed,0.23,0
+s513935682.py,0.23,44,Properly Assessed,0.23,0
+s782441465.py,0.23,48,Properly Assessed,0.23,0
+s273531131.py,0.23,49,Properly Assessed,0.23,0
+s744266996.py,0.22,39,Properly Assessed,0.22,0
+s325498350.py,0.22,52,Properly Assessed,0.22,0
+s568132664.py,0.22,62,Properly Assessed,0.22,0
+s233626429.py,0.22,38,Properly Assessed,0.22,0
+s547991355.py,0.21,31,Properly Assessed,0.21,0
+s267782136.py,0.21,39,Properly Assessed,0.21,0
+s674603588.py,0.2,54,Properly Assessed,0.2,0
+s271049979.py,0.2,60,Properly Assessed,0.2,0
+s484383999.py,0.2,50,Properly Assessed,0.2,0
+s956828641.py,0.2,71,Properly Assessed,0.2,0
+s186005795.py,0.2,93,Properly Assessed,0.2,0
+s334777209.py,0.2,36,Properly Assessed,0.2,0
+s931152823.py,0.2,84,Properly Assessed,0.2,0
+s619511995.py,0.2,54,Properly Assessed,0.2,0
+s923357326.py,0.19,47,Properly Assessed,0.19,0
+s750202829.py,0.19,64,Properly Assessed,0.19,0
+s231830633.py,0.19,47,Properly Assessed,0.19,0
+s550298770.py,0.19,80,Properly Assessed,0.19,0
+s645670342.py,0.19,53,Properly Assessed,0.19,0
+s609291728.py,0.18,89,Properly Assessed,0.18,0
+s736553222.py,0.17,44,Properly Assessed,0.17,0
+s493860625.py,0.17,19,Properly Assessed,0.17,0
+s292236074.py,0.17,55,Properly Assessed,0.17,0
+s722479667.py,0.17,44,Properly Assessed,0.17,0
+s280414537.py,0.17,80,Properly Assessed,0.17,0
+s361584012.py,0.16,60,Properly Assessed,0.16,0
+s660792912.py,0.16,72,Properly Assessed,0.16,0
+s947510449.py,0.16,34,Properly Assessed,0.16,0
+s254356275.py,0.16,64,Properly Assessed,0.16,0
+s614979549.py,0.15,46,Properly Assessed,0.15,0
+s770709473.py,0.14,50,Properly Assessed,0.14,0
+s467020467.py,0.14,88,Properly Assessed,0.14,0
+s803928458.py,0.13,69,Properly Assessed,0.13,0
+s314820533.py,0.13,38,Properly Assessed,0.13,0
+s701777060.py,0.13,112,Properly Assessed,0.13,0
+s549927751.py,0.12,111,Properly Assessed,0.12,0
+s722279722.py,0.12,54,Properly Assessed,0.12,0
+s513502043.py,0.12,92,Properly Assessed,0.12,0
+s480333350.py,0.11,64,Properly Assessed,0.11,0
+s876988079.py,0.09,92,Properly Assessed,0.09,0

@@ -11,9 +11,9 @@ import zipfile
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import autopep8
-from controller.model_test import PlagiarismDetectionModel
-from controller.algorithms.tokenization import tokenize_all_files
-from controller.algorithms.syntax_tree import parse_ast_all_files
+from model_test import PlagiarismDetectionModel
+from algorithms.tokenization import tokenize_all_files
+from algorithms.syntax_tree import parse_ast_all_files
 
 import numpy as np
 import torch
@@ -140,12 +140,11 @@ def compute_similarities_from_zip(zip_bytes):
 
     # Generate embeddings for all files upfront
     batch = [file[1] for file in python_files]
-    map_file_name_to_idx = {file[0]: i for i, file in enumerate(python_files)}
-    batch_mapping = {file_name: file_content for file_name, file_content in python_files}
-
+    map_file_name_to_idx = {os.path.basename(file[0]): i for i, file in enumerate(python_files)}
+    batch_mapping = {os.path.basename(file_name): file_content for file_name, file_content in python_files}
     nlp_sim = EmbeddingSimilarity()
     nlp_embeddings = nlp_sim.get_embeddings_batch(batch)
-
+    
     token_similarities_list = tokenize_all_files(batch_mapping)
     token_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
     for similarity in token_similarities_list:
@@ -153,14 +152,14 @@ def compute_similarities_from_zip(zip_bytes):
         idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
         token_similarities_map[idx1][idx2] = similarity['similarity_score']
         token_similarities_map[idx2][idx1] = similarity['similarity_score']
-
+    print('finished tokenization')
     ast_similarities_list = parse_ast_all_files(batch_mapping)
     ast_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
     for (file1, file2, similarity_score) in ast_similarities_list:
         idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
         ast_similarities_map[idx1][idx2] = similarity_score
         ast_similarities_map[idx2][idx1] = similarity_score
-
+    print('finished ast calculation')
     # Create all unique pairs (i < j)
     n = len(python_files)
     file_pairs = []

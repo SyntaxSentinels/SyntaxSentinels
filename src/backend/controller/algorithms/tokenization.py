@@ -8,6 +8,7 @@ from itertools import combinations
 from dataclasses import dataclass
 import os
 import io
+from typing import Union
 
 @dataclass
 class Fingerprint:
@@ -25,7 +26,7 @@ class NormalizedTokenType(Enum):
 class Token:
     start_pos: tuple[int, int]
     end_pos: tuple[int, int]
-    value: str | NormalizedTokenType
+    value: Union[str, NormalizedTokenType]
 
 
 class Tokenizer:
