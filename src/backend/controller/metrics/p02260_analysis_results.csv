@@ -1,0 +1,2 @@
+Mean_Similarity,Median_Similarity,Max_Similarity_File,Max_Similarity_Score,Max_Similarity_LOC,Min_Similarity_File,Min_Similarity_Score,Min_Similarity_LOC,Mean_LOC,Median_LOC,Deviation
+0.7025742574257425,0.71,s034844457_reverseLoop.py,0.9,20,s034844457_loopRestructure.py,0.66,23,20.795379537953796,20.0,1.210917634353929

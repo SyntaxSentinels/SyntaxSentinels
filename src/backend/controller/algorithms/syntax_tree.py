@@ -39,18 +39,16 @@ class ASTSimilarity:
         similarity = cosine_similarity(vec1, vec2)[0][0]
         return similarity
     
-    def index_files(self, file_paths: list[str]) -> dict[str, np.ndarray]:
+    def index_files(self, file_dict: dict[str, str]) -> dict[str, np.ndarray]:
         embeddings = {}
-        for file_path in file_paths:
-            with open(file_path, 'rb') as f:
-                file_contents = f.read()
-                try:
-                    tree = ast.parse(file_contents)
-                except:
-                    tree = None
-                matrix = self._create_adjacency_matrix(tree)
-                vec = matrix.flatten().reshape(1, -1)
-                embeddings[file_path] = vec
+        for file_path, file_contents in file_dict.items():
+            try:
+                tree = ast.parse(file_contents)
+            except:
+                tree = None
+            matrix = self._create_adjacency_matrix(tree)
+            vec = matrix.flatten().reshape(1, -1)
+            embeddings[file_path] = vec
         return embeddings
 
     def report_similarity(self, file_paths: list[str], embeddings: dict[str, np.ndarray], min_percent: float) -> list[tuple[str, str, float]]:
@@ -62,6 +60,13 @@ class ASTSimilarity:
             if similarity_score >= min_percent:
                 report.append((file1, file2, similarity_score))
         return report
+
+
+def parse_ast_all_files(file_dict: dict[str, str], m=0.0) -> list[tuple[str, str, float]]:
+    similarity = ASTSimilarity()
+    embeddings = similarity.index_files(file_dict)
+    similarities = similarity.report_similarity(list(file_dict.keys()), embeddings, m)
+    return similarities
 
 
 def main():

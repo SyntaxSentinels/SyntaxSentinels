@@ -1,0 +1,2 @@
+Mean_Similarity,Median_Similarity,Max_Similarity_File,Max_Similarity_Score,Max_Similarity_LOC,Min_Similarity_File,Min_Similarity_Score,Min_Similarity_LOC,Mean_LOC,Median_LOC,Deviation
+0.44104575163398696,0.4,s052020898_changeLoopStructure.py,0.88,28,plag3.py,0.24,35,33.11437908496732,31.0,2.3195135300565783
