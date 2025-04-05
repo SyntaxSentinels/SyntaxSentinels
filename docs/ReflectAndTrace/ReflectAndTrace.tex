@@ -2,6 +2,7 @@
 
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{hyperref}
 
 \title{Reflection and Traceability Report on \progname}
 
@@ -16,50 +17,52 @@
 
 \maketitle
 
-\plt{Reflection is an important component of getting the full benefits from a
-learning experience.  Besides the intrinsic benefits of reflection, this
-document will be used to help the TAs grade how well your team responded to
-feedback.  Therefore, traceability between Revision 0 and Revision 1 is and
-important part of the reflection exercise.  In addition, several CEAB (Canadian
-Engineering Accreditation Board) Learning Outcomes (LOs) will be assessed based
-on your reflections.}
-
 \section{Changes in Response to Feedback}
 
-\plt{Summarize the changes made over the course of the project in response to
-feedback from TAs, the instructor, teammates, other teams, the project
-supervisor (if present), and from user testers.}
+Issues were created to keep track of the feedback we received from our TA and other teams.
 
-\plt{For those teams with an external supervisor, please highlight how the feedback 
-from the supervisor shaped your project.  In particular, you should highlight the 
-supervisor's response to your Rev 0 demonstration to them.}
+The table below summarizes the feedback we received from other teams and how we addressed it.
 
-\plt{Version control can make the summary relatively easy, if you used issues
-and meaningful commits.  If you feedback is in an issue, and you responded in
-the issue tracker, you can point to the issue as part of explaining your
-changes.  If addressing the issue required changes to code or documentation, you
-can point to the specific commit that made the changes.  Although the links are
-helpful for the details, you should include a label for each item of feedback so
-that the reader has an idea of what each item is about without the need to click
-on everything to find out.}
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lXl}
+\toprule
+\textbf{Document Being Reviewed} & \textbf{Issue} & \textbf{PR} \\
+\midrule
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/102}{Issue 102} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/116}{PR-116} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/103}{Issue 103} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/165}{PR-165} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/105}{Issue 105} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/258}{PR-258} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/108}{Issue 108} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/407}{PR-407} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/109}{Issue 109} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/165}{PR-165} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/110}{Issue 110} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/175}{PR-175} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/111}{Issue 111} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/260}{PR-260} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/112}{Issue 112} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/259}{PR-259} \\
 
-\plt{If you were not organized with your commits, traceability between feedback
-and commits will not be feasible to capture after the fact.  You will instead
-need to spend time writing down a summary of the changes made in response to
-each item of feedback.}
+\bottomrule
+\end{tabularx}
+\caption{Summary of Feedback from other teams and Resolutions}
+\label{tab:peer_feedback_summary}
+\end{table}
+\newpage
+The table below summarizes the feedback we received from other teams and how we addressed it.
 
-\plt{You should address EVERY item of feedback.  A table or itemized list is
-recommended.  You should record every item of feedback, along with the source of
-that feedback and the change you made in response to that feedback.  The
-response can be a change to your documentation, code, or development process.
-The response can also be the reason why no changes were made in response to the
-feedback.  To make this information manageable, you will record the feedback and
-response separately for each deliverable in the sections that follow.}
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lXl}
+\toprule
+\textbf{Document Being Reviewed} & \textbf{Issue} & \textbf{PR} \\
+\midrule
+VnV Report & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/421}{Issue 421} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/424}{PR-424} \\
+VnV Plan & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/420}{Issue 420} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/424}{PR-424} \\
+Design Documentation & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/419}{Issue 419} & \href{TODO}{TODO} \\
+Hazard Analysis & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/418}{Issue 418} & \href{TODO}{TODO} \\
+SRS & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/issues/417}{Issue 417} & \href{https://github.com/SyntaxSentinels/SyntaxSentinels/pull/426}{PR-426} \\
 
-\plt{If the feedback is general or incomplete, the TA (or instructor) will not
-be able to grade your response to feedback.  In that case your grade on this
-document, and likely the Revision 1 versions of the other documents will be
-low.} 
+\bottomrule
+\end{tabularx}
+\caption{Summary of Feedback from TA and Resolutions}
+\label{tab:TA_feedback_summary}
+\end{table}
 
 \subsection{SRS and Hazard Analysis}
 
