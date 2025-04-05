@@ -54,6 +54,7 @@
 October 11th, 2024 & 0.0 & First iteration of complete document\\
 November 4th, 2024 & 0.1 & Second iteraiton of complete document\\
 March 26th, 2025 & 0.2 & Removed mentions of emailing the results to the user, as it is not no longer a feature of the system.\\
+April 4th, 2025 & 1.0 & Updates after Rev1\\
 % Date 2 & 1.1 & Notes\\
 \bottomrule
 \end{tabularx}
@@ -132,6 +133,7 @@ which is believed to be a primary interest of users too.
     (Measured by having accreditation for datasets involved in training)\\
     \hline
     \end{longtable}
+    \addtocounter{table}{-1}
     \captionof{table}{Main Goals for the Plagiarism Detector}
 \end{center}
 
@@ -527,7 +529,10 @@ while also supporting students in understanding the ethical use of code.
 
 \section{The Scope of the Product}
 \subsection{Product Boundary}
-\includegraphics[height=.78\textheight]{assets/UseCase.png}
+\begin{center}
+    \includegraphics[scale=0.6]{assets/UseCase.drawio.png}
+\end{center}
+
 \captionof{figure}{Use Case Diagram}
 Note: The Model here represents our NLP model, which is the core of our product.
 
@@ -632,15 +637,33 @@ Note: The Model here represents our NLP model, which is the core of our product.
 
 \textbf{Requirements}
 \begin{itemize}
-    \item \textbf{FR-1}: The system shall allow users \( u \in U \) to upload code snippets \( s \in S \), such that \( S \neq \emptyset \) after upload.
-    \item \textbf{FR-2}: The system shall compute \( \text{Sim}(s_i, s_j) \) for \( s_i, s_j \in S \) and compare the result with \( t \in T \) to determine plagiarism status.
-    \item \textbf{FR-3}: The system shall be able to output documentation explaining how to interpret any other output (guide document).
-    \item \textbf{FR-4}: The system shall allow users \( u \in U \) to flag snippets \( s \in S \), creating a flagged set \( P \subseteq S \).
-    \item \textbf{FR-5}: The system shall output a set of similarity scores \( \{ \text{Sim}(s_i, s_j) \mid s_i, s_j \in S \} \).
-    \item \textbf{FR-6}: The system shall generate reports \( R \) summarizing \( \text{Sim}(s_i, s_j) \) and \( t \in T \), where \( R \neq \emptyset \).
-    \item \textbf{FR-7}: The system shall allow a user \( u \in U \) to create an account by providing \( \texttt{email} \) and \( \texttt{password} \), such that \( u \in U \).
-    \item \textbf{FR-8}: The system shall allow \( u \in U \) to authenticate with \( \texttt{email} \) and \( \texttt{password} \).
-    \item \textbf{FR-9}: The system shall visualize \( z \in Z \) via a web interface.
+    \item \textbf{FR-1}: The system shall allow users \( u \in U \) to upload code snippets \( s \in S \), such that \( S \neq \emptyset \) after upload.\\
+    \textbf{Justification}: User's must upload code snippets for the application to analyze.\\
+    \textbf{Fit Criterion}: System successfully accepts code snippet uploads.
+    \item \textbf{FR-2}: The system shall compute \( \text{Sim}(s_i, s_j) \) for \( s_i, s_j \in S \) and compare the result with \( t \in T \) to determine plagiarism status.\\
+    \textbf{Justification}: Detecting plagiarism based on a threshold is the main approach for this project.\\
+    \textbf{Fit Criterion}: Plagiarism identification is produced using the threshold.
+    \item \textbf{FR-3}: The system shall be able to output documentation explaining how to interpret any other output (guide document).\\
+    \textbf{Justification}: New users may need help understanding the output of the application .\\
+    \textbf{Fit Criterion}: Documentation with relevant information exists.
+    \item \textbf{FR-4}: The system shall allow users \( u \in U \) to flag snippets \( s \in S \), creating a flagged set \( P \subseteq S \).\\
+    \textbf{Justification}: The user may want to save identified pairs for further investigation.\\
+    \textbf{Fit Criterion}: Snippets can be flagged in application.
+    \item \textbf{FR-5}: The system shall output a set of similarity scores \( \{ \text{Sim}(s_i, s_j) \mid s_i, s_j \in S \} \).\\
+    \textbf{Justification}: Similarity scores between code snippets are the main outputs that the user will see.\\
+    \textbf{Fit Criterion}: System successfully outputs similarity scores.
+    \item \textbf{FR-6}: The system shall generate reports \( R \) summarizing \( \text{Sim}(s_i, s_j) \) and \( t \in T \), where \( R \neq \emptyset \).\\
+    \textbf{Justification}: The report is what the user will main use to interpret the results of the application.\\
+    \textbf{Fit Criterion}: Reports are successfully generated.
+    \item \textbf{FR-7}: The system shall allow a user \( u \in U \) to create an account by providing \( \texttt{email} \) and \( \texttt{password} \), such that \( u \in U \).\\
+    \textbf{Justification}: Users will want to have an account so they can keep the plagiarism reports they have stored.\\
+    \textbf{Fit Criterion}: Accounts can be made, and reports become associated with those accounts.
+    \item \textbf{FR-8}: The system shall allow \( u \in U \) to authenticate with \( \texttt{email} \) and \( \texttt{password} \).\\
+    \textbf{Justification}: E-mail and password are standard ways to create accounts.\\
+    \textbf{Fit Criterion}: Accounts can be made using an E-mail and password.
+    \item \textbf{FR-9}: The system shall visualize \( z \in Z \) via a web interface.\\
+    \textbf{Justification}: There is no need for the application to be it's own software. It is enough to have it on the web.\\
+    \textbf{Fit Criterion}: Application's final product is a web page.
 \end{itemize}
 
 \section{Look and Feel Requirements}
@@ -1091,6 +1114,7 @@ institutions, educators, and students alike.
     \item  Given the limited budget for cloud compute units, it may be challenging to balance performance improvements with cost constraints. 
     If training processes requires more resources than anticipated, costs could quickly escalate.
 \end{itemize}
+
 \section{Off-the-Shelf Solutions}
 \subsection{Ready-Made Products}
 
