@@ -148,25 +148,35 @@ The analysis aims to minimize these risks and ensure the robustness, security, a
 \section{Safety and Security Requirements}
 
 \begin{itemize}
-\item \label{req:saf1} \textbf{SR-SAF1: Submission Rate Limitation}: The system shall limit the number of submissions by a parcitular user each day to prevent server overload.
+\item \label{req:saf1} \textbf{SR-SAF1: Submission Rate Limitation}: The system shall limit the number of submissions by a particular user each day to prevent server overload.
 
 Rationale: The activity of any user should not impact the performance of the system nor increase waiting times for other users.
+
+Relevant Hazard: H1-2
 
 \item \label{req:saf2} \textbf{SR-SAF2: Safe System States During Failure}: In case of system error (i.e. hardware or network failures), the system shall inform users of the failure of their pending submissions before gracefully shutting down.
 
 Rationale: This ensures that users are notified of submission failures, preventing confusion or wasted time.
 
+Relevant Hazard: H1-1, H1-2
+
 \item \label{req:saf3} \textbf{SR-SAF3: Warning of Potentially Inaccurate Detections}: In cases where the system produces detections with low confidence, the user shall be warned that the results may be inaccurate.
 
 Rationale: Maintaining transparency that results may not be reliable protects users from acting on incorrect information before checking the results for themselves.
+
+Relevant Hazard: H3-1, H3-2, H3-3
 
 \item \label{req:saf4} \textbf{SR-SAF4: Protection Against Inappropriate Inputs}: The system shall validate all user submissions and reject malformed code submissions.
 
 Rationale: Malformed inputs could lead to system crashes, incorrect analysis, or compromise system performance.
 
+Relevant Hazard: H1-2
+
 \item \label{req:saf5} \textbf{SR-SAF5: Isolation of Critical Functions}: Critical functions such as plagiarism detection and report generation shall be isolated from non-critical functionality to prevent faults in such non-critical components from affecting system stability.
 
 Rationale: Issues in non-critical functions (such as the user interface) shouldn't compromise overall system stability.
+
+Relevant Hazard: H1-2
 
 \end{itemize}
 
