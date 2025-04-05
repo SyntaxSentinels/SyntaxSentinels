@@ -41,6 +41,7 @@
 \textbf{Date} & \textbf{Developer(s)} & \textbf{Change}\\
 \midrule
 Oct 15 & SyntaxSentinels & Initial Revision\\
+Apr 04 & SyntaxSentinels & Final Revision\\
 ... & ... & ...\\
 \bottomrule
 \end{tabularx}
@@ -106,7 +107,7 @@ The analysis aims to minimize these risks and ensure the robustness, security, a
     \item Adequate computational resources exist for the real time analysis of the code snippets
     \item Users do not intend to misuse the product
     \item Third party resources that support this product will always be functionally correct
-    \item All components on the cloud will provide sufficient scalability and security
+    \item All components within the hosting environment will provide sufficient scalability and security
     \item The system will be maintained regularly with bug fixes/performance enhancements
     \item The criteria for plagiarism is agreed upon by all users
 \end{itemize}
@@ -122,21 +123,19 @@ The analysis aims to minimize these risks and ensure the robustness, security, a
         \hline
         \textbf{Design Function} & \textbf{Failure Modes} & \textbf{Effects of Failure} & \textbf{Causes of Failure} & \textbf{Detection} & \textbf{Recommended Actions} & \textbf{SR} & \textbf{Ref.} \\
         \hline
-        Input Processing & Failure to tokenize text & Model fails to function or gives wrong output & a. Code not in Python \newline b. Tokenizer malfunction \newline c. Corrupted file & Check file extension to ensure .py suffix & a. Check input beforehand \newline b. Notify user of error occurred & & H1-1 \\
+        Input Processing & Failure to tokenize text & Model fails to function or gives wrong output & a. Code not in Python \newline b. Tokenizer malfunction \newline c. Corrupted file & Check file extension to ensure .py suffix & a. System checks input beforehand \newline b. Notify user of error occurred & SR-SAF4 & H1-1 \\
         \cline{2-8}
-        & Failure to upload file & Plagiarism detection process does not start & a. Invalid file type \newline b. Server error & Error handling & a. Notify user of failed upload & & H1-2\\
-        \cline{2-8}
-        \hline
-        User Account Handling & Unauthorized access to account & a. Account compromised \newline b. User submissions compromised & a. Weak user authentication measures &  & a. Limit unsuccessful login attempts \newline  b. Multi-factor authentication & SR-A1 & H2-1 \\
+        & Failure to upload file & Plagiarism detection process does not start & a. Invalid file type \newline b. Server error & Error handling & a. Notify user of failed upload & SR-SAF1, SR-SAF4, SR-SAF2 & H1-2\\
         \cline{2-8}
         \hline
-        Result processing and generation & Model is overfitted & Model fails to identify plagiarism for many inputs & a. Small dataset \newline b. Dataset too specific  & Test model with test dataset & a. Ensure datasets don't all have similar code & & H3-1\\
+        User Account Handling & Unauthorized access to account & a. Account compromised \newline b. User submissions compromised & a. Weak user authentication measures & N/A & a. System limits unsuccessful login attempts \newline  b. Multi-factor authentication & SR-A1 & H2-1 \\
         \cline{2-8}
-        & Model providing false positives & Submissions incorrectly flagged for plagiarism & a. Inability to recognize common coding practices \newline b. Error in model & Proper tests with test data split & a. Implement good pattern analysis \newline b. Proper testing & & H3-2\\
-        \cline{2-8}
-        & Comments are tokenized or ignored incorrectly & Comments become extremely easy way to bypass plagiarism detection & a. Bad implementation of model \newline b. Error in code & Found in testing using inputs with comments & a. Ensure code handles comments properly & & H3-3\\
         \hline
-        Result output display & Results e-mail failed to send & Users who close the tab will not see the results & a. Network issues on either sender/recipient side \ newline b. Blocked by spam filters \newline c. Incorrect e-mail address & & a. Send e-mail from safe and trusted domains b. Ensure recipient address is filled correctly in script & & H4-1 \\
+        Result processing and generation & Model is overfitted & Model fails to identify plagiarism for many inputs & a. Small dataset \newline b. Dataset too specific  & Test model with test dataset & a. Developers ensure datasets don't all have similar code \newline b. System warns user against faulty model release. & SR-SAF3 & H3-1 \\
+        \cline{2-8}
+        & Model providing false positives & Submissions incorrectly flagged for plagiarism & a. Inability to recognize common coding practices \newline b. Error in model & Proper tests with test data split & a. Developers implement good pattern analysis \newline b. Proper testing \newline c. System warns user against faulty model release. & SR-SAF3 & H3-2\\
+        \cline{2-8}
+        & Comments are tokenized or ignored incorrectly & Comments become extremely easy way to bypass plagiarism detection & a. Bad implementation of model \newline b. Error in code & Found in testing using inputs with comments & a. Developers ensure code handles comments properly \newline b. System warns user against faulty model release. & SR-SAF3 & H3-3\\
         \hline
         \end{tabular}
         } % End of \scalebox
@@ -180,7 +179,7 @@ This section outlines the implementation timeline for the safety and security re
     \item \textbf{\hyperref[req:saf1]{SR-SAF1: Submission Rate Limitation}}
     \begin{itemize}
         \item \textbf{Description}: The system shall limit the number of submissions by a particular user each day to prevent server overload.
-        \item \textbf{Rationale}: To ensure the system maintains optimal performance and prevents any user from monopolizing system resources.
+        \item \textbf{Rationale}: To ensure the system maintains optimal performance and prevents any user from unintentionally monopolizing system resources.
         \item \textbf{Implementation Plan}: This will be implemented early on to mitigate any risks of server performance issues.
     \end{itemize}
 

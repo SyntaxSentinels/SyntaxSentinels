@@ -32,7 +32,8 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-March 10th, 2025 & 0.0 & First iteration of rough draft complete\\
+March 10th, 2025 & 1.0 & First iteration of rough draft complete\\
+April 4th, 2025 & 2.0 & Final version of report complete\\
 \bottomrule
 \end{tabularx}
 
@@ -193,29 +194,9 @@ Evaluation: Pass
 					
 \end{enumerate}
 
-\subsubsection{Result Email Tests}
-
-Applies to all FRs involving emailing results of plagiarism analysis to users.
-This refers to test-FR-9 from the VnV plan.
-
-\begin{enumerate}
-
-\item{\textbf{test-FR-9}}
-
-Expected result: The system will send an e-mail to address associated with the
-logged in account, containing a .zip file with plagiarism results
-corresponding to the files uploaded
-
-Actual result: Correct and corresponding .zip file was sent to the expected e-mail
-
-Evaluation: Pass
-
-\end{enumerate}
-
 \subsubsection{Result Visualization Tests}
 
-Applies to all FRs involving visualizing plagiarism analysis results provided 
-by user in a .zip file. This refers to test-FR-10 from the VnV plan.
+Applies to all FRs involving visualizing plagiarism analysis results. This refers to test-FR-9 from the VnV plan.
 
 
 \begin{enumerate}
@@ -264,12 +245,12 @@ Evaluation: Pass
     the onboarding process and provides feedback on usability. & User finds 
     onboarding process intuitive with no major issues; usability rating should 
     be 4/5 or greater. & 5 users tested the onboarding process. All rated ease
-     of use and clarity at 4/5 or greater. & Pass \\
+     of use and clarity at 4/5 or greater. \hyperref[tab:usability-test]{Usability Test Results Table}.  & Pass \\
     \hline
     test-UH-2 & UH-E2 & User navigates through key functions of code submission
      and report upload & User should complete each task with minimal clicks required. 
      & 5 users tested navigation to code submission and report upload, reporting 2-3 
-     clicks each from upload to select to run. & Pass \\
+     clicks each from upload to select to run. \hyperref[tab:navigation-test]{Navigation Test Results Table}. & Pass \\
     \hline
     test-UH-3 & UH-PI2 & Tester verifies that all pages and prompts are in 
     English (US) & No foreign languages should be present on any page or prompt. 
@@ -281,10 +262,11 @@ Evaluation: Pass
     reports and changelogs. & Developer confirmed that historical versions with 
     performance reports and changelogs are accessible on GitHub. & Pass \\
     \hline
-    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify any personally
-     identifiable data & No personally identifiable data or user-generated data should be
-      found in logs or filesystem. & Tester found no PII or user-generated data during 
-      testing. Logs were clean. & Pass \\
+    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify insecurely
+    stored user-data & No user-generated data should be found within databases, filesystem,
+    or logs, to be stored insecurely or not be ready for deletion. & Tester found no
+    instances of insecurely stored user-generated data during testing, all data was securely
+    stored. Logs were clean. & Pass \\
     \hline
     test-PS-2 & SR-P2 & Tester verifies that backend endpoints use HTTPS encryption & All 
     endpoints should use HTTPS with proper security headers. & Tester confirmed all backend 
@@ -318,32 +300,20 @@ Evaluation: Pass
      analysis within 4 hours & Processing should complete in under 4 hours. & 
      System completed processing within 4 hours, performance met expectations. & Pass \\
     \hline
-    test-PR-2 & PR-SL2 & Tester initiates a long-running task and checks for an 
-    email notification after 10 minutes & Email should be sent after 10 minutes 
-    to notify the user of long processing time. & Email notification was sent 10 
-    minutes after task initiation, confirming functionality. Althought in practice, 
-    have not met any input size that has forced processing time that long. & Pass \\
-    \hline
-    test-PR-3 & PR-SL2 & Tester checks system logs to verify that a notification was 
-    triggered after 10 minutes of processing & Logs should show an entry for the email 
-    notification after 10 minutes. & System logs confirmed that a notification was 
-    triggered after 10 minutes. Emails have always been made within a 10 minute time 
-    window, for intense processing or not.& Pass \\
-    \hline
-    test-PR-4 & PR-RFT1 & Tester submits a corrupted file and verifies system response 
+    test-PR-2 & PR-RFT1 & Tester submits a corrupted file and verifies system response 
     & System should reject the corrupted input with an error message without crashing. 
     & System rejected the corrupted input with an error message. Valid input processed 
     without issue.  i.e., non-python or tar package file creates error which frontend 
     appropriately communicates. & Pass \\
     \hline
-    test-PR-5 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
+    test-PR-3 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
     and compares results with ground truth. & System should show over 90\% accuracy and 
     less than 5\% false positives. & Recently found method to test this through self-labelled datasets
     as it was not immediately possible from python800 datasets (no concept of similarity or ground truths)
     Have spent time labelling hundreds of code in manual fashion to assess this and have not had time to test it.  
     & Future Assessment \\
     \hline
-    test-PR-6 & PR-SE1 & Developer adds a new feature, and all existing features are tested
+    test-PR-4 & PR-SE1 & Developer adds a new feature, and all existing features are tested
      for regression. & All previous features should work as expected after the new feature 
      is added. & Regression tests confirmed that all features worked as expected after the 
      new feature was added but not server side yet & Fail\\
@@ -558,7 +528,7 @@ Visualization & Basic web interface & Modern, interactive UI \\
         \item Enter an analysis name.
         \item Click the "Analyze Dataset" button.
     \end{enumerate}
-    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully. You'll receive an email with the results once it's done!" is displayed.
+    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully" is displayed.
 \end{itemize}
 
 \subsubsection{Handles file drop event}
@@ -574,98 +544,34 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \item \textbf{Expected result}: The file is uploaded successfully.
 \end{itemize}
 
-\subsection{UploadResults Component}
-
-\subsubsection{Renders the component}
+\subsubsection{Handles empty job list}
 \begin{itemize}
-    \item \textbf{Description}: Ensures the \texttt{UploadResults} component renders correctly.
+    \item \textbf{Description}: Ensures the component handles an empty job list correctly by showing "No Data".
     \item \textbf{Type}: Automatic, Functional
     \item \textbf{Initial state}: None
     \item \textbf{Test case steps}:
     \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Check for the presence of specific text.
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Set the job list to an empty array.
+        \item Check for the presence of "No Data" text.
     \end{enumerate}
-    \item \textbf{Expected result}: The component renders with the text "View Results" and "Upload your results ZIP file to view the analysis."
+    \item \textbf{Expected result}: The text "No Data" is displayed when the job list is empty.
 \end{itemize}
 
-\subsubsection{Displays an error message when a non-ZIP file is uploaded}
+\subsubsection{Displays an error message if fetching jobs fails}
 \begin{itemize}
-    \item \textbf{Description}: Ensures an error message is displayed when a non-ZIP file is uploaded.
+    \item \textbf{Description}: Ensures an error message is displayed if fetching jobs fails.
     \item \textbf{Type}: Automatic, Functional
     \item \textbf{Initial state}: None
     \item \textbf{Test case steps}:
     \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a non-ZIP file.
+        \item Render the \texttt{AnalyzeFiles} component.
+        \item Mock the API call to return an error.
     \end{enumerate}
-    \item \textbf{Expected result}: An error message "Only ZIP files are allowed." is displayed.
+    \item \textbf{Expected result}: An error message "Failed to load job history" is displayed.
+    
 \end{itemize}
 
-\subsubsection{Displays an error message when no JSON file is found in the ZIP}
-\begin{itemize}
-    \item \textbf{Description}: Ensures an error message is displayed when no JSON file is found in the ZIP file.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a ZIP file without a JSON file.
-    \end{enumerate}
-    \item \textbf{Expected result}: An error message "No JSON file found in the ZIP." is displayed.
-\end{itemize}
-
-\subsubsection{Displays a success message when a valid ZIP file is uploaded}
-\begin{itemize}
-    \item \textbf{Description}: Ensures a success message is displayed when a valid ZIP file is uploaded.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a valid ZIP file.
-    \end{enumerate}
-    \item \textbf{Expected result}: A success message "Results file uploaded successfully." is displayed.
-\end{itemize}
-
-\subsubsection{Displays a warning message when trying to view results without uploading a file}
-\begin{itemize}
-    \item \textbf{Description}: Ensures a warning message is displayed when trying to view results without uploading a file.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Click the "View Results" button.
-    \end{enumerate}
-    \item \textbf{Expected result}: A warning message "Please upload a results file first." is displayed.
-\end{itemize}
-
-\subsubsection{Handles errors during ZIP file processing}
-\begin{itemize}
-    \item \textbf{Description}: Ensures errors during ZIP file processing are handled correctly and an error message is displayed to the user.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a ZIP file that cannot be processed.
-    \end{enumerate}
-    \item \textbf{Expected result}: An error message "Invalid ZIP file or corrupt JSON." is logged into the console.
-\end{itemize}
-
-\subsubsection{Handles file drop event}
-\begin{itemize}
-    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Simulate a file drop event with a valid ZIP file.
-    \end{enumerate}
-    \item \textbf{Expected result}: The file is uploaded successfully.
-\end{itemize}
 
 \subsection{Index (Landing Page) Component}
 
@@ -730,7 +636,7 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \begin{enumerate}
         \item Render the \texttt{Index} component.
     \end{enumerate}
-    \item \textbf{Expected result}: The features section is displayed with the text "Why Choose SyntaxSentinals?" along with the features.
+    \item \textbf{Expected result}: The features section is displayed with the text "Why Choose SyntaxSentinels?" along with the features.
 \end{itemize}
 
 \subsubsection{Displays how it works section}
@@ -754,7 +660,7 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \begin{enumerate}
         \item Render the \texttt{Index} component.
     \end{enumerate}
-    \item \textbf{Expected result}: The footer is displayed with the text "SyntaxSentinals" and the links.
+    \item \textbf{Expected result}: The footer is displayed with the text "SyntaxSentinels" and the links.
 
 \end{itemize}
 
@@ -863,6 +769,112 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \item \textbf{Expected result}: The \texttt{loginWithRedirect} function is called.
 \end{itemize}
 
+\subsection{JobsTable Component}
+\subsubsection{Renders the component with correct columns and data}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the \texttt{JobsTable} component renders correctly with the correct columns and data.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \item \begin{enumerate}
+        \item Render the \texttt{JobsTable} component with sample data.
+        \item Check for the presence of specific columns and data and expected text such as "Status", "Created At", etc.
+        \item Check for the presence of specific data in the table rows such as "In Progress", "Completed", etc.
+    \end{enumerate}
+    \item \textbf{Expected result}: The component renders with the correct columns and data.
+\end{itemize}
+
+\subsubsection{Displays a loading spinner when loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is displayed when the component is in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is true
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with the loading prop set to True.
+        \item Render the \texttt{JobsTable} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The loading spinner is displayed.
+\end{itemize}
+
+\subsubsection{Does not display loading spinner when not loading}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the loading spinner is not displayed when the component is not in the loading state.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: \texttt{isLoading} is false
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with the loading prop set to False.
+        \item Render the \texttt{JobsTable} component.
+    \end{enumerate}
+    \item \textbf{Expected result}: The loading spinner is not displayed.
+\end{itemize}
+
+\subsubsection{Disables the "View Results" button for non-completed jobs}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the "View Results" button is disabled for non-completed jobs.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that is not completed.
+        \item Check the "View Results" button state.
+    \end{enumerate}
+    \item \textbf{Expected result}: The "View Results" button is disabled.
+\end{itemize}
+
+\subsubsection{navigates to the results page when 'View Results' is clicked for a completed job}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the user is navigated to the results page when the "View Results" button is clicked for a completed job.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that is completed.
+        \item Click the "View Results" button.
+    \end{enumerate}
+    \item \textbf{Expected result}: The user is navigated to the results page.
+\end{itemize}
+
+\subsubsection{Formats dates correctly}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the dates are formatted correctly in the table.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with sample data containing dates.
+        \item Check the date format in the table rows.
+    \end{enumerate}
+    \item \textbf{Expected result}: The dates are formatted correctly (e.g., "MM/DD/YYYY").
+\end{itemize}
+
+\subsubsection{renders 'Unnamed Analysis' if analysisName is missing}
+\begin{itemize}
+    \item \textbf{Description}: Ensures "Unnamed Analysis" is displayed if the analysis name is missing.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that has no analysis name.
+        \item Check the analysis name in the table row.
+    \end{enumerate}
+    \item \textbf{Expected result}: The text "Unnamed Analysis" is displayed.
+\end{itemize}
+
+\subsubsection{renders the correct tag color and icon based on job status}
+\begin{itemize}
+    \item \textbf{Description}: Ensures the correct tag color and icon are displayed based on the job status.
+    \item \textbf{Type}: Automatic, Functional
+    \item \textbf{Initial state}: None
+    \item \textbf{Test case steps}:
+    \begin{enumerate}
+        \item Render the component with a job that has a specific status (e.g., "In Progress", "Completed").
+        \item Check the tag color and icon in the table row.
+    \end{enumerate}
+    \item \textbf{Expected result}: The correct tag color and icon are displayed based on the job status.
+\end{itemize}
+
 \section{Changes Due to Testing}
 
 During the testing process, several issues were identified and addressed, leading to improvements in both functionality and reliability:
@@ -885,10 +897,6 @@ During the testing process, several issues were identified and addressed, leadin
 \begin{itemize}
 \item Some uncovered lines in \texttt{button.tsx} and \texttt{UploadBox.tsx} were identified through test coverage reports. Additional unit tests were written to cover these missing scenarios, increasing overall test coverage.
 \item Server side code was not tested with a testing framework. This will be implemented in the future.
-\end{itemize}
-\item \textbf{Emailing Results}
-\begin{itemize}
-\item We noticed we had not yet implemented the feature where users are emailed after 10 minutes that their request is still processing. Thhis feature will be implemented and tested in the future.
 \end{itemize}
 \item \textbf{Cloud}
 \begin{itemize}
@@ -1016,8 +1024,6 @@ By incorporating test coverage reporting into our workflow, we can ensure that o
     \hline
     test-FR-9 & FR-9 \\
     \hline
-    test-FR-10 & FR-10 \\
-    \hline
     test-LF-1 & LF-AR1, LF-AR2, LF-AR3, LF-SR1, LF-SR2, LF-SR3, LF-SR4 \\
     \hline
     test-LF-2 & CR-SC3 \\
@@ -1044,15 +1050,9 @@ By incorporating test coverage reporting into our workflow, we can ensure that o
     \hline
     test-PR-1 & PR-SL1, PR-C1 \\
     \hline
-    test-PR-2 & PR-SL2 \\
+    test-PR-2 & PR-PA1, PR-PA2 \\
     \hline
-    test-PR-3 & PR-SL2 \\
-    \hline
-    test-PR-4 & PR-RFT1 \\
-    \hline
-    test-PR-5 & PR-PA1, PR-PA2 \\
-    \hline
-    test-PR-6 & PR-SE1 \\
+    test-PR-3 & PR-SE1 \\
     \hline
     test-OE-1 & OE-IAS1 \\
     \hline
@@ -1111,9 +1111,7 @@ Note: M7 encapsulates all its submodules.
     \hline
     test-FR-8 & M1 \\
     \hline
-    test-FR-9 & M10 \\
-    \hline
-    test-FR-10 & M3 \\
+    test-FR-9 & M3 \\
     \hline
     test-LF-1 & All User Interface Modules \\
     \hline
@@ -1141,15 +1139,11 @@ Note: M7 encapsulates all its submodules.
     \hline
     test-PR-1 &  M7, M8\\
     \hline
-    test-PR-2 &  M10\\
+    test-PR-2 &  M2, M7, M9\\
     \hline
-    test-PR-3 & M10\\
+    test-PR-3 &  M7, M8\\
     \hline
-    test-PR-4 &  M2, M7, M9\\
-    \hline
-    test-PR-5 &  M7, M8\\
-    \hline
-    test-PR-6 &  Module Independent\\
+    test-PR-4 &  Module Independent\\
     \hline
     test-OE-1 & Module Independent\\
     \hline
@@ -1180,17 +1174,17 @@ Note: M7 encapsulates all its submodules.
 
 \section{Code Coverage Metrics}
 
-The below report is for the frontend codebase of SyntaxSentinals. The backend has not been tested with a testing framework yet.
+The below report is for the frontend codebase of SyntaxSentinels. The backend has not been tested with a testing framework yet.
 Instead we ensure the backend is working as expected by manually testing the API endpoints using Postman and ensuring the server is sent the 
 expected request via the frontend testing suite. \\
 
 The test coverage report provides the following key metrics:
 
 \begin{itemize}
-\item \textbf{Statements}: 94.35\% (234/248)
-\item \textbf{Branches}: 81.03\% (47/58)
-\item \textbf{Functions}: 86.79\% (46/53)
-\item \textbf{Lines}: 96.18\% (227/236)
+\item \textbf{Statements}: 83.52\% (218/261)
+\item \textbf{Branches}: 67.61\% (48/71)
+\item \textbf{Functions}: 82.46\% (47/57)
+\item \textbf{Lines}: 85.14\% (212/249)
 \end{itemize}
 
 \newpage
@@ -1205,13 +1199,12 @@ Below is a breakdown of coverage by individual files:
     \hline
     Features.tsx & 100\% & 100\% & 100\% & 100\% \\
     Navbar.tsx & 100\% & 100\% & 100\% & 100\% \\
-    UploadBox.tsx & 96.42\% & 84.21\% & 93.33\% & 98.14\% \\
+    UploadBox.tsx & 83.92\% & 47.36\% & 93.33\% & 85.18\% \\
     GetStarted.tsx & 100\% & 100\% & 100\% & 100\% \\
-    Home.tsx & 90.32\% & 69.56\% & 73.91\% & 93.16\% \\
     Button.tsx & 100\% & 66.66\% & 100\% & 100\% \\
     utils.ts & 100\% & 100\% & 100\% & 100\% \\
-    AnalyzeFiles.tsx & 91.52\% & 75\% & 75\% & 94.54\% \\
-    UploadResults.tsx & 89.23\% & 63.63\% & 72.72\% & 91.93\% \\
+    AnalyzeFiles.tsx & 91.56\% & 73.68\% & 80\% & 93.58\% \\
+    JobsTable.tsx & 75.92\% & 82.35\% & 66.66\% & 78.84\% \\
     \hline
     \end{tabular}
     \caption{Test Coverage Breakdown by Directory}
@@ -1221,18 +1214,50 @@ Below is a breakdown of coverage by individual files:
 Some uncovered lines include:
 
 \begin{itemize}
-\item \textbf{UploadBox.tsx}: Line 26.
+\item \textbf{UploadBox.tsx}: Line 26, 48-53, 66-73.
 \item \textbf{button.tsx}: Line 44.
 \item \textbf{AnalyzeFiles.tsx}: Lines 22, 25, 76.
-\item \textbf{UploadResults.tsx}: Lines 20, 23, 50-51, 89.
+\item \textbf{JobsTable.tsx}: Lines 39, 44-55, 128.
 \end{itemize}
 
 These uncovered areas indicate potential gaps in test cases that should be addressed to achieve full coverage.
-
+\newpage
 \bibliographystyle{plainnat}
-\bibliography{../../refs/References}
 
-\newpage{}
+\section*{Appendix --- User Data for tests}
+\renewcommand{\arraystretch}{1.2}
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+    \hline
+    \textbf{User ID} & \textbf{Ease of Use Rating (1-5)} & \textbf{Clarity Rating (1-5)} & \textbf{Comments} \\ \hline
+    User1 & 5 & 5 & "The onboarding process was very intuitive and easy to follow." \\ \hline
+    User2 & 4 & 4 & "Clear instructions, but the navigation could be slightly improved." \\ \hline
+    User3 & 5 & 5 & "Everything was straightforward and well-explained." \\ \hline
+    User4 & 4 & 4 & "Good overall, but I had to look twice to find the upload button." \\ \hline
+    User5 & 5 & 5 & "Very user-friendly and clear interface." \\ \hline
+    \end{tabular}
+    \caption{Usability Test Results for Onboarding Process}
+    \label{tab:usability-test}
+\end{table}
+\newpage
+
+\renewcommand{\arraystretch}{1.2}
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3cm}|>{\raggedright\arraybackslash}p{3cm}|}
+    \hline
+    \textbf{User ID} & \textbf{Navigation Time (seconds)} & \textbf{Clicks Required} & \textbf{Comments} \\ \hline
+    User1 & 15 & 2 & Navigation was smooth and intuitive. \\ \hline
+    User2 & 20 & 3 & It took me a moment to find the upload button. \\ \hline
+    User3 & 12 & 2 & Very straightforward process. \\ \hline
+    User4 & 18 & 3 & Clear instructions, but the layout could be improved slightly. \\ \hline
+    User5 & 14 & 2 & Quick and easy to navigate. \\ \hline
+    \end{tabular}
+    \caption{User Data Collected for Navigation Test}
+    \label{tab:navigation-test}
+\end{table}
+
 \section*{Appendix --- Reflection}
 
 The information in this section will be used to evaluate the team members on the

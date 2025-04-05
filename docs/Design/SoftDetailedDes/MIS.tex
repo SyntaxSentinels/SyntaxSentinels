@@ -76,7 +76,7 @@ See SRS Documentation at \href{https://github.com/SyntaxSentinels/SyntaxSentinel
 
 \section{Introduction}
 
-The following document details the Module Interface Specifications for SyntaxSentinals.
+The following document details the Module Interface Specifications for SyntaxSentinels.
 
 This project seeks to create a plagiarism algorithm that relies on NLP
 techniques of present to account for semantics and prevent primitive cir-
@@ -147,7 +147,6 @@ The following table is taken directly from the Module Guide document for this pr
     \multirow{2}{*}{Behaviour-Hiding Module} 
     & User Authentication Module \\
     & Code Upload Module \\
-    & Results Upload Module \\
     & Report Results Module \\
     & Flagging Module \\
     & Threshold Adjustment Module \\
@@ -370,9 +369,7 @@ The following table is taken directly from the Module Guide document for this pr
     \item \textbf{exception:} None
 \end{itemize}
 
-% \section{MIS of Results Upload Module} \label{mResultsUpload}
-
-% \subsection{Module} %MODULE STARTS ###
+\subsection{Module} %MODULE STARTS ###
 
 % \texttt{ResultsUploadModule}
 
@@ -1178,41 +1175,7 @@ No local functions are required for this module.
 
 %END OF REPORT GENERATION MODULE
 
-% \section{MIS of Email Sending Module} \label{mEmail}
-
-% \subsection{Module}
-
-% \texttt{EmailModule}
-
-% \subsection{Uses}
-
-% \begin{itemize}
-%     \item SMTP server or email-sending service (such as SendGrid or Amazon SES)
-% \end{itemize}
-
-% \subsection{Syntax}
-
-% \subsubsection{Exported Constants}
-
-% \begin{itemize}
-%     \item None
-% \end{itemize}
-
-% \subsubsection{Exported Access Programs}
-
-% \begin{center}
-% \begin{tabular}{p{5cm} p{3.5cm} p{3.5cm} p{2cm}}
-% \hline
-% \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-% \hline
-% \texttt{sendEmail} & recipient: str, subject: str, body: str, attachments: list[file] & bool & - \\
-% \hline
-% \end{tabular}
-% \end{center}
-
-% \subsection{Semantics}
-
-% \subsubsection{State Variables}
+\subsubsection{State Variables}
 
 % \begin{itemize}
 %     \item None

@@ -10,7 +10,7 @@ import _ from 'lodash';
 export class ErrorContent {
   constructor(desc) {
     this.type = '';
-    this.target = 'SyntaxSentinals';
+    this.target = 'SyntaxSentinels';
     this.status = desc[0];
     this.code = '';
     this.message = desc[1];
