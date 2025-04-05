@@ -54,6 +54,7 @@ urlcolor=cyan          % color of external links
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
 January 17 & 1.0 & Initial documentation\\
+April 4 & 2.0 & Initial documentation\\
 \bottomrule
 \end{tabularx}
 
@@ -112,6 +113,8 @@ character & char & A single symbol or digit. \\
 integer & $\mathbb{Z}$ & A whole number in the range $(-\infty, \infty)$. \\ 
 natural number & $\mathbb{N}$ & A whole number in the range $[1, \infty)$. \\ 
 real & $\mathbb{R}$ & Any number in the range $(-\infty, \infty)$. \\ 
+list & $X = (x_0, x_1, ... , x_n)$ & A list of some data type. \\
+n-tuple & $(x_1, x_2, ... , x_n)$ & A sequence of size $n$ of some data type. \\
 boolean & bool & A logical value that can either be \texttt{true} or \texttt{false}. \\
 string & str & A sequence of characters. \\ 
 tuple & tuple & An ordered collection of elements, potentially of different types. \\
@@ -126,7 +129,7 @@ The following conventions are also used:
 \begin{itemize}
     \item \textbf{Assignment}: The operator \texttt{:=} denotes assignment.
     \item \textbf{Conditional Rules}: Conditional statements follow the structure $(c_1 \Rightarrow r_1 \mid c_2 \Rightarrow r_2 \mid \ldots \mid c_n \Rightarrow r_n)$, where $c_i$ are conditions and $r_i$ are corresponding results.
-    \item \textbf{Access Programs}: Functions and methods are defined with their inputs, outputs, and exceptions as described in the syntax sections of each module.
+    \item \textbf{Access Programs}: Functions and methods are defined with their inputs, outputs, and exceptions as described in the syntax sections of each module. All exceptions are handled local, and will not propogate to the parent modules.
 \end{itemize}
 
 \section{Module Decomposition}
@@ -257,7 +260,7 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item \texttt{MAX\_FILE\_LENGTH}: $\mathbb{N}$ \\ 
     The maximum allowed code lines in a single file for upload.
-    \item \texttt{ALLOWED\_FILE\_TYPES}: $\mathbb{N}$ \\ 
+    \item \texttt{ALLOWED\_FILE\_TYPES}: $X = (x_0, x_1, ... , x_n$) \\ 
     A list of permissible file extensions (e.g., \texttt{.py, .txt, .zip}).
 \end{itemize}
 
@@ -321,7 +324,7 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item \textbf{transition:} None (no internal state change).
     \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} Returns \texttt{true} if the file meets \texttt{MAX\_FILE\_SIZE} and 
+    \item \textbf{output:} Returns \texttt{true} if the file meets \texttt{MAX\_FILE\_LENGTH} and 
     \texttt{ALLOWED\_FILE\_TYPES} conditions.
     \item \textbf{exception:} \texttt{FormatError} if the file type or size is invalid.
 \end{itemize}
@@ -368,109 +371,109 @@ The following table is taken directly from the Module Guide document for this pr
 
 \subsection{Module} %MODULE STARTS ###
 
-\texttt{ResultsUploadModule}
+% \texttt{ResultsUploadModule}
 
-\subsection{Uses}
+% \subsection{Uses}
 
-\begin{itemize}
-    \item File system or equivalent I/O utilities (to read and load local report files, if applicable)
-    \item Front-end/UI framework (to display the parsed results)
-    \item HTTP or backend connector (if the parsed results need to be sent elsewhere)
-\end{itemize}
+% \begin{itemize}
+%     \item File system or equivalent I/O utilities (to read and load local report files, if applicable)
+%     \item Front-end/UI framework (to display the parsed results)
+%     \item HTTP or backend connector (if the parsed results need to be sent elsewhere)
+% \end{itemize}
 
-\subsection{Syntax}
+% \subsection{Syntax}
 
-\subsubsection{Exported Constants}
+% \subsubsection{Exported Constants}
 
-\begin{itemize}
-    \item \texttt{MAX\_REPORT\_FILE\_SIZE}: $\mathbb{N}$ \\
-     Maximum allowed file size (in bytes) for a report file.
-    \item \texttt{ALLOWED\_REPORT\_TYPES}: $\mathbb{N}$ \\
-     Only .zip is allowed.
-\end{itemize}
+% \begin{itemize}
+%     \item \texttt{MAX\_REPORT\_FILE\_SIZE}: $\mathbb{N}$ \\
+%      Maximum allowed file size (in bytes) for a report file.
+%     \item \texttt{ALLOWED\_REPORT\_TYPES}: $X = (x_0)$ \\
+%      Only .zip is allowed.
+% \end{itemize}
 
-\subsubsection{Exported Access Programs}
+% \subsubsection{Exported Access Programs}
 
-\begin{center}
-\begin{tabular}{p{5cm} p{3.5cm} p{3.5cm} p{2cm}}
-\hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-\texttt{uploadResultsFile} & filePath: Str & success: bool & FileError \\
-\texttt{parseResultsFile} & filePath: Str & report: JSON & ParseError \\
-\hline
-\end{tabular}
-\end{center}
+% \begin{center}
+% \begin{tabular}{p{5cm} p{3.5cm} p{3.5cm} p{2cm}}
+% \hline
+% \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+% \hline
+% \texttt{uploadResultsFile} & filePath: Str & success: bool & FileError \\
+% \texttt{parseResultsFile} & filePath: Str & report: JSON & ParseError \\
+% \hline
+% \end{tabular}
+% \end{center}
 
-\subsection{Semantics}
+% \subsection{Semantics}
 
-\subsubsection{State Variables}
+% \subsubsection{State Variables}
 
-\begin{itemize}
-    \item \texttt{uploadedReportFile}: Str \\
-    Stores the path (or reference) to the currently uploaded report file.
-    \item \texttt{parsedReportData}: JSON \\
-     Stores the in-memory data structure resulting from parsing the report file.
-\end{itemize}
+% \begin{itemize}
+%     \item \texttt{uploadedReportFile}: Str \\
+%     Stores the path (or reference) to the currently uploaded report file.
+%     \item \texttt{parsedReportData}: JSON \\
+%      Stores the in-memory data structure resulting from parsing the report file.
+% \end{itemize}
 
-\subsubsection{Environment Variables}
+% \subsubsection{Environment Variables}
 
-\begin{itemize}
-    \item None
-\end{itemize}
+% \begin{itemize}
+%     \item None
+% \end{itemize}
 
-\subsubsection{Assumptions}
+% \subsubsection{Assumptions}
 
-\begin{itemize}
-    \item The file path provided points to a valid file and does not exceed \texttt{MAX\_REPORT\_FILE\_SIZE}.
-    \item The file type is one of \texttt{ALLOWED\_REPORT\_TYPES}.
-    \item The front-end/UI framework is loaded and available for rendering the report data.
-\end{itemize}
+% \begin{itemize}
+%     \item The file path provided points to a valid file and does not exceed \texttt{MAX\_REPORT\_FILE\_SIZE}.
+%     \item The file type is one of \texttt{ALLOWED\_REPORT\_TYPES}.
+%     \item The front-end/UI framework is loaded and available for rendering the report data.
+% \end{itemize}
 
-\subsubsection{Access Routine Semantics}
+% \subsubsection{Access Routine Semantics}
 
-\noindent \texttt{uploadResultsFile}(filePath: Str):
-\begin{itemize}
-    \item \textbf{transition:}
-    \begin{itemize}
-        \item Copies file from \textit{filePath} to \texttt{TEMP\_REPORT\_PATH} (if needed).
-        \item Updates \texttt{uploadedReportFile} to reflect the new file location.
-    \end{itemize}
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} Returns \texttt{true} if upload is successful.
-    \item \textbf{exception:} \texttt{FileError} if reading or copying the file fails.
-\end{itemize}
+% \noindent \texttt{uploadResultsFile}(filePath: Str):
+% \begin{itemize}
+%     \item \textbf{transition:}
+%     \begin{itemize}
+%         \item Copies file from \textit{filePath} to \texttt{TEMP\_REPORT\_PATH} (if needed).
+%         \item Updates \texttt{uploadedReportFile} to reflect the new file location.
+%     \end{itemize}
+%     \item \textbf{input:} Path representing location of snippets on user computer.
+%     \item \textbf{output:} Returns \texttt{true} if upload is successful.
+%     \item \textbf{exception:} \texttt{FileError} if reading or copying the file fails.
+% \end{itemize}
 
-\noindent \texttt{parseResultsFile}(filePath: Str):
-\begin{itemize}
-    \item \textbf{transition:}
-    \begin{itemize}
-        \item Opens and reads the specified report file.
-        \item Updates \texttt{parsedReportData} with \texttt{JSON} assembled from the file content.
-    \end{itemize}
-    \item \textbf{input:} Path representing location of snippets on user computer.
-    \item \textbf{output:} A \texttt{JSON} representing the parsed report data.
-    \item \textbf{exception:} \texttt{ParseError} if the file format is invalid or parsing fails.
-\end{itemize}
+% \noindent \texttt{parseResultsFile}(filePath: Str):
+% \begin{itemize}
+%     \item \textbf{transition:}
+%     \begin{itemize}
+%         \item Opens and reads the specified report file.
+%         \item Updates \texttt{parsedReportData} with \texttt{JSON} assembled from the file content.
+%     \end{itemize}
+%     \item \textbf{input:} Path representing location of snippets on user computer.
+%     \item \textbf{output:} A \texttt{JSON} representing the parsed report data.
+%     \item \textbf{exception:} \texttt{ParseError} if the file format is invalid or parsing fails.
+% \end{itemize}
 
-\subsubsection{Local Functions}
+% \subsubsection{Local Functions}
 
-\noindent \texttt{readLocalReportFile(path: Str)}: 
-\begin{itemize}
-        \item \textbf{transition:} None (no internal state change.)
-        \item \textbf{input:} Path representing location of snippets on user computer.
-        \item \textbf{output:} \textit{list [String]} object holding all info from each file.
-        \item \textbf{exception:} \texttt{FileError} if file I/O fails or \textit{filePath} is invalid.
-\end{itemize}
+% \noindent \texttt{readLocalReportFile(path: Str)}: 
+% \begin{itemize}
+%         \item \textbf{transition:} None (no internal state change.)
+%         \item \textbf{input:} Path representing location of snippets on user computer.
+%         \item \textbf{output:} \textit{list [String]} object holding all info from each file.
+%         \item \textbf{exception:} \texttt{FileError} if file I/O fails or \textit{filePath} is invalid.
+% \end{itemize}
 
-\noindent \texttt{parseReportContent(rawContent: list[Str])}: Transforms raw file content into a \texttt{JSON}.
-\begin{itemize}
-        \item \textbf{transition:} None (no internal state change).
-        \item \textbf{input:}  \textit{list [String]} object holding all info from each
-        file.
-        \item \textbf{output:} JSON representing code snippet contents.
-        \item \textbf{exception:} None
-\end{itemize}
+% \noindent \texttt{parseReportContent(rawContent: list[Str])}: Transforms raw file content into a \texttt{JSON}.
+% \begin{itemize}
+%         \item \textbf{transition:} None (no internal state change).
+%         \item \textbf{input:}  \textit{list [String]} object holding all info from each
+%         file.
+%         \item \textbf{output:} JSON representing code snippet contents.
+%         \item \textbf{exception:} None
+% \end{itemize}
 
 \section{MIS of Threshold Adjustment Module} \label{mThreshold} %MODULE START ####
 
@@ -490,9 +493,9 @@ The following table is taken directly from the Module Guide document for this pr
 \subsubsection{Exported Constants}
 
 \begin{itemize}
-    \item \texttt{DEFAULT\_THRESHOLD} :  $\mathbb{N}$ \\
+    \item \texttt{DEFAULT\_THRESHOLD} :  $\mathbb{R}$ \\
     A real number (e.g., 0.75) used if no custom threshold is set.
-    \item \texttt{THRESHOLD\_RANGE} : $2-tuple \in \mathbb{R}^ 2 $ \\
+    \item \texttt{THRESHOLD\_RANGE} : $(x_0, x_1) \in \mathbb{R}^ 2 $ \\
     A 2-tuple of real numbers  (e.g., \texttt{(0, 1)}) defining the permissable bounds for a threshold.
 \end{itemize}
 
@@ -729,7 +732,9 @@ The following table is taken directly from the Module Guide document for this pr
 \begin{itemize}
     \item \textbf{transition:} None (no internal state change) but renders a visual representation of the 
     report in the UI
-    \item \textbf{input:} The report data JSON of the report to be rendered
+    \item \textbf{input:} The report data JSON of the report to be rendered,
+    with information about the code submissions and the similarities between
+    them.
     \item \textbf{output:} None
     \item \textbf{exception:} None
 \end{itemize}
@@ -739,7 +744,7 @@ No local functions are required for this module.
 
 %END OF REPORT RESULTS MODULE
 
-\section{NLP Module}  \label{NLPModule} %Module start here ####
+\section{MIS of NLP Module}  \label{NLPModule} %Module start here ####
 
 \subsection{Module}
 
@@ -884,7 +889,7 @@ No local functions are required for this module.
 % END OF ABSTRACT MODEL MODULE
 
 
-\section{MIS of Tokenization Modlue} \label{smTokenization}
+\section{MIS of Tokenization Module} \label{smTokenization}
 
 \subsection{Module}
 
@@ -989,7 +994,7 @@ No local functions are required for this module.
 \hline
 \textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
 \hline
-\texttt{parse} & rawSource: Str & tree: AST  & invalidSyntaxException \\
+\texttt{parse} & rawSource: Str & tree: AST object  & invalidSyntaxException \\
 \hline
 \end{tabular}
 \end{center}
@@ -1028,7 +1033,7 @@ No local functions are required for this module.
 No local functions are required for this module.
 % END OF AST MODULE
 
-\section{Similarity Scoring Module} \label{mScoring}
+\section{MIS of Similarity Scoring Module} \label{mScoring}
 
 \subsection{Module}
 
@@ -1096,7 +1101,7 @@ No local functions are required for this module.
 
 %END OF SIMILARITY SCORING MODULE
 
-\section{Report Generation Module} \label{mReport}
+\section{MIS Report Generation Module} \label{mReport}
 
 \subsection{Module}
 
@@ -1172,38 +1177,43 @@ No local functions are required for this module.
 
 \subsubsection{State Variables}
 
-\begin{itemize}
-    \item None
-\end{itemize}
+% \begin{itemize}
+%     \item None
+% \end{itemize}
 
-\subsubsection{Environment Variables}
+% \subsubsection{Environment Variables}
 
-\begin{itemize}
-    \item \texttt{SMTP\_CONFIG}: Configuration details for connecting to the SMTP server (e.g., host, port, authentication).
-\end{itemize}
+% \begin{itemize}
+%     \item \texttt{SMTP\_CONFIG}: Configuration details for connecting to the SMTP server (e.g., host, port, authentication).
+% \end{itemize}
 
-\subsubsection{Assumptions}
+% \subsubsection{Assumptions}
 
-\begin{itemize}
-    \item A database is configured to store completed reports.
-\end{itemize}
+% \begin{itemize}
+%     \item A SMTP server or email-sending service is available and configured correctly
+% \end{itemize}
 
-\subsubsection{Access Routine Semantics}
+% \subsubsection{Access Routine Semantics}
 
-\noindent \texttt{storeReport}(report: JSON):
-\begin{itemize}
-    \item \textbf{transition:}
-    \begin{itemize}
-        \item Stores the report in the database.
-    \end{itemize}
-    \item \textbf{input:} JSON object representing the report data.
-    \item \textbf{output:} None
-    \item \textbf{exception:} None
-\end{itemize}
+% \noindent \texttt{sendEmail(recipient: str, subject: str, \\
+%     body: str, attachments: list[file])}:
+% \begin{itemize}
+%     \item \textbf{transition:} None (no internal state change.)
+%     \item \textbf{input:} 
+%     \begin{itemize}
+%         \item \texttt{recipient}: Email address of the primary recipient
+%         \item \texttt{subject}: Subject of the email
+%         \item \texttt{body}: The main body content of the email (plain text or HTML)
+%         \item \texttt{attachments}: A list of file objects to be attached to the email
+%     \end{itemize}
+%     \item \textbf{output:} Returns \texttt{true} if the email is sent successfully
+%     \item \textbf{exception:} Throws \texttt{EmailSendException} if email fails to send.
+% \end{itemize}
 
 
-\subsubsection{Local Functions}
-No local functions are required for this module.
+% \subsubsection{Local Functions}
+% No local functions are required for this module.
+% END OF EMAIL SENDING MODULE
 
 \newpage
 
@@ -1214,6 +1224,56 @@ No local functions are required for this module.
 
 \section{Appendix} \label{Appendix}
 This section highlights components of the systems that are not modules themselves, but support the other modules in the document.
+
+\section*{Exception Handling}
+
+\begin{itemize}
+    \item Code Upload Module
+    \begin{itemize}
+        \item All files dealt with locally to directly address user
+    \end{itemize}
+
+    \item Threshold Module
+    \begin{itemize}
+        \item Errors are propogated to code upload module where threshold decision was made
+    \end{itemize}
+
+    \item Threshold Module
+    \begin{itemize}
+        \item Errors are propogated to code upload module where threshold decision was made
+    \end{itemize}
+
+    \item  Report Resules Module
+    \begin{itemize}
+        \item Errors are dealt with locally but error code is passed in API response for frontend to acknowledge
+    \end{itemize}
+
+    \item  Abstract Model Module
+    \begin{itemize}
+        \item Errors are propogated to NLP module to allow it to make further assessment decisions on whether to continue or try again.
+    \end{itemize}
+
+    \item Tokenization Module
+    \begin{itemize}
+        \item Errors are propogated to NLP module to allow it to make further assessment decisions on whether to continue or try again.
+    \end{itemize}
+\end{itemize}
+
+\section*{Appendix --- JSON Object Structures}
+
+The following interpretations can substitute anywhere a variable in an exported access program of the same name is found.
+\begin{itemize}
+    \item snippets or data: JSON
+    \begin{itemize}
+        \item contains str-str pairings representing file names and their corresponding stringified code
+    \end{itemize}
+    \newpage
+    \item report: JSON
+    \begin{itemize}
+        \item contains list of pairwise plagiarism scores assigned as dict objects with filename1 and filename2 to identify the pairing and a float from 0 to 1 for the score, as well as plagiarism statuses for each individual file (also a float from 0 to 1) and corresponding color information for UI relating to identification of similarity
+    \end{itemize}
+
+\end{itemize}
 
 \section*{Appendix --- Networking Considerations}
 \begin{itemize}
