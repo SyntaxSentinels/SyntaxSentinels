@@ -64,7 +64,7 @@ April 4th, 2025 & 2.0 & Final version of report complete\\
 
 \listoftables %if appropriate
 
-\listoffigures %if appropriate
+% \listoffigures %if appropriate
 
 \newpage
 
@@ -85,7 +85,7 @@ encountering any errors due to the upload functionality
 
 Actual Result: No errors from uplading
 
-Evaluation: Pass
+Evaluation: Pass. Uploading 300 files python files in zip format produced no errrors.
 					
 
 \end{enumerate}
@@ -104,7 +104,7 @@ up until the analysis provides a response
 
 Actual result: No errors were observed during script execution
 
-Evaluation: Pass
+Evaluation: Pass. Processed 300 python files and produced similarity scores for each pair.
 
 					
 
@@ -121,9 +121,9 @@ refers to test-FR-3 from the VnV plan.
 
 Expected result: Generation of documentation successful
 
-Actual result: TBD when feature is implemented
+Actual result: Instructive prompts are shown on upload page to provide inherent guidance to user and a link to additional extra user documentation (hosted on github) is provided.
 
-Evaluation: TBD
+Evaluation: Pass
 
 \end{enumerate}
 
@@ -140,7 +140,7 @@ Expected result: Generation of report is successful, with no errors encountered
 
 Actual result: Report was successfully generated, no errors were found
 
-Evaluation: Pass
+Evaluation: Pass. 300 python files given to the system receive a corresponding report of all pairwise similarity scores and a threshold score.
 
 \end{enumerate}
 
@@ -203,19 +203,19 @@ Applies to all FRs involving visualizing plagiarism analysis results. This refer
 
 \item{\textbf{test-FR-10}}
 			
-Expected result: A visualization is successfully created after uplading a .zip
+Expected result: A visualization is successfully created after uploading a .zip
 file, with no errors observed during the process.
 
 Actual result: A visualization was successfully created with no errors
 
-Evaluation: Pass
-
+Evaluation: Pass. 300 python files in a .zip given to the system receive a corresponding visualization of pair-by-pair breakdowns of where similarity was found along with a histogram that aggregates similarity scores.
 \end{enumerate}
 
 
 
 \section{Nonfunctional Requirements Evaluation}
 % start here
+Note: for this section, users involved with testing are expected to have typical abilities with technology (such as being able to navigate through a touchscreen phone and basic websites). No particular expertise in software or computers is expected.
 \begin{longtable}[c]{|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{1.5cm}|}
     \hline
     \textbf{ID} & \textbf{Reference Requirements} & \textbf{User Action} &
@@ -234,7 +234,7 @@ Evaluation: Pass
      UI should follow defined layout, typography, alignment, color palette, 
      tooltips, responsiveness, and font. & Developer verified uniform color 
      palette, tooltips, responsive design, and font consistency. All 
-     requirements were met. & Pass \\
+     requirements were met. & Pass. Monochromatic blue theme was utilized for color palette. Aspects were checked at screen sizes/resolutions of 1920 x 1080 pixels (Full HD) and 1366 x 768 (HD).   \\
     \hline
     test-LF-2 & CR-SC3 & Developer utilizes accessibility tools to assess sufficient
     readability and alt-text for images & All images should have alt text, and text 
@@ -361,9 +361,9 @@ Evaluation: Pass
     tested, and all correctly transformed input vectors according to design. Pytorch 
     and scipy layers used are atomic in nature and can be mixed as desired & Pass \\
     \hline
-    test-S-1 & SR-A1 & User enters valid credentials and accesses the UI. & User 
-    should be authenticated and granted access to the UI. & User entered valid 
-    credentials and successfully accessed the UI. & Pass \\
+    test-S-1 & SR-A1 & User enters valid credentials and accesses the non-login screen UI (i.e., UI for code uploading, etc.). & User 
+    should be authenticated and granted access to the non-login screen UI. & User entered valid 
+    credentials and successfully accessed the non-login screen UI. & Pass \\
     \hline
     test-S-2 & SR-A1 & User submits code to API with valid auth token. & API 
     should allow code upload and return a success response. & API accepted 

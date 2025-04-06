@@ -33,6 +33,7 @@
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
 November 1 & 1.0 & Initial documentation\\
+April 4 & 2.0 & Final documentation\\
 % Date 2 & 1.1 & Notes\\
 \bottomrule
 \end{tabularx}
@@ -1130,10 +1131,10 @@ maintainble, scalable, and reliable.
   How test will be performed:
   \begin{enumerate}
     \item Team members will regularly inspect the code and ensure all components 
-    follow software development standards, including SOLID principles and the 
+    follow SOLID principles and the 
     existence of documentation and tests.
-    \item If there are components that don't they will consult the other team 
-    members to discuss issues with that component.
+    \item If there are components that don't, other team members will be consulted
+    to discuss issues with that component.
   \end{enumerate}
 \end{enumerate}
 
@@ -1305,7 +1306,7 @@ under different conditions.
             
   Initial State: User clones the system repository from GitHub.
             
-  Input:  Deploy the system on a free hosting service (e.g. Heroku, Netlify).
+  Input:  Deploy the system on a free hosting service (e.g. Heroku, Netlify). Will be done using AWS for consistency in team's own testing.
             
   Output: System is accessible via a public URL and functions as expected.
             
@@ -1359,7 +1360,7 @@ These testcases ensure that the system is maintainable and supportable. This inc
   Output: A report is generated with metrics such as accuracy, precision, etc.
 
   How test will be performed:
-  Release the model and verify that a report is generated with relevant metrics. 
+  Release the model and verify that a report is generated with relevant metrics such plagiarism similarity scorings across datasets (seen in bench mark document). 
   A verifiable metric is that the report exists.This test will be done manually 
   by the team members of SyntaxSentinels.
 
@@ -1501,7 +1502,7 @@ These testcases ensure that the system is secure and that user data is protected
             
   How test will be performed: 
   Pass a valid auth token to the API and verify that the system allows code upload 
-  and returns a success response.
+  and returns a success HTTP 200 response.
 
   \item{test-S-3}
 
