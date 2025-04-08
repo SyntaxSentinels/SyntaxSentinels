@@ -193,29 +193,9 @@ Evaluation: Pass
 					
 \end{enumerate}
 
-\subsubsection{Result Email Tests}
-
-Applies to all FRs involving emailing results of plagiarism analysis to users.
-This refers to test-FR-9 from the VnV plan.
-
-\begin{enumerate}
-
-\item{\textbf{test-FR-9}}
-
-Expected result: The system will send an e-mail to address associated with the
-logged in account, containing a .zip file with plagiarism results
-corresponding to the files uploaded
-
-Actual result: Correct and corresponding .zip file was sent to the expected e-mail
-
-Evaluation: Pass
-
-\end{enumerate}
-
 \subsubsection{Result Visualization Tests}
 
-Applies to all FRs involving visualizing plagiarism analysis results provided 
-by user in a .zip file. This refers to test-FR-10 from the VnV plan.
+Applies to all FRs involving visualizing plagiarism analysis results. This refers to test-FR-9 from the VnV plan.
 
 
 \begin{enumerate}
@@ -281,10 +261,11 @@ Evaluation: Pass
     reports and changelogs. & Developer confirmed that historical versions with 
     performance reports and changelogs are accessible on GitHub. & Pass \\
     \hline
-    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify any personally
-     identifiable data & No personally identifiable data or user-generated data should be
-      found in logs or filesystem. & Tester found no PII or user-generated data during 
-      testing. Logs were clean. & Pass \\
+    test-PS-1 & SR-P1 & Tester performs a data retention audit to identify insecurely
+    stored user-data & No user-generated data should be found within databases, filesystem,
+    or logs, to be stored insecurely or not be ready for deletion. & Tester found no
+    instances of insecurely stored user-generated data during testing, all data was securely
+    stored. Logs were clean. & Pass \\
     \hline
     test-PS-2 & SR-P2 & Tester verifies that backend endpoints use HTTPS encryption & All 
     endpoints should use HTTPS with proper security headers. & Tester confirmed all backend 
@@ -318,32 +299,20 @@ Evaluation: Pass
      analysis within 4 hours & Processing should complete in under 4 hours. & 
      System completed processing within 4 hours, performance met expectations. & Pass \\
     \hline
-    test-PR-2 & PR-SL2 & Tester initiates a long-running task and checks for an 
-    email notification after 10 minutes & Email should be sent after 10 minutes 
-    to notify the user of long processing time. & Email notification was sent 10 
-    minutes after task initiation, confirming functionality. Althought in practice, 
-    have not met any input size that has forced processing time that long. & Pass \\
-    \hline
-    test-PR-3 & PR-SL2 & Tester checks system logs to verify that a notification was 
-    triggered after 10 minutes of processing & Logs should show an entry for the email 
-    notification after 10 minutes. & System logs confirmed that a notification was 
-    triggered after 10 minutes. Emails have always been made within a 10 minute time 
-    window, for intense processing or not.& Pass \\
-    \hline
-    test-PR-4 & PR-RFT1 & Tester submits a corrupted file and verifies system response 
+    test-PR-2 & PR-RFT1 & Tester submits a corrupted file and verifies system response 
     & System should reject the corrupted input with an error message without crashing. 
     & System rejected the corrupted input with an error message. Valid input processed 
     without issue.  i.e., non-python or tar package file creates error which frontend 
     appropriately communicates. & Pass \\
     \hline
-    test-PR-5 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
+    test-PR-3 & PR-PA1, PR-PA2 & Tester submits 500 code snippets for plagiarism analysis 
     and compares results with ground truth. & System should show over 90\% accuracy and 
     less than 5\% false positives. & Recently found method to test this through self-labelled datasets
     as it was not immediately possible from python800 datasets (no concept of similarity or ground truths)
     Have spent time labelling hundreds of code in manual fashion to assess this and have not had time to test it.  
     & Future Assessment \\
     \hline
-    test-PR-6 & PR-SE1 & Developer adds a new feature, and all existing features are tested
+    test-PR-4 & PR-SE1 & Developer adds a new feature, and all existing features are tested
      for regression. & All previous features should work as expected after the new feature 
      is added. & Regression tests confirmed that all features worked as expected after the 
      new feature was added but not server side yet & Fail\\
@@ -558,7 +527,7 @@ Visualization & Basic web interface & Modern, interactive UI \\
         \item Enter an analysis name.
         \item Click the "Analyze Dataset" button.
     \end{enumerate}
-    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully. You'll receive an email with the results once it's done!" is displayed.
+    \item \textbf{Expected result}: The \texttt{uploadFiles} function is called with the file and analysis name, and a success message "Analysis started successfully" is displayed.
 \end{itemize}
 
 \subsubsection{Handles file drop event}
@@ -569,99 +538,6 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \item \textbf{Test case steps}:
     \begin{enumerate}
         \item Render the \texttt{AnalyzeFiles} component.
-        \item Simulate a file drop event with a valid ZIP file.
-    \end{enumerate}
-    \item \textbf{Expected result}: The file is uploaded successfully.
-\end{itemize}
-
-\subsection{UploadResults Component}
-
-\subsubsection{Renders the component}
-\begin{itemize}
-    \item \textbf{Description}: Ensures the \texttt{UploadResults} component renders correctly.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Check for the presence of specific text.
-    \end{enumerate}
-    \item \textbf{Expected result}: The component renders with the text "View Results" and "Upload your results ZIP file to view the analysis."
-\end{itemize}
-
-\subsubsection{Displays an error message when a non-ZIP file is uploaded}
-\begin{itemize}
-    \item \textbf{Description}: Ensures an error message is displayed when a non-ZIP file is uploaded.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a non-ZIP file.
-    \end{enumerate}
-    \item \textbf{Expected result}: An error message "Only ZIP files are allowed." is displayed.
-\end{itemize}
-
-\subsubsection{Displays an error message when no JSON file is found in the ZIP}
-\begin{itemize}
-    \item \textbf{Description}: Ensures an error message is displayed when no JSON file is found in the ZIP file.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a ZIP file without a JSON file.
-    \end{enumerate}
-    \item \textbf{Expected result}: An error message "No JSON file found in the ZIP." is displayed.
-\end{itemize}
-
-\subsubsection{Displays a success message when a valid ZIP file is uploaded}
-\begin{itemize}
-    \item \textbf{Description}: Ensures a success message is displayed when a valid ZIP file is uploaded.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a valid ZIP file.
-    \end{enumerate}
-    \item \textbf{Expected result}: A success message "Results file uploaded successfully." is displayed.
-\end{itemize}
-
-\subsubsection{Displays a warning message when trying to view results without uploading a file}
-\begin{itemize}
-    \item \textbf{Description}: Ensures a warning message is displayed when trying to view results without uploading a file.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Click the "View Results" button.
-    \end{enumerate}
-    \item \textbf{Expected result}: A warning message "Please upload a results file first." is displayed.
-\end{itemize}
-
-\subsubsection{Handles errors during ZIP file processing}
-\begin{itemize}
-    \item \textbf{Description}: Ensures errors during ZIP file processing are handled correctly and an error message is displayed to the user.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
-        \item Upload a ZIP file that cannot be processed.
-    \end{enumerate}
-    \item \textbf{Expected result}: An error message "Invalid ZIP file or corrupt JSON." is logged into the console.
-\end{itemize}
-
-\subsubsection{Handles file drop event}
-\begin{itemize}
-    \item \textbf{Description}: Ensures the file drop event is handled correctly when a file is dropped on the component.
-    \item \textbf{Type}: Automatic, Functional
-    \item \textbf{Initial state}: None
-    \item \textbf{Test case steps}:
-    \begin{enumerate}
-        \item Render the \texttt{UploadResults} component.
         \item Simulate a file drop event with a valid ZIP file.
     \end{enumerate}
     \item \textbf{Expected result}: The file is uploaded successfully.
@@ -730,7 +606,7 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \begin{enumerate}
         \item Render the \texttt{Index} component.
     \end{enumerate}
-    \item \textbf{Expected result}: The features section is displayed with the text "Why Choose SyntaxSentinals?" along with the features.
+    \item \textbf{Expected result}: The features section is displayed with the text "Why Choose SyntaxSentinels?" along with the features.
 \end{itemize}
 
 \subsubsection{Displays how it works section}
@@ -754,7 +630,7 @@ Visualization & Basic web interface & Modern, interactive UI \\
     \begin{enumerate}
         \item Render the \texttt{Index} component.
     \end{enumerate}
-    \item \textbf{Expected result}: The footer is displayed with the text "SyntaxSentinals" and the links.
+    \item \textbf{Expected result}: The footer is displayed with the text "SyntaxSentinels" and the links.
 
 \end{itemize}
 
@@ -886,10 +762,6 @@ During the testing process, several issues were identified and addressed, leadin
 \item Some uncovered lines in \texttt{button.tsx} and \texttt{UploadBox.tsx} were identified through test coverage reports. Additional unit tests were written to cover these missing scenarios, increasing overall test coverage.
 \item Server side code was not tested with a testing framework. This will be implemented in the future.
 \end{itemize}
-\item \textbf{Emailing Results}
-\begin{itemize}
-\item We noticed we had not yet implemented the feature where users are emailed after 10 minutes that their request is still processing. Thhis feature will be implemented and tested in the future.
-\end{itemize}
 \item \textbf{Cloud}
 \begin{itemize}
 \item Cloud deployment is a future feature that will be implemented once the model is certified per priorities
@@ -1016,8 +888,6 @@ By incorporating test coverage reporting into our workflow, we can ensure that o
     \hline
     test-FR-9 & FR-9 \\
     \hline
-    test-FR-10 & FR-10 \\
-    \hline
     test-LF-1 & LF-AR1, LF-AR2, LF-AR3, LF-SR1, LF-SR2, LF-SR3, LF-SR4 \\
     \hline
     test-LF-2 & CR-SC3 \\
@@ -1044,15 +914,9 @@ By incorporating test coverage reporting into our workflow, we can ensure that o
     \hline
     test-PR-1 & PR-SL1, PR-C1 \\
     \hline
-    test-PR-2 & PR-SL2 \\
+    test-PR-2 & PR-PA1, PR-PA2 \\
     \hline
-    test-PR-3 & PR-SL2 \\
-    \hline
-    test-PR-4 & PR-RFT1 \\
-    \hline
-    test-PR-5 & PR-PA1, PR-PA2 \\
-    \hline
-    test-PR-6 & PR-SE1 \\
+    test-PR-3 & PR-SE1 \\
     \hline
     test-OE-1 & OE-IAS1 \\
     \hline
@@ -1111,9 +975,7 @@ Note: M7 encapsulates all its submodules.
     \hline
     test-FR-8 & M1 \\
     \hline
-    test-FR-9 & M10 \\
-    \hline
-    test-FR-10 & M3 \\
+    test-FR-9 & M3 \\
     \hline
     test-LF-1 & All User Interface Modules \\
     \hline
@@ -1140,10 +1002,6 @@ Note: M7 encapsulates all its submodules.
     test-D-1 & M2\\
     \hline
     test-PR-1 &  M7, M8\\
-    \hline
-    test-PR-2 &  M10\\
-    \hline
-    test-PR-3 & M10\\
     \hline
     test-PR-4 &  M2, M7, M9\\
     \hline
@@ -1180,7 +1038,7 @@ Note: M7 encapsulates all its submodules.
 
 \section{Code Coverage Metrics}
 
-The below report is for the frontend codebase of SyntaxSentinals. The backend has not been tested with a testing framework yet.
+The below report is for the frontend codebase of SyntaxSentinels. The backend has not been tested with a testing framework yet.
 Instead we ensure the backend is working as expected by manually testing the API endpoints using Postman and ensuring the server is sent the 
 expected request via the frontend testing suite. \\
 

@@ -69,7 +69,7 @@ describe("Index", () => {
 
   it("displays features section", () => {
     renderWithRouter(<Index />);
-    expect(screen.getByText("Why Choose SyntaxSentinals?")).toBeInTheDocument();
+    expect(screen.getByText("Why Choose SyntaxSentinels?")).toBeInTheDocument();
     expect(screen.getByText("Advanced algorithms detect similarities across multiple languages and document formats")).toBeInTheDocument();
     expect(screen.getByText("Analyze multiple submissions simultaneously for efficient grading and evaluation")).toBeInTheDocument();
     expect(screen.getByText("Get comprehensive originality reports with source citations and similarity percentages")).toBeInTheDocument();
@@ -85,6 +85,6 @@ describe("Index", () => {
 
   it("displays footer", () => {
     renderWithRouter(<Index />);
-    expect(screen.getByText("© 2024 SyntaxSentinals. All rights reserved.")).toBeInTheDocument();
+    expect(screen.getByText("© 2024 SyntaxSentinels. All rights reserved.")).toBeInTheDocument();
   });
 });

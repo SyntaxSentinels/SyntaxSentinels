@@ -114,7 +114,7 @@ const Index = () => {
       <footer className="bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <div className="text-center text-gray-600">
-            <p>© 2024 SyntaxSentinals. All rights reserved.</p>
+            <p>© 2024 SyntaxSentinels. All rights reserved.</p>
           </div>
         </div>
       </footer>
