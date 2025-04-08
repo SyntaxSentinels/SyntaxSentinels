@@ -1,4 +1,4 @@
-from abstract_model import abstract_model
+from controller.algorithms.abstract_model import abstract_model
 from transformers import RobertaModel
 
 

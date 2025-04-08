@@ -1,6 +1,6 @@
 from backend.controller.v1_report_generation import *
-from algorithms.v1_model import *
-from algorithms.v1_NLP import *
+from controller.algorithms.v1_model import *
+from controller.algorithms.v1_NLP import *
 import random
 import torch 
 import json

@@ -2,11 +2,11 @@
 import os
 import tempfile
 import zipfile
-from algorithms.abstract_report_generation import abstract_report_generation
-from algorithms.v1_sim_score import *
+from controller.algorithms.abstract_report_generation import abstract_report_generation
+from controller.algorithms.v1_sim_score import *
 
 class report_generation(abstract_report_generation):
-    def generate(data):
+    def generate(self, data):
         data = extract_python_files_from_zip(data)
         results = basic_weighting().score(data)
         return results

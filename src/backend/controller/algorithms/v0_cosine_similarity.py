@@ -1,5 +1,5 @@
-from abstract_similarity_score import abstract_similarity_score
-from v0_dbbert_NLP import dbbert_NLP as nlp
+from controller.algorithms.abstract_similarity_score import abstract_similarity_score
+from controller.algorithms.v0_dbbert_NLP import dbbert_NLP as nlp
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 import numpy as np
 

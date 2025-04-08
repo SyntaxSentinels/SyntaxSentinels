@@ -1,8 +1,8 @@
 
-import abstract_NLP
-from v1_ast import * 
-from v1_tok import * 
-from v1_model import *
+import controller.algorithms.abstract_NLP
+from controller.algorithms.v1_ast import * 
+from controller.algorithms.v1_tok import * 
+from controller.algorithms.v1_model import *
 import hashlib
 import torch 
 
@@ -13,7 +13,7 @@ print(f"Using device: {device}")
 
 class feed_head_model(abstract_NLP):
 
-    def combinedPredict(data, results) -> list[dict[str, float]]:
+    def combinedPredict(self, data, results) -> list[dict[str, float]]:
         python_files = data
 
         # Prepare data for model prediction
@@ -62,7 +62,7 @@ class feed_head_model(abstract_NLP):
         model = model.to(torch.float64)
         
         # Load checkpoint
-        cpk_path = os.path.join(os.path.dirname(__file__), "checkpoints/checkpoint_epoch_120.pth")
+        cpk_path = os.path.join(os.path.dirname(__file__), "../checkpoints/checkpoint_epoch_10.pth")
         checkpoint = torch.load(cpk_path)
         model.load_state_dict(checkpoint['model_state_dict'])
         
@@ -89,9 +89,7 @@ class feed_head_model(abstract_NLP):
 
         return final_results
     
-    
-
-    def compute_similarities_from_zip(data):
+    def compute_similarities_from_zip(self, data):
         """
         Given a zip file (as bytes), extract Python files and compute pairwise similarity scores.
         Returns a list of dictionaries containing similarity results for each file pair.

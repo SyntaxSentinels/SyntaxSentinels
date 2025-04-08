@@ -1,4 +1,4 @@
-import abstract_model
+from controller.algorithms.abstract_model import abstract_model
 import torch.nn as nn
 import torch.optim as optim
 import os

@@ -1,5 +1,5 @@
-from algorithms.abstract_report_generation import abstract_report_generation
-from algorithms.v0_cosine_similarity import cosine_similarity as plagiarism
+from controller.algorithms.abstract_report_generation import abstract_report_generation
+from controller.algorithms.v0_cosine_similarity import cosine_similarity as plagiarism
 import json
 
 class report_generation(abstract_report_generation):

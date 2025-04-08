@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-import abstract_tokenizer
-import abstract_AST
-import abstract_model
+from controller.algorithms.abstract_tokenizer import abstract_tokenizer
+from controller.algorithms.abstract_AST import abstract_AST
+from controller.algorithms.abstract_model import abstract_model
 import json
 
 
 class abstract_NLP(ABC):
     @abstractmethod
-    def combinedPredict(data: json) -> list[dict[str, float]]:
+    def combinedPredict(self, data, results) -> list[dict[str, float]]:
         pass

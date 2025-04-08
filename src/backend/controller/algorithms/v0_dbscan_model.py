@@ -1,4 +1,4 @@
-from abstract_model import abstract_model
+from controller.algorithms.abstract_model import abstract_model
 import numpy as np
 from sklearn.cluster import DBSCAN
 

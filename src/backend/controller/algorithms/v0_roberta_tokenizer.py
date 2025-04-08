@@ -1,4 +1,4 @@
-from abstract_tokenizer import abstract_tokenizer
+from controller.algorithms.abstract_tokenizer import abstract_tokenizer
 from transformers import RobertaTokenizer
 
 class roberta_tokenizer(abstract_tokenizer):
