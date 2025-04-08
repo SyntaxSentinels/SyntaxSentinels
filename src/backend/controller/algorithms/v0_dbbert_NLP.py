@@ -1,7 +1,7 @@
 from abstract_NLP import abstract_NLP
-from roberta_tokenizer import roberta_tokenizer as tok
-from codebert_model import codebert_model as b_model
-from dbscan_model import dbscan_model as d_model
+from v0_roberta_tokenizer import roberta_tokenizer as tok
+from v0_codebert_model import codebert_model as b_model
+from v0_dbscan_model import dbscan_model as d_model
 import json
 import numpy as np
 

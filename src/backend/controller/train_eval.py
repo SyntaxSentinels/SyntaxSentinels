@@ -1,5 +1,6 @@
-from compute import *
-from model_v0 import *
+from backend.controller.v1_report_generation import *
+from algorithms.v1_model import *
+from algorithms.v1_NLP import *
 import random
 import torch 
 import json
@@ -24,7 +25,7 @@ for file_name in training_eval_set: #given file to work with
 
     files = extract_python_files_from_zip(zip_file_bytes)
 
-    results = compute_similarities_from_zip(zip_file_bytes)['similarity_results']
+    results = feed_head_model().compute_similarities_from_zip(zip_file_bytes)['similarity_results']
 
     data = {}
     batch_mean = 0
@@ -80,12 +81,12 @@ for file_name in training_eval_set: #given file to work with
 
 if not(eval_on):
     rec_check, check_count = \
-        train(batch_pairs = batch_pairs,
+        head_model().train(batch_pairs = batch_pairs,
         num_epochs=10,
         rec_check=rec_check,
         check_count=check_count)
 else:
-    predictions, v = eval(batch_pairs = batch_pairs,
+    predictions, v = head_model().predict(batch_pairs = batch_pairs,
             rec_check=rec_check
     )
 

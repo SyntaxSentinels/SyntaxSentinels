@@ -6,6 +6,3 @@ class roberta_tokenizer(abstract_tokenizer):
         tokenizer = RobertaTokenizer.from_pretrained('microsoft/codebert-base')
         tokens = tokenizer(source, return_tensors = "pt", truncation=True, padding=True)
         return tokens
-    
-    def _pollOneToken(chars):
-        return
