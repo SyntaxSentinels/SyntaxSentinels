@@ -35,7 +35,7 @@ class PlagiarismDetectionModel(nn.Module):
             batch_mean_sim, snippet_mean_sim
         ), dim=-1) 
         print(x)
-        
+        x.to(torch.float64)
         x = torch.relu(self.fc1(x)) 
         x = self.dropout(x)
         x = torch.relu(self.fc2(x))  
