@@ -59,7 +59,6 @@ class feed_head_model(abstract_NLP):
 
         # Load and run model
         model = PlagiarismDetectionModel()
-        model = model.to(torch.float64)
         
         # Load checkpoint
         cpk_path = os.path.join(os.path.dirname(__file__), "../checkpoints/checkpoint_epoch_10.pth")
@@ -69,7 +68,7 @@ class feed_head_model(abstract_NLP):
         # Get predictions
         model.eval()
         with torch.no_grad():
-            predicted_similarity, predicted_plagiarism = model(
+            predicted_plagiarism = model(
                 batch['token_sim'],
                 batch['ast_sim'],
                 batch['embed_sim'],
@@ -83,7 +82,6 @@ class feed_head_model(abstract_NLP):
             file_name = file[0]
             final_results.append({
                 "file": file_name,
-                "similarity_score": predicted_similarity[i].item(),
                 "plagiarism_score": predicted_plagiarism[i].item()
         })
 
@@ -110,14 +108,14 @@ class feed_head_model(abstract_NLP):
             idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
             token_similarities_map[idx1][idx2] = similarity['similarity_score']
             token_similarities_map[idx2][idx1] = similarity['similarity_score']
-        print('finished tokenization')
+        print('Finished tokenization')
         ast_similarities_list = vector_ast().score(batch_mapping)
         ast_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
         for (file1, file2, similarity_score) in ast_similarities_list:
             idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
             ast_similarities_map[idx1][idx2] = similarity_score
             ast_similarities_map[idx2][idx1] = similarity_score
-        print('finished ast calculation')
+        print('Finished ast calculation')
         # Create all unique pairs (i < j)
         n = len(python_files)
         file_pairs = []

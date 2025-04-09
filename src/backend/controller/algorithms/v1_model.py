@@ -9,7 +9,7 @@ import torch
 class PlagiarismDetectionModel(nn.Module):
     def __init__(self):
         super(PlagiarismDetectionModel, self).__init__()
-        self.v = "v0"
+        self.v = "v1"
         # Input layer for 5 features (3 LSE outputs + 2 additional features)
         self.fc1 = nn.Linear(5, 64)  # 5 input features
         self.fc2 = nn.Linear(64, 128)  # Hidden layer
@@ -34,7 +34,6 @@ class PlagiarismDetectionModel(nn.Module):
             max_token.unsqueeze(-1), max_ast.unsqueeze(-1), max_embed.unsqueeze(-1),
             batch_mean_sim, snippet_mean_sim
         ), dim=-1) 
-        print(x)
         
         x = torch.relu(self.fc1(x)) 
         x = self.dropout(x)
