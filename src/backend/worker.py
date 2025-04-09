@@ -9,7 +9,7 @@ import boto3
 import gzip
 import base64
 from dotenv import load_dotenv
-from controller.compute import compute_similarities_from_zip
+from controller.v1_report_generation import report_generation
 
 # Load environment variables from .env file
 load_dotenv()
@@ -105,13 +105,14 @@ def process_message(message):
             
             # Process the zip file
             logger.info(f"Processing file: {temp_file_path}")
-            result_data = compute_similarities_from_zip(zip_bytes)
+            result_data = report_generation().generate(zip_bytes)
             
             # Update job status to completed with results
             update_job_status(job_id, 'completed', result_data)
             logger.info(f"Job completed: {job_id}")
             
         except Exception as e:
+            logging.error(e, exc_info=True)
             logger.error(f"Error processing file: {e}")
             update_job_status(job_id, 'failed')
         finally:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from abstract_NLP import abstract_NLP
+from controller.algorithms.abstract_NLP import abstract_NLP
 import json
 class abstract_similarity_score(ABC):
     @abstractmethod

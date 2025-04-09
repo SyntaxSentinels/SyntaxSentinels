@@ -1,0 +1,2 @@
+Mean_Similarity,Median_Similarity,Max_Similarity_File,Max_Similarity_Score,Max_Similarity_LOC,Min_Similarity_File,Min_Similarity_Score,Min_Similarity_LOC,Mean_LOC,Median_LOC,Deviation
+0.5165016501650165,0.49,s004719748_deque.py,0.81,20,s004719748_infiniteLoop.py,0.73,19,28.432343234323433,22.0,1.3919635425190815

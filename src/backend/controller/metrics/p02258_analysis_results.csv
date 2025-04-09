@@ -1,0 +1,2 @@
+Mean_Similarity,Median_Similarity,Max_Similarity_File,Max_Similarity_Score,Max_Similarity_LOC,Min_Similarity_File,Min_Similarity_Score,Min_Similarity_LOC,Mean_LOC,Median_LOC,Deviation
+0.6492079207920792,0.68,s004631502_preloaded.py,0.77,15,s004631502_reordered.py,0.5,19,14.254125412541255,13.0,0.5917890391187193
