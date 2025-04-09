@@ -43,7 +43,7 @@ class ASTSimilarity:
         embeddings = {}
         for file_path, file_contents in file_dict.items():
             try:
-                tree = ast.parse(file_contents)
+                tree = ast.parse(file_contents, filename=file_path)
             except:
                 tree = None
             matrix = self._create_adjacency_matrix(tree)

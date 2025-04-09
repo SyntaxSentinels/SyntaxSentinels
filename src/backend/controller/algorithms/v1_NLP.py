@@ -93,14 +93,22 @@ class feed_head_model(abstract_NLP):
         Returns a list of dictionaries containing similarity results for each file pair.
         """
         python_files = data
+        print("Start processing")
 
         # Generate embeddings for all files upfront
         batch = [file[1] for file in python_files]
         map_file_name_to_idx = {os.path.basename(file[0]): i for i, file in enumerate(python_files)}
         batch_mapping = {os.path.basename(file_name): file_content for file_name, file_content in python_files}
-        nlp_sim = EmbeddingSimilarity()
-        nlp_embeddings = nlp_sim.get_embeddings_batch(batch)
-        
+
+        ast_similarities_list = vector_ast().score(batch_mapping)
+        ast_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
+        for (file1, file2, similarity_score) in ast_similarities_list:
+            idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
+            ast_similarities_map[idx1][idx2] = similarity_score
+            ast_similarities_map[idx2][idx1] = similarity_score
+        print('Finished ast calculation')
+
+
         token_similarities_list = MOSS_tok().tokenize(batch_mapping)
         token_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
         for similarity in token_similarities_list:
@@ -109,13 +117,11 @@ class feed_head_model(abstract_NLP):
             token_similarities_map[idx1][idx2] = similarity['similarity_score']
             token_similarities_map[idx2][idx1] = similarity['similarity_score']
         print('Finished tokenization')
-        ast_similarities_list = vector_ast().score(batch_mapping)
-        ast_similarities_map = [[0 for _ in range(len(python_files))] for _ in range(len(python_files))]
-        for (file1, file2, similarity_score) in ast_similarities_list:
-            idx1, idx2 = map_file_name_to_idx[file1], map_file_name_to_idx[file2]
-            ast_similarities_map[idx1][idx2] = similarity_score
-            ast_similarities_map[idx2][idx1] = similarity_score
-        print('Finished ast calculation')
+
+        nlp_sim = EmbeddingSimilarity()
+        nlp_embeddings = nlp_sim.get_embeddings_batch(batch)
+        print("Finished NLP")
+
         # Create all unique pairs (i < j)
         n = len(python_files)
         file_pairs = []
@@ -126,9 +132,9 @@ class feed_head_model(abstract_NLP):
                     python_files[j][0], 
                     token_similarities_map[i][j],
                     ast_similarities_map[i][j],
-                    nlp_sim.compute(nlp_embeddings[i], nlp_embeddings[j])
+                    float(nlp_sim.compute(nlp_embeddings[i], nlp_embeddings[j]))
                 ))
-
+        breakpoint()
         return file_pairs
 
 
